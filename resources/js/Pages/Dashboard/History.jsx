@@ -109,7 +109,7 @@ export default function History({ auth, transactions }) {
                     </div>
 
                     <div className="overflow-x-auto custom-scrollbar min-h-[300px]">
-                        <table className="w-full text-left whitespace-nowrap">
+                        <table className="w-full text-left whitespace-nowrap table-fixed">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-white text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">
                                     <th className="px-6 py-5">ID Transaksi</th>

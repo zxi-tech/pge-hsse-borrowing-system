@@ -18,12 +18,25 @@ export default function Login() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Login Akun" />
 
-            <div className="w-full max-w-[900px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
+            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
                 {/* ================= KOLOM KIRI: FORM LOGIN ================= */}
                 <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
 
-                    <div className="mb-5">
+                    <div className="mb-6">
+                        {/* 👇 TAMBAHAN LOGO PERTAMINA DI SINI 👇 */}
+                        <img
+                            src="/images/pertamina-logo (1).png"
+                            alt="Logo PGE"
+                            // 👇 Hapus -mt-6, ganti dengan transform dan -translate-y
+                            className="h-10 w-auto mb-5 transform -translate-y-6 object-contain"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://via.placeholder.com/150x40?text=Logo+PGE";
+                            }}
+                        />
+                        {/* 👆 ================================ 👆 */}
+
                         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
                             Selamat Datang 👋
                         </h1>
@@ -125,7 +138,7 @@ export default function Login() {
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
-                            src="/images/pekerja-pertamina.jpg"
+                            src="/images/login-image.png"
                             alt="Pekerja Pertamina"
                             className="w-full h-full object-cover"
                             onError={(e) => {

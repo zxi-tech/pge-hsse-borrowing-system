@@ -12,7 +12,6 @@ export default function Register() {
         password_confirmation: '',
     });
 
-    // State untuk fitur intip password
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -21,13 +20,11 @@ export default function Register() {
         post(route('register'));
     };
 
-    // Handler khusus untuk memastikan NIP hanya berisi angka
     const handleNipChange = (e) => {
         const numericValue = e.target.value.replace(/\D/g, '');
         setData('nip', numericValue);
     };
 
-    // Handler khusus untuk memastikan Nomor Telepon hanya berisi angka
     const handlePhoneChange = (e) => {
         const numericValue = e.target.value.replace(/\D/g, '');
         setData('phone', numericValue);
@@ -37,13 +34,14 @@ export default function Register() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Registrasi Akun" />
 
-            <div className="w-full max-w-[900px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
+            {/* 👇 PERHATIKAN PENAMBAHAN md:min-h-[600px] DI SINI 👇 */}
+            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
                 {/* ================= KOLOM KIRI: FOTO ================= */}
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
-                            src="/images/pekerja-pertamina.jpg"
+                            src="/images/register-image.png"
                             alt="Pekerja Pertamina"
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -77,12 +75,10 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon ID Badge (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd" />
                                         </svg>
                                     </div>
-                                    {/* Gunakan handleNipChange agar huruf tertolak */}
                                     <input type="text" value={data.nip} onChange={handleNipChange} required className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-10 pr-3.5 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium" placeholder="Contoh: 703703" />
                                 </div>
                                 {errors.nip && <p className="text-red-500 text-[10px]">{errors.nip}</p>}
@@ -94,7 +90,6 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon User (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                         </svg>
@@ -113,7 +108,6 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon Envelope (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
@@ -130,7 +124,6 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon Phone (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                         </svg>
@@ -148,7 +141,6 @@ export default function Register() {
                             </label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
-                                    {/* Ikon Briefcase/Koper (Solid) */}
                                     <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
                                         <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
@@ -161,7 +153,6 @@ export default function Register() {
                                     <option value="HSSE">HSSE / K3</option>
                                     <option value="Logistik">Logistik & SCM</option>
                                 </select>
-                                {/* Ikon panah bawah buatan sendiri karena appearance-none */}
                                 <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
                                     <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
@@ -177,7 +168,6 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon Gembok (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                                         </svg>
@@ -212,7 +202,6 @@ export default function Register() {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        {/* Ikon Shield Check (Solid) */}
                                         <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651] transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                         </svg>

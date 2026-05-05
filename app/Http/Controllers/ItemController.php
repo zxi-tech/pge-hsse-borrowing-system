@@ -66,8 +66,6 @@ class ItemController extends Controller
                     'stock' => $size['stock'],
                 ]);
 
-                // Opsional: Jika saat bikin barang baru ingin langsung masuk riwayat juga
-                /*
                 if ($size['stock'] > 0) {
                     IncomingItem::create([
                         'item_id' => $item->id,
@@ -78,7 +76,6 @@ class ItemController extends Controller
                         'notes' => "AUTO-LOG: Barang baru ditambahkan (Varian: {$size['size_name']}).",
                     ]);
                 }
-                */
             }
 
             DB::commit();
