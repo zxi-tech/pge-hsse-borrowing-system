@@ -18,7 +18,7 @@ export default function Login() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Login Akun" />
 
-            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
+            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row -mt-28 md:mt-0">
 
                 {/* ================= KOLOM KIRI: FORM LOGIN ================= */}
                 <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
@@ -28,8 +28,8 @@ export default function Login() {
                         <img
                             src="/images/pertamina-logo (1).png"
                             alt="Logo PGE"
-                            // 👇 Hapus -mt-6, ganti dengan transform dan -translate-y
-                            className="h-10 w-auto mb-5 transform -translate-y-6 object-contain"
+                            // Tambahkan md:-mt-10 untuk menariknya ke atas khusus di Laptop/PC
+                            className="h-10 w-auto mb-6 object-contain md:-mt-12"
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "https://via.placeholder.com/150x40?text=Logo+PGE";
