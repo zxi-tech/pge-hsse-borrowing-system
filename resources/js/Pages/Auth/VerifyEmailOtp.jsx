@@ -61,36 +61,33 @@ export default function VerifyEmailOtp({ email }) {
     };
 
     return (
-        <div className="min-h-screen bg-white md:bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-x-hidden">
             <Head title="Verifikasi Email" />
 
-            <div className="w-full max-w-[480px] bg-white rounded-[24px] shadow-xl p-10 flex flex-col isolation-auto">
+            <div className="w-full max-w-[480px] bg-white rounded-[24px] shadow-xl p-6 sm:p-10 flex flex-col isolation-auto -mt-24 md:mt-0">
 
-                {/* Bagian Logo Pertamina */}
                 <img
-                    src="/images/logo-pertamina-pge.png"
+                    src="/images/pertamina-logo (1).png"
                     alt="PGE Logo"
-                    className="h-10 mx-auto mb-6 object-contain"
+                    className="h-10 w-auto mx-auto mb-6 object-contain"
                     onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/150x40/ffffff/21409A?text=Logo+PGE"; }}
                 />
 
-                {/* Bagian Header Teks */}
-                <div className="flex items-center justify-start gap-2 mb-3">
-                    <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Two Step Verification</h1>
-                    {/* SVG Bubble Icon */}
-                    <svg className="h-6 w-6 text-[#21409A]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className="flex flex-wrap items-center justify-start gap-2 mb-2">
+                    <h1 className="text-[22px] sm:text-2xl font-extrabold text-gray-900 tracking-tight">Two Step Verification</h1>
+                    <svg className="h-5 w-5 sm:h-6 sm:w-6 text-[#21409A] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                     </svg>
                 </div>
-                <p className="text-sm text-gray-600 font-medium leading-relaxed mb-8">
+
+                <p className="text-[13px] sm:text-sm text-gray-600 font-medium leading-relaxed mb-8">
                     Kami telah mengirimkan kode verifikasi ke email Anda. Masukkan kode tersebut pada kolom di bawah ini. <br />
-                    <strong className="text-gray-900 mt-1 inline-block">{email}</strong>
+                    <strong className="text-[#21409A] mt-1 inline-block break-all">{email || 'email@pertamina.com'}</strong>
                 </p>
 
-                <form onSubmit={submit} className="flex flex-col">
+                <form onSubmit={submit} className="flex flex-col w-full">
 
-                    {/* Kotak-kotak Input OTP */}
-                    <div className="flex justify-between items-center gap-2 sm:gap-4 mb-8" onPaste={handlePaste}>
+                    <div className="flex justify-between items-center gap-1.5 sm:gap-3 mb-8 w-full" onPaste={handlePaste}>
                         {otpValues.map((value, index) => (
                             <input
                                 key={index}
@@ -101,23 +98,21 @@ export default function VerifyEmailOtp({ email }) {
                                 value={value}
                                 onChange={(e) => handleChange(index, e)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
-                                className="w-12 h-12 text-center text-xl font-bold text-gray-900 bg-white border border-gray-300 rounded-[14px] outline-none transition-all focus:border-[#B1DF41] focus:ring-1 focus:ring-[#B1DF41] shadow-sm"
+                                className="flex-1 w-full max-w-[48px] h-12 sm:h-14 text-center text-xl font-bold text-gray-900 bg-[#F9FAFB] border border-gray-200 rounded-[12px] outline-none transition-all focus:bg-white focus:border-[#21409A] focus:ring-2 focus:ring-[#21409A]/20 shadow-sm"
                             />
                         ))}
                     </div>
                     {errors.otp && <p className="text-red-500 text-xs font-medium text-center mb-4">{errors.otp}</p>}
 
-                    {/* Tombol Verifikasi */}
                     <button
                         type="submit"
                         disabled={processing || data.otp.length < 6}
-                        className={`w-full py-3.5 rounded-full text-sm font-bold text-gray-900 shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${processing || data.otp.length < 6
-                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                            : 'bg-[#B1DF41] hover:bg-[#A5D13D] hover:shadow-lg transform hover:-translate-y-0.5'
+                        className={`w-full py-3 sm:py-3.5 rounded-xl text-sm font-bold shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${processing || data.otp.length < 6
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-[#21409A] hover:bg-[#1a3380] text-white hover:shadow-lg transform hover:-translate-y-0.5'
                             }`}
                     >
                         {processing ? 'Memverifikasi...' : 'VERIFIKASI EMAIL'}
-                        {/* SVG Arrow Icon */}
                         {!processing && data.otp.length === 6 && (
                             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -125,8 +120,7 @@ export default function VerifyEmailOtp({ email }) {
                         )}
                     </button>
 
-                    {/* Teks Resend */}
-                    <p className="text-sm text-gray-600 font-medium text-center mt-8">
+                    <p className="text-[13px] text-gray-600 font-medium text-center mt-6 sm:mt-8">
                         Belum menerima kode? <Link href="#" method="post" as="button" className="text-[#21409A] hover:underline font-bold cursor-pointer">Kirim Ulang</Link>
                     </p>
 
