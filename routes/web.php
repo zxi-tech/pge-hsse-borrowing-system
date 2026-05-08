@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/verify-email-otp', [OtpController::class, 'verifyEmail'])->name('otp.email.verify');
     Route::get('/verify-whatsapp-otp', [OtpController::class, 'verifyPhoneView'])->name('otp.phone.view');
     Route::post('/verify-whatsapp-otp', [OtpController::class, 'verifyPhone'])->name('otp.phone.verify');
+
     // Rute untuk Manajemen Barang Masuk
     Route::get('/admin/incoming-items', [IncomingItemController::class, 'index'])->name('admin.incoming-items.index');
     Route::post('/admin/incoming-items', [IncomingItemController::class, 'store'])->name('admin.incoming-items.store');
@@ -54,6 +55,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // 👇 RUTE VERIFIKASI OTP EMAIL & WHATSAPP 👇
+    Route::post('/profile/verify-email-change', [ProfileController::class, 'verifyEmailChange'])->name('profile.verify-email-change');
+    Route::post('/profile/verify-phone-change', [ProfileController::class, 'verifyPhoneChange'])->name('profile.verify-phone-change');
 
     // FITUR PEKERJA (Peminjaman & Status) - Dikunci Rapat!
     Route::get('/borrow/create', [BorrowController::class, 'create'])->name('borrow.create');
@@ -80,7 +85,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::put('/transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
 
-    // 👇 RUTE EXCEL DIAMANKAN KE DALAM GRUP ADMIN 👇
+    // RUTE EXCEL DIAMANKAN KE DALAM GRUP ADMIN
     Route::get('/admin/transactions/export', [\App\Http\Controllers\TransactionController::class, 'exportExcel'])->name('transactions.export');
 
     // Riwayat Transaksi (Admin)

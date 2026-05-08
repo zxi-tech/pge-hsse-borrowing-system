@@ -2,163 +2,142 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Http; // <-- Tambahan untuk hit API Fonnte nanti
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request)
     {
         $user = $request->user();
-
-        // Cek Role: Jika admin, arahkan ke EditAdmin. Jika bukan, ke EditUser.
         $viewName = $user->role === 'admin' ? 'Profile/EditAdmin' : 'Profile/EditUser';
 
-        // HITUNG STATISTIK ASLI DARI DATABASE
         $stats = [
-            [
-                'label' => 'Barang Dipinjam',
-                'value' => $user->transactions()->whereIn('status', ['dipinjam', 'disetujui'])->count()
-            ],
-            [
-                'label' => 'Menunggu Persetujuan',
-                'value' => $user->transactions()->where('status', 'menunggu')->count()
-            ],
-            [
-                'label' => 'Riwayat Peminjaman',
-                'value' => $user->transactions()->count()
-            ],
+            ['label' => 'Barang Dipinjam', 'value' => $user->transactions()->whereIn('status', ['dipinjam', 'disetujui'])->count()],
+            ['label' => 'Menunggu Persetujuan', 'value' => $user->transactions()->where('status', 'menunggu')->count()],
+            ['label' => 'Riwayat Peminjaman', 'value' => $user->transactions()->count()],
         ];
 
         return Inertia::render($viewName, [
             'mustVerifyEmail' => $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
             'status' => session('status'),
             'stats' => $stats,
+            // 👇 KITA CEK LANGSUNG KE DALAM SESSION (Sangat Akurat) 👇
+            'requires_email_otp' => Session::has('pending_email_change'),
+            'pending_email' => Session::get('pending_email_change'),
+            'requires_phone_otp' => Session::has('pending_phone_change'),
+            'pending_phone' => Session::get('pending_phone_change'),
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request)
+    public function update(\Illuminate\Http\Request $request)
     {
         $user = $request->user();
 
-        // 1. Ambil data yang divalidasi, KECUALI 'photo'
-        // Kita tangani 'photo' secara terpisah
-        $validatedData = $request->safe()->except('photo');
-        $user->fill($validatedData);
+        // 1. Validasi Manual
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
+            'phone' => ['required', 'string', 'max:20'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+        ]);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
+        $newEmail = $validated['email'];
+        $newPhone = $validated['phone'];
 
-        if ($user->isDirty('phone')) {
-            $user->phone_verified_at = now();
-            $user->phone_otp = null;
-        }
+        $emailChanged = $newEmail !== $user->email;
+        $phoneChanged = $newPhone !== $user->phone;
 
-        // 2. 👇 LOGIKA UPLOAD FOTO YANG BENAR 👇
-        // Cek apakah ada file foto yang DIKIRIM dalam request ini
+        // 2. Simpan Data Aman (Nama & Foto)
+        $user->name = $validated['name'];
         if ($request->hasFile('photo')) {
-            // Hapus foto lama jika ada
             if ($user->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
             }
-
-            // Simpan foto baru
-            $path = $request->file('photo')->store('profiles', 'public');
-            $user->photo = $path;
+            $user->photo = $request->file('photo')->store('profiles', 'public');
         }
-        // JIKA TIDAK ADA FILE FOTO YANG DIKIRIM, KOLOM $user->photo TIDAK DIUBAH SAMA SEKALI
-
         $user->save();
 
+        // 3. TAHAN JIKA ADA PERUBAHAN EMAIL ATAU WHATSAPP!
+        if ($emailChanged || $phoneChanged) {
+
+            if ($emailChanged) {
+                $emailOtp = rand(100000, 999999);
+                Session::put('pending_email_change', $newEmail);
+                Session::put('email_change_otp', $emailOtp);
+                Log::info("SECURITY SPB-HSSE: OTP Ganti Email [{$newEmail}] : {$emailOtp}");
+            }
+
+            if ($phoneChanged) {
+                $phoneOtp = rand(100000, 999999);
+                Session::put('pending_phone_change', $newPhone);
+                Session::put('phone_change_otp', $phoneOtp);
+                Log::info("SECURITY SPB-HSSE: OTP Ganti WhatsApp [{$newPhone}] : {$phoneOtp}");
+            }
+
+            // Kembalikan ke halaman dengan status khusus agar modal terbuka
+            return Redirect::route('profile.edit')->with('status', 'otp-sent');
+        }
+
+        // 4. Jika hanya ganti nama/foto, langsung sukses
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    public function verifyEmailChange(Request $request)
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
+        $request->validate(['otp' => 'required|numeric|digits:6']);
 
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-
-    // =========================================================================
-    // 🚀 BLUEPRINT API WHATSAPP SUNGGUHAN (UNTUK DIGUNAKAN NANTI)
-    // =========================================================================
-
-    /**
-     * Endpoint untuk mengirim OTP ke WhatsApp (Contoh pakai Fonnte)
-     */
-    public function sendWaOtp(Request $request)
-    {
-        $request->validate(['phone' => 'required|string|max:20']);
-        $user = $request->user();
-
-        // 1. Generate 6 digit angka random
-        $otp = rand(100000, 999999);
-
-        // 2. Simpan OTP ke database user ini
-        $user->phone_otp = $otp;
-        $user->save();
-
-        // 3. Kirim ke WhatsApp via Fonnte (Buka komentar di bawah jika token sudah ada)
-        /*
-        Http::withHeaders([
-            'Authorization' => 'TOKEN_FONNTE_ANDA_DISINI'
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $request->phone,
-            'message' => "*PGE HSSE System*\n\nKode OTP Anda adalah: *{$otp}*.\nJangan berikan kode ini kepada siapapun demi keamanan akun Anda."
-        ]);
-        */
-
-        return response()->json(['message' => 'OTP berhasil dikirim ke WhatsApp Anda.']);
-    }
-
-    /**
-     * Endpoint untuk memverifikasi OTP dari Frontend
-     */
-    public function verifyWaOtp(Request $request)
-    {
-        $request->validate([
-            'otp' => 'required|string|size:6'
-        ]);
-
-        $user = $request->user();
-
-        // Cek apakah OTP cocok dengan yang ada di database
-        if ($user->phone_otp === $request->otp) {
-            $user->phone_otp = null; // Reset agar tidak bisa dipakai 2x
+        if ($request->otp == Session::get('email_change_otp') && Session::has('pending_email_change')) {
+            $user = $request->user();
+            $user->email = Session::get('pending_email_change');
+            $user->email_verified_at = now();
             $user->save();
 
-            return response()->json(['message' => 'OTP Valid', 'status' => true]);
-        }
+            Session::forget(['email_change_otp', 'pending_email_change']);
 
-        return response()->json(['message' => 'Kode OTP Salah!', 'status' => false], 400);
+            // Jika WA juga diganti bersamaan, munculkan lagi modal untuk WA
+            if (Session::has('pending_phone_change')) {
+                return Redirect::route('profile.edit')->with('status', 'otp-sent');
+            }
+            return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        }
+        return redirect()->back()->withErrors(['otp' => 'Kode OTP Email salah.']);
+    }
+
+    public function verifyPhoneChange(Request $request)
+    {
+        $request->validate(['otp' => 'required|numeric|digits:6']);
+
+        if ($request->otp == Session::get('phone_change_otp') && Session::has('pending_phone_change')) {
+            $user = $request->user();
+            $user->phone = Session::get('pending_phone_change');
+            $user->wa_verified_at = now();
+            $user->save();
+
+            Session::forget(['phone_change_otp', 'pending_phone_change']);
+
+            // Jika Email juga diganti bersamaan, munculkan lagi modal untuk Email
+            if (Session::has('pending_email_change')) {
+                return Redirect::route('profile.edit')->with('status', 'otp-sent');
+            }
+            return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        }
+        return redirect()->back()->withErrors(['otp' => 'Kode OTP WhatsApp salah.']);
+    }
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validate(['password' => ['required', 'current_password']]);
+        $user = $request->user();
+        Auth::logout();
+        $user->delete();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return Redirect::to('/');
     }
 }
