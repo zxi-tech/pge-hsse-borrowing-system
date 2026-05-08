@@ -193,18 +193,37 @@ class ItemController extends Controller
         try {
             $item = Item::findOrFail($id);
 
+            // 1. Hapus foto dari server agar tidak jadi sampah (makan storage)
             if ($item->photo_path) {
                 Storage::disk('public')->delete($item->photo_path);
             }
 
+            // 2. Hapus semua ukuran/sizes yang terikat
             $item->sizes()->delete();
+
+            // 3. Hapus log riwayat barang masuk (IncomingItems) yang terikat dengan barang ini
+            \App\Models\IncomingItem::where('item_id', $item->id)->delete();
+
+            // 4. Eksekusi hapus barang utama
             $item->delete();
 
             DB::commit();
-            return redirect()->back()->with('success', 'Data barang berhasil dihapus permanen!');
+
+            // Gunakan flash session 'success' (biasanya ditangkap oleh AdminLayout)
+            return redirect()->back()->with('success', 'Data barang beserta log riwayatnya berhasil dihapus permanen!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+
+            // Error Code 23000: Foreign Key Constraint (Biasanya karena barang masih ada di tabel Borrowings)
+            if ($e->getCode() == '23000') {
+                // Pakai flash 'error' agar muncul pop-up merah di frontend
+                return redirect()->back()->with('error', 'GAGAL: Barang ini sudah pernah dipinjam oleh pegawai. Tidak dapat dihapus permanen!');
+            }
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->withErrors(['error' => 'Gagal menghapus data: ' . $e->getMessage()]);
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
 }
