@@ -39,12 +39,14 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // 1. Validasi Manual
+        // 1. Validasi Manual (TAMBAHKAN NIP DAN ABOUT DI SINI)
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name'  => ['required', 'string', 'max:255'],
+            'nip'   => ['required', 'string', 'max:50'], // NIP ditambahkan
             'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
             'phone' => ['required', 'string', 'max:20'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'about' => ['nullable', 'string'], // ABOUT ditambahkan
         ]);
 
         $newEmail = $validated['email'];
@@ -53,14 +55,18 @@ class ProfileController extends Controller
         $emailChanged = $newEmail !== $user->email;
         $phoneChanged = $newPhone !== $user->phone;
 
-        // 2. Simpan Data Aman (Nama & Foto)
-        $user->name = $validated['name'];
+        // 2. Simpan Data Aman (Nama, NIP, About & Foto)
+        $user->name  = $validated['name'];
+        $user->nip   = $validated['nip'];   // Simpan NIP
+        $user->about = $validated['about']; // Simpan About
+
         if ($request->hasFile('photo')) {
             if ($user->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
             }
             $user->photo = $request->file('photo')->store('profiles', 'public');
         }
+        
         $user->save();
 
         // 3. TAHAN JIKA ADA PERUBAHAN EMAIL ATAU WHATSAPP!
@@ -84,7 +90,7 @@ class ProfileController extends Controller
             return Redirect::route('profile.edit')->with('status', 'otp-sent');
         }
 
-        // 4. Jika hanya ganti nama/foto, langsung sukses
+        // 4. Jika hanya ganti nama/foto/nip/about, langsung sukses
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

@@ -74,7 +74,7 @@ class BorrowController extends Controller
             'purpose' => 'required|string',
             'selected_items' => 'required|array'
         ]);
-
+        
         DB::beginTransaction();
 
         try {

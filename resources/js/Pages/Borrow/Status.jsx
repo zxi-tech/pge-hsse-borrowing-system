@@ -4,8 +4,9 @@ import { Head, Link } from '@inertiajs/react';
 export default function Status({ auth, transactions }) {
     const user = auth?.user;
 
-    // ================= STATES INTERAKTIVITAS =================
+    // ================= STATES INTERAKTIVITAS & MOBILE =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk Menu HP
     const profileMenuRef = useRef(null);
 
     // State Filter Status
@@ -14,7 +15,7 @@ export default function Status({ auth, transactions }) {
     const [statusFilter, setStatusFilter] = useState('Semua');
     const statusOptions = ['Semua', 'Menunggu', 'Dipinjam', 'Selesai', 'Ditolak'];
 
-    // State Filter Waktu (Baru)
+    // State Filter Waktu
     const [isTimeFilterOpen, setIsTimeFilterOpen] = useState(false);
     const timeFilterRef = useRef(null);
     const [timeFilter, setTimeFilter] = useState('Semua Waktu');
@@ -92,44 +93,57 @@ export default function Status({ auth, transactions }) {
 
             <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20 text-gray-800 selection:bg-[#21409A] selection:text-white">
 
-                {/* ================= NAVBAR (SAMA SEPERTI SEBELUMNYA) ================= */}
-                <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-40 bg-transparent relative">
-                    <div className="flex items-center group cursor-pointer w-full lg:w-1/4 shrink-0">
-                        <img src="/images/pertamina-logo (1).png" alt="Pertamina Geothermal Energy" className="h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} />
+                {/* ================= NAVBAR RESPONSIVE ================= */}
+                <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-50 bg-transparent relative">
+                    
+                    {/* ZONA 1: Logo Kiri */}
+                    <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
+                        <img src="/images/pertamina-logo (1).png" alt="Pertamina Geothermal Energy" className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} />
                     </div>
 
+                    {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
-                        <Link href={auth?.user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
-                            {auth?.user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                        <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                            {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        <Link href={route('borrow.create')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">Ajukan Peminjaman<span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span></Link>
-                        <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] text-[#21409A] transition-colors duration-300">Status<span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span></Link>
+                        <Link href={route('borrow.create')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                            Ajukan Peminjaman
+                            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+                        </Link>
+                        
+                        {/* Menu Aktif */}
+                        <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] text-[#21409A] transition-colors duration-300">
+                            Status
+                            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+                        </Link>
+                        
                         <Link href={route('contact')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Contact Us
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
                     </div>
 
-                    <div className="flex items-center justify-end w-full lg:w-1/4 shrink-0">
-                        {auth?.user ? (
+                    {/* ZONA 3: Profil & Tombol Mobile (Kanan) */}
+                    <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
+                        {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
-                                <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white hover:shadow-sm hover:border-gray-200'}`}>
+                                <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-2 md:space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white hover:shadow-sm hover:border-gray-200'}`}>
                                     <div className="relative">
-                                        <div className="h-10 w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-sm overflow-hidden">
+                                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-xs md:text-sm border-2 border-white shadow-sm overflow-hidden">
                                             {user?.photo ? (<img src={`/storage/${user.photo}`} alt={user?.name} className="w-full h-full object-cover" />) : (<span>{getInitials(user?.name)}</span>)}
                                         </div>
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 border-2 border-white rounded-full"></span>
                                     </div>
                                     <div className="hidden md:flex flex-col text-left">
                                         <span className="text-[14px] font-bold text-gray-800 leading-tight">{user?.name || 'HSSE'}</span>
                                         <span className="text-[11px] text-[#21409A] font-semibold capitalize leading-tight">{user?.department || 'Departemen'}</span>
                                     </div>
-                                    <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
                                 {isProfileMenuOpen && (
-                                    <div className="absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                                    <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
                                         <div className="px-4 py-3 border-b border-gray-50">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Masuk sebagai</p>
                                             <p className="text-sm font-bold text-gray-900 truncate">{user?.email || 'user@pertamina.com'}</p>
@@ -147,9 +161,44 @@ export default function Status({ auth, transactions }) {
                                 )}
                             </div>
                         ) : (
-                            <Link href={route('login')} className="...">Login</Link>
+                            <Link href={route('login')} className="relative inline-flex items-center justify-center px-5 py-2 md:px-8 md:py-2.5 rounded-xl border border-[#21409A] bg-transparent font-medium text-[#21409A] text-sm md:text-base overflow-hidden group hover:border-[#21409A] transition-all duration-300">
+                                <span className="absolute inset-0 w-full h-full bg-[#21409A] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+                                <span className="relative group-hover:text-white transition-colors duration-300">Login</span>
+                            </Link>
                         )}
+
+                        {/* HAMBURGER MENU BUTTON (HANYA MUNCUL DI HP) */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {isMobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
                     </div>
+
+                    {/* DROPDOWN MENU MOBILE */}
+                    {isMobileMenuOpen && (
+                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-50 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
+                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                            </Link>
+                            <Link href={route('borrow.create')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
+                                Ajukan Peminjaman
+                            </Link>
+                            <Link href={route('borrow.status')} className="text-[15px] font-bold text-[#21409A] border-b border-gray-50 pb-2">
+                                Status
+                            </Link>
+                            <Link href={route('contact')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] pb-2">
+                                Contact Us
+                            </Link>
+                        </div>
+                    )}
                 </nav>
 
                 <main className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-6 relative z-10">

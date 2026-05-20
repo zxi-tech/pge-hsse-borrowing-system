@@ -4,8 +4,9 @@ import { Head, Link, useForm } from '@inertiajs/react';
 export default function Contact({ auth }) {
     const user = auth?.user;
 
-    // ================= STATES INTERAKTIVITAS DROPDOWN =================
+    // ================= STATES INTERAKTIVITAS DROPDOWN & MOBILE =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk Menu HP
     const profileMenuRef = useRef(null);
 
     useEffect(() => {
@@ -54,66 +55,118 @@ export default function Contact({ auth }) {
 
             <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans text-gray-800 selection:bg-[#21409A] selection:text-white">
 
-                {/* ================= NAVBAR ================= */}
-                <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-40 bg-transparent shrink-0">
-                    <div className="flex items-center group cursor-pointer w-full lg:w-1/4 shrink-0">
-                        <img src="/images/pertamina-logo (1).png" alt="PGE" className="h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} />
+                {/* ================= NAVBAR RESPONSIVE ================= */}
+                <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent shrink-0">
+                    
+                    {/* ZONA 1: Logo Kiri */}
+                    <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
+                        <img 
+                            src="/images/pertamina-logo (1).png" 
+                            alt="PGE" 
+                            className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" 
+                            onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} 
+                        />
                     </div>
 
+                    {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
-                        <Link href={auth?.user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
-                            {auth?.user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                        <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                            {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        <Link href={route('borrow.create')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">Ajukan Peminjaman<span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span></Link>
-                        <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">Status<span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span></Link>
+                        
+                        <Link href={user ? route('borrow.create') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                            Ajukan Peminjaman
+                            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+                        </Link>
+                        
+                        <Link href={user ? route('borrow.status') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                            Status
+                            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+                        </Link>
 
                         {/* 👇 CONTACT US (AKTIF) 👇 */}
-                        <Link href={route('contact')} className="relative group py-2 text-[#21409A] hover:text-[#21409A] transition-colors duration-300">
+                        <Link href={user ? route('contact') : route('login')} className="relative group py-2 text-[#21409A] hover:text-[#21409A] transition-colors duration-300">
                             Contact Us
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
                     </div>
 
-                    <div className="flex items-center justify-end w-full lg:w-1/4 shrink-0">
-                        {auth?.user ? (
+                    {/* ZONA 3: Profil & Tombol Mobile (Kanan) */}
+                    <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
+                        {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
-                                <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white hover:shadow-sm hover:border-gray-200'}`}>
+                                <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-2 md:space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white hover:shadow-sm hover:border-gray-200'}`}>
                                     <div className="relative">
-                                        <div className="h-10 w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-sm overflow-hidden">
+                                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-xs md:text-sm border-2 border-white shadow-sm overflow-hidden">
                                             {user?.photo ? (<img src={`/storage/${user.photo}`} alt={user?.name} className="w-full h-full object-cover" />) : (<span>{getInitials(user?.name)}</span>)}
                                         </div>
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 border-2 border-white rounded-full"></span>
                                     </div>
                                     <div className="hidden md:flex flex-col text-left">
                                         <span className="text-[14px] font-bold text-gray-800 leading-tight">{user?.name || 'HSSE'}</span>
                                         <span className="text-[11px] text-[#21409A] font-semibold capitalize leading-tight">{user?.department || 'Departemen'}</span>
                                     </div>
-                                    <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
                                 {isProfileMenuOpen && (
-                                    <div className="absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+                                    <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
                                         <div className="px-4 py-3 border-b border-gray-50">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Masuk sebagai</p>
                                             <p className="text-sm font-bold text-gray-900 truncate">{user?.email}</p>
                                         </div>
                                         <div className="py-2">
                                             <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A]"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>Edit Profil</Link>
+                                            {user?.role === 'admin' && (
+                                                <Link href={route('dashboard')} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A]"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>Dashboard Admin</Link>
+                                            )}
                                         </div>
                                         <div className="border-t border-gray-50 pt-1 mt-1">
-                                            <Link href={route('logout')} method="post" as="button" className="flex items-center w-full gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>Keluar</Link>
+                                            <Link href={route('logout')} method="post" as="button" className="flex items-center w-full gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>Keluar (Logout)</Link>
                                         </div>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <Link href={route('login')} className="relative inline-flex items-center justify-center px-8 py-2.5 rounded-xl border border-[#21409A] bg-transparent font-medium text-[#21409A] overflow-hidden group hover:border-[#21409A] hover:shadow-lg hover:shadow-blue-900/20 transition-all duration-300">
+                            <Link href={route('login')} className="relative inline-flex items-center justify-center px-5 py-2 md:px-8 md:py-2.5 rounded-xl border border-[#21409A] bg-transparent font-medium text-[#21409A] text-sm md:text-base overflow-hidden group hover:border-[#21409A] transition-all duration-300">
                                 <span className="absolute inset-0 w-full h-full bg-[#21409A] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
                                 <span className="relative group-hover:text-white transition-colors duration-300">Login</span>
                             </Link>
                         )}
+
+                        {/* HAMBURGER MENU BUTTON (HANYA MUNCUL DI HP) */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {isMobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
                     </div>
+
+                    {/* DROPDOWN MENU MOBILE */}
+                    {isMobileMenuOpen && (
+                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-50 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
+                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                            </Link>
+                            <Link href={user ? route('borrow.create') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
+                                Ajukan Peminjaman
+                            </Link>
+                            <Link href={user ? route('borrow.status') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
+                                Status
+                            </Link>
+                            <Link href={user ? route('contact') : route('login')} className="text-[15px] font-bold text-[#21409A] pb-2">
+                                Contact Us
+                            </Link>
+                        </div>
+                    )}
                 </nav>
 
                 {/* ================= KONTEN UTAMA ================= */}
@@ -132,7 +185,7 @@ export default function Contact({ auth }) {
                         {/* Area Kiri: Info Kontak */}
                         <div className="lg:col-span-5 space-y-6">
 
-                            {/* Kartu Alamat Utama (Sekarang Bisa Diklik ke Google Maps) */}
+                            {/* Kartu Alamat Utama */}
                             <a
                                 href="https://www.google.com/maps/search/?api=1&query=PT.+Pertamina+Geothermal+Energy+Area+Lahendong,+Tomohon"
                                 target="_blank"
@@ -158,31 +211,28 @@ export default function Contact({ auth }) {
                                 {/* WA 1 - Operasional */}
                                 <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-green-300 hover:shadow-md transition-all group block">
                                     <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#00A651] transition-colors">
-                                        {/* Ikon Resmi WhatsApp */}
                                         <svg className="w-5 h-5 text-[#00A651] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">WA Admin HSSE 1</h3>
+                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">WA Admin HSSE</h3>
                                     <p className="text-xs text-gray-500 font-medium">+62 812-3456-7890</p>
                                 </a>
 
                                 {/* Email 1 - Operasional */}
                                 <a href="mailto:hsse.support@pge.com" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-red-300 hover:shadow-md transition-all group block">
                                     <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#ED1C24] transition-colors">
-                                        {/* Ikon Resmi Gmail */}
                                         <svg className="w-5 h-5 text-[#ED1C24] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.728L12 16.64l-6.545-4.912v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">Email Admin HSSE 1</h3>
+                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">Email Admin HSSE</h3>
                                     <p className="text-[11px] text-gray-500 font-medium truncate">hsse.support@pge.com</p>
                                 </a>
 
                                 {/* WA 2 - Sistem/IT */}
                                 <a href="https://wa.me/6289876543210" target="_blank" rel="noreferrer" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-green-300 hover:shadow-md transition-all group block">
                                     <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#00A651] transition-colors">
-                                        {/* Ikon Resmi WhatsApp */}
                                         <svg className="w-5 h-5 text-[#00A651] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                         </svg>
@@ -194,7 +244,6 @@ export default function Contact({ auth }) {
                                 {/* Email 2 - Keluhan Umum */}
                                 <a href="mailto:complaint@pge.com" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-red-300 hover:shadow-md transition-all group block">
                                     <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#ED1C24] transition-colors">
-                                        {/* Ikon Resmi Gmail */}
                                         <svg className="w-5 h-5 text-[#ED1C24] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.728L12 16.64l-6.545-4.912v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" />
                                         </svg>

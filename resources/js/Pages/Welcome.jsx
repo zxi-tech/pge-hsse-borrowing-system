@@ -35,7 +35,7 @@ export default function Welcome({ auth }) {
                 <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent">
 
                     {/* ZONA 1: Logo Kiri */}
-                    <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
+                    <div className="flex items-center group w-auto lg:w-1/4 shrink-0">
                         <img
                             src="/images/pertamina-logo (1).png"
                             alt="Pertamina Geothermal Energy"
@@ -46,19 +46,25 @@ export default function Welcome({ auth }) {
 
                     {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
-                        <Link href={auth?.user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 text-[#21409A] hover:text-[#21409A] transition-colors duration-300">
-                            {auth?.user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                        
+                        {/* Jika belum login, tombol Beranda pun dilempar ke Login */}
+                        <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="relative group py-2 text-[#21409A] hover:text-[#21409A] transition-colors duration-300">
+                            {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        <Link href={route('borrow.create')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                        
+                        <Link href={user ? route('borrow.create') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Ajukan Peminjaman
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                        
+                        <Link href={user ? route('borrow.status') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Status
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        <Link href={route('contact')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
+                        
+                        {/* KUNCI FINAL: Contact Us sekarang ikut gembok login */}
+                        <Link href={user ? route('contact') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Contact Us
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
@@ -66,8 +72,7 @@ export default function Welcome({ auth }) {
 
                     {/* ZONA 3: Profil & Tombol Menu Mobile (Kanan) */}
                     <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
-
-                        {auth?.user ? (
+                        {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
                                 <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-2 md:space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white/60 hover:border-gray-200'}`}>
                                     <div className="relative">
@@ -130,18 +135,22 @@ export default function Welcome({ auth }) {
                     {/* DROPDOWN MENU MOBILE */}
                     {isMobileMenuOpen && (
                         <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                            <Link href={auth?.user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-bold text-[#21409A] border-b border-gray-50 pb-2">
-                                {auth?.user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                            
+                            <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="text-[15px] font-bold text-[#21409A] border-b border-gray-50 pb-2">
+                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             </Link>
-                            <Link href={route('borrow.create')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">Ajukan Peminjaman</Link>
-                            <Link href={route('borrow.status')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">Status</Link>
-                            <Link href={route('contact')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] pb-2">Contact Us</Link>
+                            
+                            <Link href={user ? route('borrow.create') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">Ajukan Peminjaman</Link>
+                            
+                            <Link href={user ? route('borrow.status') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">Status</Link>
+                            
+                            {/* KUNCI FINAL MOBILE */}
+                            <Link href={user ? route('contact') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] pb-2">Contact Us</Link>
                         </div>
                     )}
                 </nav>
 
                 {/* ================= HERO SECTION ================= */}
-                {/* Mengubah justify-center menjadi justify-start agar susunan dimulai dari atas */}
                 <main className="relative flex-1 w-full max-w-[1536px] mx-auto px-6 lg:px-12 xl:px-20 flex flex-col lg:grid lg:grid-cols-2 items-center justify-start lg:justify-between pt-8 lg:pt-0 pb-10 z-10 min-h-[80vh] overflow-hidden lg:overflow-visible">
 
                     {/* Kolom Kiri: Teks */}
@@ -162,10 +171,9 @@ export default function Welcome({ auth }) {
                             Platform digital terpadu untuk mempermudah pengajuan, persetujuan, dan monitoring peminjaman barang HSSE guna meningkatkan efisiensi dan transparansi pengelolaan aset keselamatan kerja.
                         </p>
 
-                        {/* Tombol diperkecil ukurannya (w-auto px-8 py-3) agar pas di tengah */}
                         <div className="mt-5 md:mt-10 mb-0">
                             <Link
-                                href={auth?.user ? route('borrow.create') : route('login')}
+                                href={user ? route('borrow.create') : route('login')}
                                 className="inline-flex items-center justify-center px-8 py-3 md:px-8 bg-[#254294] hover:bg-[#1a2d6b] text-white rounded-xl text-[14px] md:text-[16px] font-medium shadow-xl shadow-blue-900/30 transition-all duration-300 transform hover:-translate-y-1 w-auto"
                             >
                                 Ajukan Peminjaman
@@ -173,7 +181,7 @@ export default function Welcome({ auth }) {
                         </div>
                     </div>
 
-                    {/* Kolom Kanan: Gambar (Di mobile jadi Background Absolute) */}
+                    {/* Kolom Kanan: Gambar */}
                     <div className="absolute inset-x-0 bottom-0 z-0 flex justify-center items-end opacity-[0.25] pointer-events-none lg:relative lg:opacity-100 lg:pointer-events-auto lg:justify-end lg:items-center">
 
                         <div className="absolute top-[40%] right-[-10%] lg:right-[-19%] w-[130%] opacity-25 z-0 pointer-events-none -translate-y-1/2 hidden sm:block">
@@ -183,7 +191,6 @@ export default function Welcome({ auth }) {
                             </svg>
                         </div>
 
-                        {/* Gambar diperlebar w-[150%] khusus mobile agar mengisi penuh tanpa terpotong kaku */}
                         <img
                             src="/images/hero-workers.png"
                             alt="Pekerja HSSE Pertamina"
