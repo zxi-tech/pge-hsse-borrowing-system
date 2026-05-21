@@ -18,9 +18,7 @@ use App\Mail\OtpMail; // Pastikan ini ada
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+    // Display the registration view
     public function create(): Response
     {
         return Inertia::render('Auth/Register');
@@ -33,7 +31,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        // 1. Validasi
+        // Validasi
         $request->validate([
             'nip' => 'required|string|max:255|unique:users,nip',
             'name' => 'required|string|max:255',
@@ -53,11 +51,11 @@ class RegisteredUserController extends Controller
             'email.ends_with' => 'Pendaftaran gagal! Anda wajib menggunakan email @pertamina.com atau @mitrakerja.pertamina.com.',
         ]);
 
-        // 2. Generate OTP
+        // Generate OTP
         $emailOtp = rand(100000, 999999);
         $phoneOtp = rand(100000, 999999);
 
-        // 3. Simpan Data ke Database (Hanya 1 Kali!)
+        // Save data to Database
         $user = User::create([
             'nip' => $request->nip,
             'name' => $request->name,
@@ -69,13 +67,13 @@ class RegisteredUserController extends Controller
             'phone_otp' => $phoneOtp,
         ]);
 
-        // 4. Panggil Kurir Email
+        // Call Email
         Mail::to($user->email)->send(new OtpMail($emailOtp));
 
-        // 5. Login otomatis
+        // Login
         Auth::login($user);
 
-        // 6. Arahkan ke halaman verifikasi
+        // Redirect to verification page
         return redirect()->route('verification.notice');
     }
 }
