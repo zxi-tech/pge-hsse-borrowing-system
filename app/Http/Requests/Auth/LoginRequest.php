@@ -50,7 +50,6 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // 👇 SATPAM PENGECEK STATUS AKUN 👇
         // Jika statusnya bukan "Aktif", langsung tendang keluar!
         if (Auth::user()->status === 'Nonaktif' || Auth::user()->status === 'Cuti') {
             Auth::logout();
@@ -59,7 +58,6 @@ class LoginRequest extends FormRequest
                 'email' => 'Akses ditolak! Akun Anda sedang ditangguhkan atau cuti. Silakan hubungi Admin.',
             ]);
         }
-        // 👆 BATAS PENGECEKAN 👆
 
         RateLimiter::clear($this->throttleKey());
     }

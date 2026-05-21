@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail; // <-- 1. MANTRA PANGGIL SATPAM (WAJIB ADA)
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-// 👇 2. PASANG TANDA PENGENAL 'implements MustVerifyEmail' DI SINI 👇
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
-    // Kolom yang boleh diisi
     /**
      * The attributes that are mass assignable.
      *
@@ -22,18 +20,18 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'nip',          // <-- Tambahan baru
-        'phone',        // <-- Tambahan baru
-        'department',   // <-- Tambahan baru
-        'role',         // <-- Tambahan baru
-        'area',         // <-- Tambahan baru
-        'about',        // <-- Tambahan baru
-        'photo',        // <-- Tambahan baru
-        'status',       // <-- Tambahan baru
-        'email_otp',         // <-- Tambahkan ini
-        'phone_otp',         // <-- Tambahkan ini
+        'nip',
+        'phone',      
+        'department',   
+        'role',         
+        'area',         
+        'about',        
+        'photo',        
+        'status',       
+        'email_otp',        
+        'phone_otp',         
         'email_verified_at',
-        'phone_verified_at', // <-- Tambahkan ini
+        'phone_verified_at',
     ];
 
     protected $hidden = [

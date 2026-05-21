@@ -9,7 +9,6 @@ class IncomingItem extends Model
 {
     use HasFactory;
 
-    // Kolom yang diizinkan untuk diisi
     protected $fillable = [
         'item_id',
         'user_id',

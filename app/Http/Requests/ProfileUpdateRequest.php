@@ -31,7 +31,6 @@ class ProfileUpdateRequest extends FormRequest
             'nip' => ['required', 'string', 'max:50'],
             'about' => ['nullable', 'string', 'max:1000'],
 
-            // 👇 INI DIA YANG BIKIN NOMOR HP GAGAL DISAVE 👇
             'phone' => ['nullable', 'string', 'max:20'],
         ];
     }

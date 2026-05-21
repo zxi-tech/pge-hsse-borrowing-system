@@ -13,7 +13,7 @@ class OtpMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $otp; // Variabel penampung OTP
+    public $otp; 
 
     public function __construct($otp)
     {
@@ -29,7 +29,7 @@ class OtpMail extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
-        // Mengarahkan kurir ke file template otp.blade.php yang Anda buat tadi
+        // Menghubungkan ke file template otp.blade.php
         return new Content(
             view: 'emails.otp',
         );
