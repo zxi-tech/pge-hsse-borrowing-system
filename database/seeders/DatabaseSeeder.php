@@ -8,7 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Memanggil seeder yang sudah kita buat
+        
         $this->call([
             AdminSeeder::class,
             ItemSeeder::class,

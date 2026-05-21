@@ -10,7 +10,7 @@ class ItemSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Barang Asset tanpa varian ukuran spesifik (Helm)
+        // Barang Asset tanpa varian ukuran spesifik (Helm)
         $helm = Item::create([
             'name' => 'Helm Safety Pertamina PGE',
             'type' => 'asset',
@@ -25,7 +25,7 @@ class ItemSeeder extends Seeder
             'stock' => 50,
         ]);
 
-        // 2. Barang Asset dengan varian ukuran (Sepatu Safety)
+        // Barang Asset dengan varian ukuran (Sepatu Safety)
         $sepatu = Item::create([
             'name' => 'Sepatu Safety Cheetah',
             'type' => 'asset',
@@ -51,7 +51,7 @@ class ItemSeeder extends Seeder
             ]);
         }
 
-        // 3. Barang Consumable (Habis Pakai)
+        // Barang Consumable (Habis Pakai)
         $earplug = Item::create([
             'name' => 'Ear Plug 3M',
             'type' => 'consumable',

@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
         User::create([
             'nip' => '123456789',
             'name' => 'Admin HSSE',
-            'email' => 'admin.hsse@pertamina.com', // Domain valid sesuai aturan Anda
+            'email' => 'admin.hsse@pertamina.com', // Domain @pertamina.com
             'phone' => '081234567890',
             'role' => 'admin',
             'password' => Hash::make('password123'), // Password default untuk testing
