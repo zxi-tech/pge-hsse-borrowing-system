@@ -13,58 +13,58 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Hitung total pekerja (selain admin)
+        // Hitung total entitas pekerja aktif (mengabaikan role admin) untuk summary metric
         $totalUsers = User::where('role', 'user')->count();
 
-        // 2. Hitung total seluruh stok barang APD yang ada
+        // Agregasi total kuantitas fisik APD dari tabel item_sizes
         $totalItems = ItemSize::sum('stock');
 
-        // Asumsi jumlah peminjaman aktif (kasar)
+        // Count transaksi on-going (barang fisik sedang berada di tangan pekerja)
         $borrowedItems = Transaction::where('status', 'dipinjam')->count();
 
-        // 3. Hitung pengajuan yang berstatus 'menunggu'
+        // Count backlog pengajuan yang masih memerlukan review/approval dari Admin
         $pendingTransactions = Transaction::where('status', 'menunggu')->count();
 
-        // 4. Hitung peminjaman yang terlambat (status dipinjam, tapi end_date sudah lewat)
+        // Identifikasi transaksi overdue: status masih 'dipinjam' tapi melebihi end_date (deadline)
         $lateTransactions = Transaction::where('status', 'dipinjam')
             ->where('end_date', '<', Carbon::today())
             ->count();
 
-        // 5. Ambil 5 transaksi terbaru beserta data User dan Detail Barangnya
+        // Fetch 5 transaksi terbaru untuk komponen Quick View Table.
+        // Eager loading relasi (user, details.itemSize.item) digunakan untuk mencegah N+1 Query Problem.
         $recentTransactions = Transaction::with(['user', 'details.itemSize.item'])
             ->latest()
             ->take(5)
             ->get();
 
-        // =================================================================
-        // 6. LOGIKA CHART: Ambil data 6 bulan terakhir untuk grafik
-        // =================================================================
+        // TIMESERIES CHART LOGIC (6 Bulan Terakhir)
         $chartData = [];
+        
         for ($i = 5; $i >= 0; $i--) {
-            // Mundur dari 5 bulan yang lalu hingga bulan ini
+            // Loop mundur dari 5 bulan lalu hingga bulan berjalan
             $date = Carbon::now()->subMonths($i);
 
-            // Hitung transaksi normal/tepat waktu bulan ini
+            // Kalkulasi transaksi on-track (tepat waktu / sedang berjalan / pending) bulan ini
             $tepatWaktu = Transaction::whereMonth('created_at', $date->month)
                 ->whereYear('created_at', $date->year)
                 ->whereIn('status', ['selesai', 'dipinjam', 'menunggu'])
                 ->count();
 
-            // Hitung transaksi terlambat bulan ini
+            // Kalkulasi transaksi dengan flagging 'terlambat' bulan ini
             $terlambat = Transaction::whereMonth('created_at', $date->month)
                 ->whereYear('created_at', $date->year)
                 ->where('status', 'terlambat')
                 ->count();
 
-            // Masukkan ke array sesuai format yang dibaca Recharts React
+            // Mapping array properties disesuaikan dengan kebutuhan format data <LineChart> Recharts di React
             $chartData[] = [
-                'name' => $date->translatedFormat('M'), // Menghasilkan 'Jan', 'Feb', dll.
+                'name' => $date->translatedFormat('M'), // Output: Jan, Feb, Mar, dst.
                 'tepatWaktu' => $tepatWaktu,
                 'terlambat' => $terlambat,
             ];
         }
 
-        // Lempar semua data ini ke React
+        // Return seluruh payload via Inertia adapter
         return Inertia::render('Dashboard', [
             'stats' => [
                 'totalUsers' => $totalUsers,
@@ -74,7 +74,7 @@ class DashboardController extends Controller
                 'lateTransactions' => $lateTransactions,
             ],
             'recentTransactions' => $recentTransactions,
-            'chartData' => $chartData // <--- Variabel chart dikirim ke React di sini!
+            'chartData' => $chartData
         ]);
     }
 }
