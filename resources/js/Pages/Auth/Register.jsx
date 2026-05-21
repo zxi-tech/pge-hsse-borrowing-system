@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Register() {
+    // Inisialisasi state form via Inertia useForm hook
     const { data, setData, post, processing, errors } = useForm({
         nip: '',
         name: '',
@@ -12,21 +13,27 @@ export default function Register() {
         password_confirmation: '',
     });
 
+    // Local state toggles untuk visibility field password dan confirm password
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // Form handler: Mencegah reload halaman dan trigger post request ke backend
     const submit = (e) => {
         e.preventDefault();
         post(route('register'));
     };
 
+    // =========================================================================
+    // INPUT MASKING HANDLERS
+    // Sanitasi input secara real-time via Regex: Memaksa user HANYA bisa mengetik angka
+    // =========================================================================
     const handleNipChange = (e) => {
-        const numericValue = e.target.value.replace(/\D/g, '');
+        const numericValue = e.target.value.replace(/\D/g, ''); // Hapus semua karakter Non-Digit
         setData('nip', numericValue);
     };
 
     const handlePhoneChange = (e) => {
-        const numericValue = e.target.value.replace(/\D/g, '');
+        const numericValue = e.target.value.replace(/\D/g, ''); // Hapus semua karakter Non-Digit
         setData('phone', numericValue);
     };
 
@@ -34,24 +41,33 @@ export default function Register() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Registrasi Akun" />
 
+            {/* Layout Wrapper: Menggunakan md:min-h-[500px] untuk memastikan proporsi gambar 
+                dan form tetap seimbang (tidak terlalu memanjang/mengerdil) di layar desktop */}
             <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
+                {/* ========================================================= */}
+                {/* KOLOM KIRI: COVER IMAGE (Hidden on Mobile) */}
+                {/* ========================================================= */}
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
                             src="/images/register-image.png"
                             alt="Pekerja Pertamina"
                             className="w-full h-full object-cover"
+                            // Error boundary: Fallback URL ke Unsplash jika aset lokal hilang
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop";
                             }}
                         />
+                        {/* Overlay Gradient Halus */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#21409A]/30 to-transparent"></div>
                     </div>
                 </div>
 
-                {/* ================= KOLOM KANAN: FORM REGISTRASI COMPACT ================= */}
+                {/* ========================================================= */}
+                {/* KOLOM KANAN: COMPACT REGISTRATION FORM */}
+                {/* ========================================================= */}
                 <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
 
                     <div className="mb-5">
@@ -65,8 +81,10 @@ export default function Register() {
 
                     <form onSubmit={submit} className="space-y-4">
 
-                        {/* Baris 1: NIP & Nama Lengkap */}
+                        {/* ROW 1: NIP & Nama Lengkap */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            {/* Input: NIP */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Nomor Pekerja (NIP)
@@ -82,6 +100,7 @@ export default function Register() {
                                 {errors.nip && <p className="text-red-500 text-[10px]">{errors.nip}</p>}
                             </div>
 
+                            {/* Input: Nama Lengkap */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Nama Lengkap
@@ -98,8 +117,10 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Baris 2: Email & Nomor Telepon */}
+                        {/* ROW 2: Email & Nomor Telepon */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            {/* Input: Email */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Alamat Email
@@ -116,6 +137,7 @@ export default function Register() {
                                 {errors.email && <p className="text-red-500 text-[10px]">{errors.email}</p>}
                             </div>
 
+                            {/* Input: Nomor Telepon */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Nomor Telepon
@@ -132,7 +154,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Baris 3: Departemen */}
+                        {/* ROW 3: Select Box Departemen */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Departemen
@@ -151,6 +173,7 @@ export default function Register() {
                                     <option value="HSSE">HSSE / K3</option>
                                     <option value="Logistik">Logistik & SCM</option>
                                 </select>
+                                {/* Custom Chevron untuk Select Box */}
                                 <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
                                     <svg className="w-4 h-4 text-gray-400 group-focus-within:text-[#00A651]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
@@ -158,8 +181,10 @@ export default function Register() {
                             {errors.department && <p className="text-red-500 text-[10px]">{errors.department}</p>}
                         </div>
 
-                        {/* Baris 4: Kata Sandi & Konfirmasi */}
+                        {/* ROW 4: Password & Konfirmasi Password */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            {/* Input: Password */}
                             <div className="flex flex-col gap-1.5 relative">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Password
@@ -178,6 +203,7 @@ export default function Register() {
                                         className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-10 pr-10 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium tracking-widest"
                                         placeholder="••••••••"
                                     />
+                                    {/* Toggle Hide/Show Password Icon */}
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
@@ -194,6 +220,7 @@ export default function Register() {
                                 {errors.password && <p className="text-red-500 text-[10px]">{errors.password}</p>}
                             </div>
 
+                            {/* Input: Konfirmasi Password */}
                             <div className="flex flex-col gap-1.5 relative">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Konfirmasi Password
@@ -229,7 +256,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* Tombol Submit & Teks Bawah */}
+                        {/* ACTION BUTTONS */}
                         <div className="pt-3 flex flex-col gap-3">
                             <button type="submit" disabled={processing} className={`w-full py-2.5 rounded-lg text-sm font-bold text-white shadow-md transition-all duration-300 ${processing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#21409A] hover:bg-[#1a3380] hover:shadow-lg transform hover:-translate-y-0.5'}`}>
                                 {processing ? 'Memproses...' : 'Daftar Sekarang'}
@@ -247,7 +274,7 @@ export default function Register() {
                 </div>
             </div>
 
-            {/* Animasi Kustom untuk tangan melambai */}
+            {/* Custom CSS Keyframe Animation Injection */}
             <style jsx="true">{`
                 @keyframes wave {
                     0%, 100% { transform: rotate(0deg); }
