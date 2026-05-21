@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login() {
+    // Data binding form via Inertia.js untuk sinkronisasi otomatis dengan backend Laravel
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
     });
 
+    // Local state toggle untuk fitur "Show/Hide Password"
     const [showPassword, setShowPassword] = useState(false);
 
+    // Intercept default form submission browser lalu passing payload via Inertia POST
     const submit = (e) => {
         e.preventDefault();
         post(route('login'));
@@ -20,22 +23,22 @@ export default function Login() {
 
             <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row -mt-28 md:mt-0">
 
-                {/* ================= KOLOM KIRI: FORM LOGIN ================= */}
+                {/* KOLOM KIRI: FORM LOGIN AREA */}
                 <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
 
                     <div className="mb-6">
-                        {/* 👇 TAMBAHAN LOGO PERTAMINA DI SINI 👇 */}
                         <img
                             src="/images/pertamina-logo (1).png"
                             alt="Logo PGE"
-                            // Tambahkan md:-mt-10 untuk menariknya ke atas khusus di Laptop/PC
+                            // Responsivity hack: Tarik logo sedikit ke atas (-mt-12) khusus layar desktop
+                            // agar proporsi form login dan gambar di kolom kanan lebih presisi
                             className="h-10 w-auto mb-6 object-contain md:-mt-12"
+                            // Error boundary fallback jika file gambar lokal terhapus/gagal dimuat
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "https://via.placeholder.com/150x40?text=Logo+PGE";
                             }}
                         />
-                        {/* 👆 ================================ 👆 */}
 
                         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
                             Selamat Datang 👋
@@ -47,7 +50,7 @@ export default function Login() {
 
                     <form onSubmit={submit} className="space-y-4">
 
-                        {/* Email */}
+                        {/* ================= INPUT: EMAIL ================= */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Email
@@ -62,18 +65,20 @@ export default function Login() {
                                 placeholder="nama@pertamina.com"
                             />
 
+                            {/* Render helper text error jika ada validasi failed dari Laravel */}
                             {errors.email && (
                                 <p className="text-red-500 text-[10px]">{errors.email}</p>
                             )}
                         </div>
 
-                        {/* Password */}
+                        {/* ================= INPUT: PASSWORD ================= */}
                         <div className="flex flex-col gap-1.5 relative">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Password
                             </label>
 
                             <div className="relative">
+                                {/* Toggle dinamis text/password bedasarkan state boolean showPassword */}
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={data.password}
@@ -83,6 +88,7 @@ export default function Login() {
                                     placeholder="••••••••"
                                 />
 
+                                {/* Toggle Show/Hide Password Button */}
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -106,12 +112,12 @@ export default function Login() {
                             )}
                         </div>
 
-                        {/* Button */}
+                        {/* ================= ACTION BUTTONS ================= */}
                         <div className="pt-3 flex flex-col gap-3">
-
                             <button
                                 type="submit"
                                 disabled={processing}
+                                // Animasi button disable/loading state (handling double-click spam)
                                 className={`w-full py-2.5 rounded-lg text-sm font-bold text-white shadow-md transition-all duration-300 ${processing
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-[#21409A] hover:bg-[#1a3380] hover:shadow-lg transform hover:-translate-y-0.5'
@@ -129,12 +135,11 @@ export default function Login() {
                                     Daftar
                                 </Link>
                             </p>
-
                         </div>
                     </form>
                 </div>
 
-                {/* ================= KOLOM KANAN: FOTO ================= */}
+                {/* KOLOM KANAN: COVER IMAGE (Hidden on Mobile) */}
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
@@ -143,9 +148,11 @@ export default function Login() {
                             className="w-full h-full object-cover"
                             onError={(e) => {
                                 e.target.onerror = null;
+                                // Fallback Unsplash URL jika asset gagal dimuat
                                 e.target.src = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop";
                             }}
                         />
+                        {/* Overlay Gradient Halus */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#21409A]/30 to-transparent"></div>
                     </div>
                 </div>
