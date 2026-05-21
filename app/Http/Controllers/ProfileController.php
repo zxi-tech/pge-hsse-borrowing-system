@@ -12,11 +12,13 @@ use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    // Render UI Edit Profil dinamis berdasarkan role user
     public function edit(Request $request)
     {
         $user = $request->user();
         $viewName = $user->role === 'admin' ? 'Profile/EditAdmin' : 'Profile/EditUser';
 
+        // Kalkulasi real-time user metrics untuk ditampilkan di UI
         $stats = [
             ['label' => 'Barang Dipinjam', 'value' => $user->transactions()->whereIn('status', ['dipinjam', 'disetujui'])->count()],
             ['label' => 'Menunggu Persetujuan', 'value' => $user->transactions()->where('status', 'menunggu')->count()],
@@ -27,7 +29,7 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
             'status' => session('status'),
             'stats' => $stats,
-            // 👇 KITA CEK LANGSUNG KE DALAM SESSION (Sangat Akurat) 👇
+            // Inject session flags ke frontend untuk men-trigger OTP modal secara reaktif
             'requires_email_otp' => Session::has('pending_email_change'),
             'pending_email' => Session::get('pending_email_change'),
             'requires_phone_otp' => Session::has('pending_phone_change'),
@@ -35,18 +37,19 @@ class ProfileController extends Controller
         ]);
     }
 
+    // Handle profile update dan interceptor OTP untuk kredensial sensitif
     public function update(\Illuminate\Http\Request $request)
     {
         $user = $request->user();
 
-        // 1. Validasi Manual (TAMBAHKAN NIP DAN ABOUT DI SINI)
+        // Validasi payload input
         $validated = $request->validate([
             'name'  => ['required', 'string', 'max:255'],
-            'nip'   => ['required', 'string', 'max:50'], // NIP ditambahkan
+            'nip'   => ['required', 'string', 'max:50'],
             'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
             'phone' => ['required', 'string', 'max:20'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-            'about' => ['nullable', 'string'], // ABOUT ditambahkan
+            'about' => ['nullable', 'string'],
         ]);
 
         $newEmail = $validated['email'];
@@ -55,11 +58,12 @@ class ProfileController extends Controller
         $emailChanged = $newEmail !== $user->email;
         $phoneChanged = $newPhone !== $user->phone;
 
-        // 2. Simpan Data Aman (Nama, NIP, About & Foto)
+        // Eksekusi update untuk non-sensitive credentials (langsung di-commit ke DB)
         $user->name  = $validated['name'];
-        $user->nip   = $validated['nip'];   // Simpan NIP
-        $user->about = $validated['about']; // Simpan About
+        $user->nip   = $validated['nip'];
+        $user->about = $validated['about'];
 
+        // Storage cleanup: Hapus foto lama sebelum attach file baru
         if ($request->hasFile('photo')) {
             if ($user->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
@@ -69,7 +73,10 @@ class ProfileController extends Controller
         
         $user->save();
 
-        // 3. TAHAN JIKA ADA PERUBAHAN EMAIL ATAU WHATSAPP!
+        // =========================================================
+        // SECURITY INTERCEPTOR
+        // Tahan request jika ada mutasi pada Email atau WhatsApp.
+        // =========================================================
         if ($emailChanged || $phoneChanged) {
 
             if ($emailChanged) {
@@ -86,14 +93,15 @@ class ProfileController extends Controller
                 Log::info("SECURITY SPB-HSSE: OTP Ganti WhatsApp [{$newPhone}] : {$phoneOtp}");
             }
 
-            // Kembalikan ke halaman dengan status khusus agar modal terbuka
+            // Interrupt flow normal, paksa redirect dengan state 'otp-sent' untuk memunculkan verification gate
             return Redirect::route('profile.edit')->with('status', 'otp-sent');
         }
 
-        // 4. Jika hanya ganti nama/foto/nip/about, langsung sukses
+        // Jalur normal jika tidak ada kredensial sensitif yang diubah
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    // Validasi OTP Email dan finalisasi update
     public function verifyEmailChange(Request $request)
     {
         $request->validate(['otp' => 'required|numeric|digits:6']);
@@ -104,9 +112,10 @@ class ProfileController extends Controller
             $user->email_verified_at = now();
             $user->save();
 
+            // Clear session state
             Session::forget(['email_change_otp', 'pending_email_change']);
 
-            // Jika WA juga diganti bersamaan, munculkan lagi modal untuk WA
+            // Session chaining: Jika nomor WA juga diubah, fallback status kembali ke 'otp-sent'
             if (Session::has('pending_phone_change')) {
                 return Redirect::route('profile.edit')->with('status', 'otp-sent');
             }
@@ -115,6 +124,7 @@ class ProfileController extends Controller
         return redirect()->back()->withErrors(['otp' => 'Kode OTP Email salah.']);
     }
 
+    // Validasi OTP WhatsApp dan finalisasi update
     public function verifyPhoneChange(Request $request)
     {
         $request->validate(['otp' => 'required|numeric|digits:6']);
@@ -125,9 +135,10 @@ class ProfileController extends Controller
             $user->wa_verified_at = now();
             $user->save();
 
+            // Clear session state
             Session::forget(['phone_change_otp', 'pending_phone_change']);
 
-            // Jika Email juga diganti bersamaan, munculkan lagi modal untuk Email
+            // Session chaining: Jika email juga diubah, fallback status kembali ke 'otp-sent'
             if (Session::has('pending_email_change')) {
                 return Redirect::route('profile.edit')->with('status', 'otp-sent');
             }
@@ -136,14 +147,18 @@ class ProfileController extends Controller
         return redirect()->back()->withErrors(['otp' => 'Kode OTP WhatsApp salah.']);
     }
 
+    // Account Deletion dengan extra layer password confirmation
     public function destroy(Request $request): RedirectResponse
     {
         $request->validate(['password' => ['required', 'current_password']]);
         $user = $request->user();
+        
         Auth::logout();
         $user->delete();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return Redirect::to('/');
     }
 }
