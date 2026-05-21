@@ -206,7 +206,6 @@ export default function Status({ auth, transactions }) {
                     {/* HEADER & SUMMARY STATS */}
                     <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center justify-between mb-12">
                         <div className="flex-1">
-                            <div className="inline-flex items-center gap-2 bg-green-100 text-[#00A651] text-[11px] font-bold px-3 py-1.5 rounded-full mb-4 tracking-widest uppercase">HSSE MONITORING</div>
                             <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mb-3 tracking-tight">Status Peminjaman APD</h1>
                             <p className="text-sm text-gray-500 max-w-xl font-medium leading-relaxed">Pantau seluruh riwayat dan status terkini pengajuan alat pelindung diri Anda di sini.</p>
                         </div>
