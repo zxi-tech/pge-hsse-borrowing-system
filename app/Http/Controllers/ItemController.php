@@ -4,18 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\ItemSize;
-use App\Models\IncomingItem; // 👈 Wajib ditambahkan untuk log otomatis
+use App\Models\IncomingItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth; // 👈 Wajib ditambahkan untuk mengambil ID Admin
+use Illuminate\Support\Facades\Auth;
 
 class ItemController extends Controller
 {
-    /**
-     * Menampilkan halaman Manajemen Barang (Dashboard/Items.jsx)
-     */
     public function index()
     {
         $items = Item::with('sizes')->latest()->get();
@@ -25,16 +22,13 @@ class ItemController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan data barang baru ke database beserta foto dan varian ukurannya
-     */
+    // Insert master data barang baru (beserta foto dan multi-variant sizing)
     public function store(Request $request)
     {
-        // 1. Tambahkan validasi warehouse di sini
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:asset,consumable',
-            'warehouse' => 'required|string|max:255', // 👈 Penambahan validasi gudang
+            'warehouse' => 'required|string|max:255',
             'description' => 'nullable|string',
             'photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'sizes' => 'required|array|min:1',
@@ -42,6 +36,7 @@ class ItemController extends Controller
             'sizes.*.stock' => 'required|integer|min:0',
         ]);
 
+        // Wrap dalam DB transaction untuk menjaga integritas data relasional (Item -> ItemSize -> IncomingItem)
         DB::beginTransaction();
 
         try {
@@ -50,15 +45,15 @@ class ItemController extends Controller
                 $photoPath = $request->file('photo')->store('items', 'public');
             }
 
-            // 2. Simpan nama gudang ke tabel items
             $item = Item::create([
                 'name' => $validated['name'],
                 'type' => $validated['type'],
-                'warehouse' => $validated['warehouse'], // 👈 Simpan ke database
+                'warehouse' => $validated['warehouse'],
                 'description' => $validated['description'],
                 'photo_path' => $photoPath,
             ]);
 
+            // Batch insert data varian (ukuran/size) ke tabel relasi
             foreach ($validated['sizes'] as $size) {
                 ItemSize::create([
                     'item_id' => $item->id,
@@ -66,13 +61,14 @@ class ItemController extends Controller
                     'stock' => $size['stock'],
                 ]);
 
+                // Auto-generate audit trail (IncomingItem) jika input awal memiliki stok > 0
                 if ($size['stock'] > 0) {
                     IncomingItem::create([
                         'item_id' => $item->id,
                         'user_id' => Auth::id(),
                         'quantity' => $size['stock'],
                         'received_date' => now()->toDateString(),
-                        'warehouse' => $item->warehouse, // 👈 Ambil nama gudang dari item
+                        'warehouse' => $item->warehouse,
                         'notes' => "AUTO-LOG: Barang baru ditambahkan (Varian: {$size['size_name']}).",
                     ]);
                 }
@@ -86,18 +82,15 @@ class ItemController extends Controller
         }
     }
 
-    /**
-     * Mengupdate data barang yang sudah ada & Mencatat Jejak Otomatis
-     */
+    // Handle update data barang beserta detektor mutasi stok otomatis
     public function update(Request $request, $id)
     {
         $item = Item::findOrFail($id);
 
-        // 1. Tambahkan validasi warehouse di sini
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:asset,consumable',
-            'warehouse' => 'required|string|max:255', // 👈 Penambahan validasi gudang
+            'warehouse' => 'required|string|max:255',
             'description' => 'nullable|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'sizes' => 'required|array|min:1',
@@ -109,6 +102,7 @@ class ItemController extends Controller
         DB::beginTransaction();
 
         try {
+            // Hapus physical file lama sebelum upload file baru (Orphan file prevention)
             if ($request->hasFile('photo')) {
                 if ($item->photo_path) {
                     Storage::disk('public')->delete($item->photo_path);
@@ -116,52 +110,50 @@ class ItemController extends Controller
                 $item->photo_path = $request->file('photo')->store('items', 'public');
             }
 
-            // 2. Update data gudang di database
             $item->name = $validated['name'];
             $item->type = $validated['type'];
-            $item->warehouse = $validated['warehouse']; // 👈 Update data gudang
+            $item->warehouse = $validated['warehouse'];
             $item->description = $validated['description'];
             $item->save();
 
+            // Syncing Relasi: Hapus varian ukuran yang di-remove oleh admin dari frontend
             $submittedSizeIds = collect($validated['sizes'])->pluck('id')->filter()->toArray();
             $item->sizes()->whereNotIn('id', $submittedSizeIds)->delete();
 
-            // 👇 INI ADALAH LOGIKA DETEKTOR JEJAK OTOMATISNYA 👇
+            // STOCK MUTATION DETECTOR & AUTO-LOGGING
+            // Mengidentifikasi delta/selisih perubahan stok saat diedit
             foreach ($validated['sizes'] as $sizeData) {
                 if (isset($sizeData['id'])) {
-                    // Cek stok lama di database
                     $oldSize = ItemSize::find($sizeData['id']);
 
                     if ($oldSize) {
                         $selisih = $sizeData['stock'] - $oldSize->stock;
 
-                        // Jika stok BARU lebih besar dari stok LAMA = Ada barang masuk!
+                        // Trigger pembuatan log mutasi HANYA JIKA ada penambahan stok riil (Delta positif)
                         if ($selisih > 0) {
                             IncomingItem::create([
                                 'item_id' => $item->id,
                                 'user_id' => Auth::id(),
                                 'quantity' => $selisih,
                                 'received_date' => now()->toDateString(),
-                                'warehouse' => $item->warehouse, // 👈 Ambil otomatis dari item yang sedang diedit
+                                'warehouse' => $item->warehouse,
                                 'notes' => "AUTO-LOG: Edit stok varian [{$sizeData['size_name']}]. Stok awal: {$oldSize->stock}, ditambah: {$selisih}.",
                             ]);
                         }
 
-                        // Update datanya
                         $oldSize->update([
                             'size_name' => $sizeData['size_name'],
                             'stock' => $sizeData['stock'],
                         ]);
                     }
                 } else {
-                    // Admin menambahkan Varian Ukuran BARU saat edit barang
                     if ($sizeData['stock'] > 0) {
                         IncomingItem::create([
                             'item_id' => $item->id,
                             'user_id' => Auth::id(),
                             'quantity' => $sizeData['stock'],
                             'received_date' => now()->toDateString(),
-                            'warehouse' => $item->warehouse, // 👈 Ambil otomatis dari item yang sedang diedit
+                            'warehouse' => $item->warehouse,
                             'notes' => "AUTO-LOG: Varian baru [{$sizeData['size_name']}] ditambahkan dari menu edit.",
                         ]);
                     }
@@ -173,7 +165,6 @@ class ItemController extends Controller
                     ]);
                 }
             }
-            // 👆 SELESAI 👆
 
             DB::commit();
             return redirect()->back()->with('success', 'Data barang berhasil diperbarui!');
@@ -183,9 +174,7 @@ class ItemController extends Controller
         }
     }
 
-    /**
-     * Menghapus data barang
-     */
+    // Hard delete data barang beserta cascade dependency-nya
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -193,31 +182,28 @@ class ItemController extends Controller
         try {
             $item = Item::findOrFail($id);
 
-            // 1. Hapus foto dari server agar tidak jadi sampah (makan storage)
+            // Storage cleanup
             if ($item->photo_path) {
                 Storage::disk('public')->delete($item->photo_path);
             }
 
-            // 2. Hapus semua ukuran/sizes yang terikat
+            // Cascade delete dependent relation manual (sizes & incoming item logs)
             $item->sizes()->delete();
-
-            // 3. Hapus log riwayat barang masuk (IncomingItems) yang terikat dengan barang ini
             \App\Models\IncomingItem::where('item_id', $item->id)->delete();
 
-            // 4. Eksekusi hapus barang utama
+            // Eksekusi hard delete object master
             $item->delete();
 
             DB::commit();
 
-            // Gunakan flash session 'success' (biasanya ditangkap oleh AdminLayout)
             return redirect()->back()->with('success', 'Data barang beserta log riwayatnya berhasil dihapus permanen!');
         } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
 
-            // Error Code 23000: Foreign Key Constraint (Biasanya karena barang masih ada di tabel Borrowings)
+            // Cegah aplikasi crash akibat SQL Error 23000 (Integrity Constraint Violation)
+            // Kasus: Barang ditolak untuk dihapus karena ID-nya sudah melekat pada tabel Transaksi pekerja yang tidak boleh hilang
             if ($e->getCode() == '23000') {
-                // Pakai flash 'error' agar muncul pop-up merah di frontend
-                return redirect()->back()->with('error', 'GAGAL: Barang ini sudah pernah dipinjam oleh pegawai. Tidak dapat dihapus permanen!');
+                return redirect()->back()->with('error', 'GAGAL: Barang ini sudah pernah dipinjam oleh pegawai. Tidak dapat dihapus permanen demi integritas data laporan!');
             }
 
             return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
