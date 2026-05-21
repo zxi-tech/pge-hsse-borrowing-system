@@ -10,19 +10,21 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // 1. MUNCULKAN HALAMAN DAFTAR USER (DENGAN PAGINASI & FILTER)
+    // USER MANAGEMENT BOARD (Admin View)
     public function index(Request $request)
     {
-        // Siapkan kerangka query dasar
+        // Query Optimization: Gunakan withCount() untuk mendapatkan agregat data transaksi
+        // langsung di level database (via subquery) tanpa me-load full collection ke memory.
         $query = User::withCount('transactions')
             ->withCount(['transactions as on_time_count' => function ($q) {
                 $q->where('status', 'selesai')->whereNull('notes');
             }])
             ->withCount(['transactions as late_count' => function ($q) {
+                // Asumsi flag keterlambatan bisa terdeteksi dari status enumerator atau field notes
                 $q->where('status', 'terlambat')->orWhere('notes', 'LIKE', '%terlambat%');
             }]);
 
-        // FITUR PENCARIAN (Cari Nama, NIP, atau Email)
+        // Search Filter (Full-text search logic)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -32,15 +34,16 @@ class UserController extends Controller
             });
         }
 
-        // FITUR FILTER STATUS
+        // Status State Filter
         if ($request->filled('status') && $request->status !== 'Semua') {
             $query->where('status', $request->status);
         }
 
-        // EKSEKUSI: Ambil data, potong 7 per halaman, lalu format datanya
+        // Eksekusi Query dengan Pagination (7 rows per page)
         $users = $query->latest()
             ->paginate(7)
             ->through(function ($user) {
+                // Data mapping: Format payload sebelum di-pass ke React frontend
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -50,64 +53,69 @@ class UserController extends Controller
                     'phone' => $user->phone,
                     'photo' => $user->photo,
                     'status' => $user->status ?? 'Aktif',
+                    // Null coalescing fallback untuk data yang berpotensi empty
                     'about' => $user->about ?? 'Belum ada deskripsi profil untuk pengguna ini.',
                     'area' => $user->area ?? 'Site Lahendong',
 
+                    // Append computed properties dari subquery withCount()
                     'total_borrow' => $user->transactions_count,
                     'on_time' => $user->on_time_count,
                     'late' => $user->late_count,
                 ];
             })
-            ->withQueryString(); // Memastikan saat pindah halaman, kata kunci pencarian tidak hilang
+            // Pertahankan query string parameter (search/status) saat admin berpindah halaman
+            ->withQueryString(); 
 
-        // Kirim data pengguna dan parameter filter yang sedang aktif ke React
         return Inertia::render('Dashboard/Users', [
             'users' => $users,
             'filters' => $request->only(['search', 'status'])
         ]);
     }
 
-    // 2. PROSES UPDATE DATA (STATUS & EMAIL VIA OTP)
+    // HANDLE ACCOUNT MUTATION (Admin Action)
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
-        // Validasi dasar
         $validated = $request->validate([
             'status' => 'required|in:Aktif,Nonaktif,Cuti',
             'email' => [
                 'sometimes',
                 'required',
                 'email',
+                // Cegah duplicate email exception, tapi abaikan jika emailnya milik user ini sendiri
                 Rule::unique('users')->ignore($user->id),
+                // Validasi domain email untuk whitelist akses internal perusahaan
                 'ends_with:@pertamina.com,@mitrakerja.pertamina.com'
             ],
             'otp' => 'sometimes|required|digits:6'
         ]);
 
-        // Skenario 1: Jika yang diubah hanya status (Tidak perlu OTP)
+        // SCENARIO 1: Non-Critical Mutation (Status Only)
+        // Bypass verifikasi OTP jika admin hanya mengupdate status akun
         if (!isset($validated['email']) || $validated['email'] === $user->email) {
             $user->update(['status' => $validated['status']]);
             return back()->with('success', 'Status akun berhasil diperbarui!');
         }
 
-        // Skenario 2: Jika Email Diubah, periksa OTP-nya!
+        // SCENARIO 2: Critical Credential Mutation (Email Update)
+        // Wajib verifikasi OTP sebelum menyetujui pergantian email
         if (isset($validated['email']) && $validated['email'] !== $user->email) {
 
-            // CEK OTP: Bandingkan kode yang diketik admin dengan yang ada di database (email_otp)
-            // Asumsi: Admin juga dikirimi OTP ke nomornya, atau menggunakan OTP Master "123456" untuk sementara
+            // Validate payload OTP vs Database state. 
+            // Note: Hardcoded '123456' untuk bypass pada fase development/testing. Harus dihapus saat production.
             $isValidOtp = ($request->otp === $user->email_otp || $request->otp === '123456');
 
             if (!$isValidOtp) {
-                // Jika salah, lemparkan error kembali ke React
+                // Reject invalid OTP dan passing pesan error ke state frontend
                 return back()->withErrors(['otp' => 'Kode OTP tidak valid! Akses ditolak.']);
             }
 
-            // Jika OTP Benar, simpan email dan status baru, lalu hapus OTP lamanya
+            // Eksekusi mutasi credential
             $user->update([
                 'email' => $validated['email'],
                 'status' => $validated['status'],
-                'email_otp' => null // Kosongkan OTP setelah berhasil dipakai
+                'email_otp' => null
             ]);
 
             return back()->with('success', 'Email dan Status berhasil diperbarui melalui verifikasi OTP!');
