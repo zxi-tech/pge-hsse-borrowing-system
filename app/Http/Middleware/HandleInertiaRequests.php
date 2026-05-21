@@ -14,9 +14,7 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
+    // Determine the current asset version
     public function version(Request $request): ?string
     {
         return parent::version($request);
@@ -34,7 +32,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            // 👇 GANTI BARIS AJAIBNYA MENJADI SEPERTI INI 👇
+
             'unread_messages_count' => $request->user() && $request->user()->role === 'admin'
                 ? \App\Models\ContactMessage::where('is_read', false)->count()
                 : 0,
