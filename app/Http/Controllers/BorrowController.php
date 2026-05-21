@@ -14,13 +14,10 @@ use Carbon\Carbon;
 
 class BorrowController extends Controller
 {
-    // =========================================================================
-    // 1. MUNCULKAN HALAMAN FORM PENGAJUAN PINJAM (Ini yang tadi hilang!)
-    // =========================================================================
+    // Render form pengajuan pinjaman APD via Inertia
     public function create()
     {
-        // Ambil semua barang dari database beserta ukuran dan stoknya.
-        // Kita hanya mengambil ukuran yang stoknya lebih dari 0.
+        // Fetch master data barang beserta sizes.
         $items = Item::with(['sizes' => function ($query) {
             $query->where('stock', '>', 0);
         }])->get();
@@ -30,17 +27,14 @@ class BorrowController extends Controller
         ]);
     }
 
-    // =========================================================================
-    // 2. MUNCULKAN HALAMAN STATUS PEMINJAMAN PEKERJA
-    // =========================================================================
+    // Load history transaksi khusus untuk user yang sedang login
     public function index()
     {
         $transactions = Transaction::with(['details.itemSize.item'])
-            ->where('user_id', Auth::id()) // HANYA AMBIL MILIK USER INI
+            ->where('user_id', Auth::id()) // Data isolation
             ->latest()
             ->get()
             ->map(function ($trx) {
-                // Rangkai daftar barang
                 $itemsList = $trx->details->map(function ($detail) {
                     $itemName = $detail->itemSize->item->name ?? 'Barang Dihapus';
                     $sizeName = $detail->itemSize->size_name ?? '-';
@@ -48,12 +42,13 @@ class BorrowController extends Controller
                 })->join(', ');
 
                 return [
+                    // Generate custom transaction ID (Format: HSSE-YYYY000)
                     'id' => 'HSSE-' . Carbon::parse($trx->created_at)->format('Y') . str_pad($trx->id, 3, '0', STR_PAD_LEFT),
                     'items' => $itemsList,
                     'dates' => Carbon::parse($trx->start_date)->format('d M') . ' - ' . Carbon::parse($trx->end_date)->format('d M Y'),
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
-                    'notes' => $trx->notes, // Alasan penolakan dari admin (jika ada)
+                    'notes' => $trx->notes,
                     'created_at' => $trx->created_at,
                 ];
             });
@@ -63,9 +58,7 @@ class BorrowController extends Controller
         ]);
     }
 
-    // =========================================================================
-    // 3. SIMPAN PENGAJUAN PINJAMAN & POTONG STOK SEMENTARA
-    // =========================================================================
+    // Handle penyimpanan transaksi baru dan pengurangan stok secara atomic
     public function store(Request $request)
     {
         $request->validate([
@@ -74,11 +67,13 @@ class BorrowController extends Controller
             'purpose' => 'required|string',
             'selected_items' => 'required|array'
         ]);
-        
+
+        // Memulai DB Transaction agar jika terjadi error (misal: gagal validasi stok), 
+        // semua insert dan update data akan di-rollback tanpa sisa.
         DB::beginTransaction();
 
         try {
-            // Kita gunakan cara 'new' agar terhindar dari blokir Mass Assignment
+            // Instansiasi model manual untuk bypass proteksi Mass Assignment ($fillable)
             $transaction = new Transaction();
             $transaction->user_id = Auth::id();
             $transaction->start_date = $request->start_date;
@@ -96,7 +91,6 @@ class BorrowController extends Controller
                             throw new \Exception("Maaf, stok {$itemSize->item->name} tidak mencukupi.");
                         }
 
-                        // Gunakan cara 'new' untuk Detail Transaksi
                         $detail = new TransactionDetail();
                         $detail->transaction_id = $transaction->id;
                         $detail->item_size_id = $sizeId;
@@ -110,10 +104,11 @@ class BorrowController extends Controller
 
             DB::commit();
             return redirect()->route('borrow.status')->with('success', 'Pengajuan berhasil dikirim! Menunggu persetujuan Admin.');
+            
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // PAKSA LEMPAR ERROR VALIDASI AGAR REACT BISA MENANGKAPNYA
+            // Ubah Exception sistem menjadi ValidationException
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'selected_items' => 'Sistem Gagal Menyimpan: ' . $e->getMessage()
             ]);
