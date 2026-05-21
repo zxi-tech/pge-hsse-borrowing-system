@@ -154,7 +154,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        {/* ROW 3: Select Box Departemen */}
+                        {/* ROW 3: Select Box Departemen Resmi PGE */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Departemen
@@ -168,10 +168,15 @@ export default function Register() {
                                 </div>
                                 <select value={data.department} onChange={(e) => setData('department', e.target.value)} required className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-600 rounded-lg pl-10 pr-10 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all cursor-pointer font-medium appearance-none relative">
                                     <option value="" disabled>-- Pilih Departemen --</option>
-                                    <option value="Operasional">Operasional Panas Bumi</option>
-                                    <option value="Teknik">Teknik & Pemeliharaan</option>
-                                    <option value="HSSE">HSSE / K3</option>
-                                    <option value="Logistik">Logistik & SCM</option>
+                                    <option value="Operation">Operation</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Supply Chain Management (SCM)">Supply Chain Management (SCM)</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Healthy, Safety, Security, Environment (HSSE)">Healthy, Safety, Security, Environment (HSSE)</option>
+                                    <option value="Planning Engineering">Planning Engineering</option>
+                                    <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                                    <option value="Government & Public Relation (GPR)">Government & Public Relation (GPR)</option>
+                                    <option value="Information Communication Technology (ICT)">Information Communication Technology (ICT)</option>
                                 </select>
                                 {/* Custom Chevron untuk Select Box */}
                                 <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
