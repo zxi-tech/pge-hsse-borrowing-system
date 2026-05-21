@@ -10,23 +10,20 @@ use Illuminate\Support\Facades\Auth;
 
 class IncomingItemController extends Controller
 {
-    // Menampilkan halaman riwayat barang masuk
     public function index()
     {
-        // Ambil data riwayat dari yang terbaru, bawa juga data relasi nama barang dan nama adminnya
+        // Fetch incoming item logs dengan eager loading (item, user) 
         $incomingItems = IncomingItem::with(['item', 'user'])->latest()->get();
 
-        // Ambil data semua barang untuk pilihan dropdown saat admin mau input barang masuk
         $items = Item::all();
 
-        // Ubah 'Admin' menjadi 'Dashboard'
         return Inertia::render('Dashboard/IncomingItems', [
             'incomingItems' => $incomingItems,
             'items' => $items
         ]);
     }
 
-    // Menyimpan data saat admin klik "Simpan Barang Masuk"
+    // Handle proses pencatatan barang masuk & penambahan stok
     public function store(Request $request)
     {
         $request->validate([
@@ -36,21 +33,21 @@ class IncomingItemController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // 1. Simpan ke tabel log riwayat (incoming_items)
+        // Insert record ke tabel log (incoming_items) sebagai audit trail.
+        // ID Admin (user_id) diambil otomatis dari session untuk tracking akuntabilitas.
         IncomingItem::create([
             'item_id' => $request->item_id,
-            'user_id' => Auth::id(), // Otomatis ambil ID Admin yang sedang login
+            'user_id' => Auth::id(),
             'quantity' => $request->quantity,
             'received_date' => $request->received_date,
             'notes' => $request->notes,
         ]);
 
-        // 2. UPDATE STOK UTAMA DI TABEL ITEMS 
+        // Atomic update: langsung increment total stok di tabel master items
+        // Menggunakan method increment() agar query langsung dieksekusi di level database
         $item = Item::findOrFail($request->item_id);
-        // CATATAN: Ganti 'stock' dengan nama kolom jumlah barang di tabel items Anda (misal: quantity, total_stock, dll)
         $item->increment('stock', $request->quantity);
 
-        // Kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('message', 'Riwayat barang masuk berhasil dicatat dan stok bertambah!');
     }
 }
