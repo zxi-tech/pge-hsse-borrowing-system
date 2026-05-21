@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 
 export default function AdminLayout({ user, children }) {
-    // ================= STATES INTERAKTIVITAS =================
+    // =========================================================================
+    // UI STATE MANAGEMENT
+    // =========================================================================
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // 👇 STATE UNTUK TEKS CHIBI DINAMIS (PESAN JEJAK ASAP) 👇
+    // Easter Egg / Mascot UI: Rotasi pesan dinamis untuk animasi Chibi patroli
     const patrolMessages = [
         "Area Aman!",
         "Cek Stok APD",
@@ -17,10 +19,11 @@ export default function AdminLayout({ user, children }) {
     ];
     const [chibiMsgIndex, setChibiMsgIndex] = useState(0);
 
-    // TANGKAP DATA GLOBAL DARI LARAVEL
+    // Fetch global shared props yang di-inject dari middleware HandleInertiaRequests Laravel
     const { unread_messages_count } = usePage().props;
     const isRouteActive = (pattern) => route().current(pattern);
 
+    // Event Listener: Auto-close dropdown profil saat mendeteksi outside click (UX Enhancement)
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -31,8 +34,8 @@ export default function AdminLayout({ user, children }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // 👇 EFEK UNTUK MENGGANTI TEKS SETIAP 24 DETIK 👇
-    // (Pesan diganti tepat saat Chibi akan mulai jalan ke kanan lagi)
+    // Timer sinkronisasi: Update index array pesan persis setiap 24 detik
+    // (Waktu disesuaikan dengan 1 full cycle CSS keyframe animation Chibi agar transisi mulus)
     useEffect(() => {
         const interval = setInterval(() => {
             setChibiMsgIndex((prev) => (prev + 1) % patrolMessages.length);
@@ -40,6 +43,7 @@ export default function AdminLayout({ user, children }) {
         return () => clearInterval(interval);
     }, [patrolMessages.length]);
 
+    // Placeholder handler untuk endpoint/fitur yang masih dalam tahap UI Mockup
     const handleComingSoon = (featureName) => {
         alert(`Fitur ${featureName} saat ini sedang dalam tahap pengembangan. Segera Hadir! 🚀`);
     };
@@ -47,7 +51,7 @@ export default function AdminLayout({ user, children }) {
     return (
         <div className="flex h-screen bg-[#F4F5FA] font-sans text-gray-800 overflow-hidden">
 
-            {/* INJEKSI CSS ANIMASI CHIBI PATROLI (SMOOTH & SLOW) */}
+
             <style>{`
                 /* Bergerak santai ke ujung, melambat, lalu kembali */
                 @keyframes patrolResponsive {
