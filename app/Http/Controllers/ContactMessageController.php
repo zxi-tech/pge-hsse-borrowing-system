@@ -8,7 +8,7 @@ use Inertia\Inertia;
 
 class ContactMessageController extends Controller
 {
-    // 1. UNTUK USER: Menyimpan pesan yang dikirim dari halaman Contact Us
+    // Handle incoming contact messages dari frontend. 
     public function store(Request $request)
     {
         $request->validate([
@@ -20,14 +20,12 @@ class ContactMessageController extends Controller
 
         ContactMessage::create($request->all());
 
-        // Kembalikan ke halaman sebelumnya dengan notifikasi sukses
         return back()->with('success', 'Pesan Anda berhasil dikirim! Tim Admin HSSE akan segera meninjaunya.');
     }
 
-    // 2. UNTUK ADMIN: Menampilkan daftar pesan di Dashboard
+    // Render data inbox ke dashboard Admin via Inertia.
     public function index()
     {
-        // Ambil semua pesan, urutkan dari yang paling baru, dan potong 10 per halaman
         $messages = ContactMessage::latest()->paginate(10);
 
         return Inertia::render('Dashboard/Messages', [
@@ -35,7 +33,7 @@ class ContactMessageController extends Controller
         ]);
     }
 
-    // 3. UNTUK ADMIN: Mengubah status pesan menjadi "Sudah Dibaca"
+    // Flagging status pesan. Update state 'is_read' menjadi true 
     public function markAsRead($id)
     {
         $message = ContactMessage::findOrFail($id);
@@ -44,7 +42,7 @@ class ContactMessageController extends Controller
         return back();
     }
 
-    // 4. UNTUK ADMIN: Menghapus Pesan secara permanen
+    // Hard delete message record dari database. 
     public function destroy($id)
     {
         $message = ContactMessage::findOrFail($id);
