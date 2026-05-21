@@ -8,23 +8,26 @@ use Illuminate\Support\Facades\Auth;
 
 class OtpController extends Controller
 {
-    // === 1. FASE EMAIL ===
+    // PHASE 1: EMAIL VERIFICATION PIPELINE
+    // Render UI input OTP Email.
     public function verifyEmailView()
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Cegah masuk jika email sudah terverifikasi
+        // State Validation: Bypass ke fase WhatsApp jika timestamp email_verified_at sudah terisi
         if ($user->email_verified_at) {
             return redirect()->route('otp.phone.view');
         }
 
         return Inertia::render('Auth/VerifyEmailOtp', [
             'email' => $user->email,
+            // DEVELOPMENT ONLY: Passing OTP ke frontend untuk mempermudah testing. Wajib dihapus saat production.
             'testing_otp' => $user->email_otp
         ]);
     }
 
+    // Proses validasi OTP Email dan update state database
     public function verifyEmail(Request $request)
     {
         $request->validate(['otp' => 'required|numeric|digits:6']);
@@ -33,35 +36,39 @@ class OtpController extends Controller
         $user = $request->user();
 
         if ($request->otp == $user->email_otp) {
-            // Berhasil! Hapus OTP dan catat jam verifikasi
+            // Clear payload OTP dan catat timestamp verifikasi
             $user->update([
                 'email_verified_at' => now(),
                 'email_otp' => null
             ]);
-            // Arahkan ke fase 2 (WhatsApp)
+            
+            // Teruskan user ke pipeline tahap 2
             return redirect()->route('otp.phone.view');
         }
 
         return back()->withErrors(['otp' => 'Kode OTP Email salah atau tidak valid.']);
     }
 
-    // === 2. FASE WHATSAPP ===
+    // PHASE 2: WHATSAPP VERIFICATION PIPELINE
+    // Render UI input OTP WhatsApp.
     public function verifyPhoneView()
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Pastikan email sudah beres dulu
+        // Pipeline Lock: User dilarang masuk ke fase ini jika tahap verifikasi email belum selesai
         if (!$user->email_verified_at) {
             return redirect()->route('otp.email.view');
         }
 
         return Inertia::render('Auth/VerifyPhoneOtp', [
             'phone' => $user->phone,
-            'testing_otp' => $user->phone_otp // Hapus ini di produksi
+            // DEVELOPMENT ONLY: Passing OTP ke frontend untuk mempermudah testing. Wajib dihapus saat production.
+            'testing_otp' => $user->phone_otp 
         ]);
     }
 
+    // Proses validasi OTP WhatsApp dan finalisasi proses registrasi
     public function verifyPhone(Request $request)
     {
         $request->validate(['otp' => 'required|numeric|digits:6']);
@@ -70,18 +77,18 @@ class OtpController extends Controller
         $user = $request->user();
 
         if ($request->otp == $user->phone_otp) {
-            // 1. Berhasil! Hapus OTP dan catat waktu verifikasi
+            // Clear payload OTP dan catat timestamp verifikasi WA
             $user->update([
                 'phone_verified_at' => now(),
                 'phone_otp' => null
             ]);
 
-            // 2. Logout akun secara paksa (Sesuai skenario Anda)
+            // Force Logout Session
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            // 3. Arahkan ke halaman Login dengan pesan sukses
+            // Redirect ke gate Login dengan flag status sukses
             return redirect()->route('login')->with('status', 'Verifikasi berhasil! Silakan login menggunakan kredensial Anda.');
         }
 
