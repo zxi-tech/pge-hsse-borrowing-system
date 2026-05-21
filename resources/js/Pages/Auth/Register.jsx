@@ -34,10 +34,8 @@ export default function Register() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Registrasi Akun" />
 
-            {/* 👇 PERHATIKAN PENAMBAHAN md:min-h-[600px] DI SINI 👇 */}
             <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
-                {/* ================= KOLOM KIRI: FOTO ================= */}
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
