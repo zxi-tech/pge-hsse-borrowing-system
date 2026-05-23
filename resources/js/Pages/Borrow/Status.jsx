@@ -23,6 +23,15 @@ export default function Status({ auth, transactions }) {
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    // ================= STATES PAGINASI =================
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Menampilkan 5 kartu per halaman (Bisa kamu ubah nanti jika ingin 10)
+
+    // Reset ke halaman 1 setiap kali user mengetik pencarian atau mengubah filter
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter, timeFilter]);
+
     // Menutup dropdown jika user klik di luar area
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -68,6 +77,12 @@ export default function Status({ auth, transactions }) {
         return matchesStatus && matchesSearch && matchesTime;
     }) || [];
 
+    // ================= LOGIKA PEMOTONGAN DATA (PAGINASI) =================
+    const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredTransactions.slice(indexOfFirstItem, indexOfLastItem);
+
     // ================= HELPER FUNCTIONS =================
     const getStatusStyle = (status) => {
         switch (status?.toLowerCase()) {
@@ -95,7 +110,7 @@ export default function Status({ auth, transactions }) {
 
                 {/* ================= NAVBAR RESPONSIVE ================= */}
                 <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-50 bg-transparent relative">
-                    
+
                     {/* ZONA 1: Logo Kiri */}
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
                         <img src="/images/pertamina-logo (1).png" alt="Pertamina Geothermal Energy" className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} />
@@ -111,13 +126,13 @@ export default function Status({ auth, transactions }) {
                             Ajukan Peminjaman
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        
+
                         {/* Menu Aktif */}
                         <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] text-[#21409A] transition-colors duration-300">
                             Status
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        
+
                         <Link href={route('contact')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Contact Us
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
@@ -203,23 +218,53 @@ export default function Status({ auth, transactions }) {
 
                 <main className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-6 relative z-10">
 
-                    {/* HEADER & SUMMARY STATS */}
-                    <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center justify-between mb-12">
+                    {/* ================= HEADER & SUMMARY STATS ================= */}
+                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start lg:items-center justify-between mb-12">
                         <div className="flex-1">
                             <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mb-3 tracking-tight">Status Peminjaman APD</h1>
                             <p className="text-sm text-gray-500 max-w-xl font-medium leading-relaxed">Pantau seluruh riwayat dan status terkini pengajuan alat pelindung diri Anda di sini.</p>
                         </div>
 
-                        <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
+                        <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 shrink-0">
                             {[
-                                { label: 'Total', value: transactions?.length || 0, color: 'text-gray-800' },
-                                { label: 'Menunggu', value: transactions?.filter(t => t.status === 'menunggu').length || 0, color: 'text-amber-500' },
-                                { label: 'Dipinjam', value: transactions?.filter(t => t.status === 'dipinjam' || t.status === 'disetujui').length || 0, color: 'text-blue-600' },
-                                { label: 'Selesai', value: transactions?.filter(t => t.status === 'selesai').length || 0, color: 'text-emerald-500' },
+                                {
+                                    label: 'Total',
+                                    value: transactions?.length || 0,
+                                    color: 'text-gray-800',
+                                    bgIcon: 'bg-gray-100',
+                                    icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                },
+                                {
+                                    label: 'Menunggu',
+                                    value: transactions?.filter(t => t.status === 'menunggu').length || 0,
+                                    color: 'text-amber-500',
+                                    bgIcon: 'bg-amber-50',
+                                    icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                },
+                                {
+                                    label: 'Dipinjam',
+                                    value: transactions?.filter(t => t.status === 'dipinjam' || t.status === 'disetujui').length || 0,
+                                    color: 'text-blue-600',
+                                    bgIcon: 'bg-blue-50',
+                                    icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                                },
+                                {
+                                    label: 'Selesai',
+                                    value: transactions?.filter(t => t.status === 'selesai').length || 0,
+                                    color: 'text-emerald-500',
+                                    bgIcon: 'bg-emerald-50',
+                                    icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                },
                             ].map((item, i) => (
-                                <div key={i} className="bg-white px-5 py-4 rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-center min-w-[110px]">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{item.label}</p>
-                                    <h2 className={`text-2xl font-black ${item.color}`}>{item.value}</h2>
+                                <div key={i} className="bg-white px-4 md:px-5 py-4 rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between min-w-[120px] gap-2 md:gap-3 group hover:border-gray-200 transition-colors">
+                                    <div className="flex flex-col justify-center">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{item.label}</p>
+                                        <h2 className={`text-2xl font-black leading-none ${item.color}`}>{item.value}</h2>
+                                    </div>
+                                    {/* Lingkaran Ikon */}
+                                    <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center shrink-0 ${item.bgIcon} transition-transform group-hover:scale-110`}>
+                                        {item.icon}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -316,10 +361,11 @@ export default function Status({ auth, transactions }) {
                             </div>
                         </div>
 
-                        {/* TABEL DATA */}
-                        <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-left whitespace-nowrap">
-                                <thead>
+                        {/* ================= TABEL DATA & PAGINASI ================= */}
+                        <div className="p-4 md:p-0 bg-gray-50/30 md:bg-transparent rounded-b-[24px] overflow-hidden md:overflow-x-auto custom-scrollbar flex flex-col">
+                            <table className="w-full text-left block md:table whitespace-nowrap">
+
+                                <thead className="hidden md:table-header-group">
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">ID Transaksi</th>
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Barang Dipinjam</th>
@@ -329,48 +375,124 @@ export default function Status({ auth, transactions }) {
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Catatan Admin</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {filteredTransactions.length > 0 ? (
-                                        filteredTransactions.map((trx, index) => (
-                                            <tr key={index} className="hover:bg-blue-50/30 transition-colors group">
-                                                <td className="px-6 py-4"><span className="font-extrabold text-gray-900 text-sm tracking-wide">{trx.id}</span></td>
-                                                <td className="px-6 py-4 min-w-[280px]"><p className="text-[13px] font-bold text-gray-700 whitespace-normal leading-relaxed">{trx.items || '-'}</p></td>
-                                                <td className="px-6 py-4 min-w-[200px]"><p className="text-[13px] font-medium text-gray-500 whitespace-normal line-clamp-2" title={trx.purpose}>{trx.purpose || '-'}</p></td>
-                                                <td className="px-6 py-4">
-                                                    <div className="inline-flex items-center gap-2 bg-[#F4F5F9] px-3 py-1.5 rounded-lg border border-gray-100 group-hover:border-blue-100 transition-colors">
-                                                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                        <span className="text-[12px] font-bold text-gray-600">{trx.dates || '-'}</span>
+
+                                <tbody className="block md:table-row-group divide-y-0 md:divide-y divide-gray-50">
+                                    {currentItems.length > 0 ? (
+                                        currentItems.map((trx, index) => (
+                                            <tr key={index} className="flex flex-col md:table-row bg-white md:bg-transparent border border-gray-200 md:border-0 rounded-[16px] md:rounded-none mb-3 md:mb-0 p-3 md:p-0 shadow-sm md:shadow-none hover:bg-blue-50/30 transition-colors group">
+
+                                                {/* ID TRANSAKSI */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
+                                                    <div className="flex justify-between items-center md:block">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">ID Transaksi</span>
+                                                        <span className="font-extrabold text-[#21409A] md:text-gray-900 text-[13px] md:text-sm tracking-wide">{trx.id}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4"><span className={`px-3 py-1.5 rounded-lg text-[11px] font-black border uppercase tracking-wider inline-block ${getStatusStyle(trx.status)}`}>{trx.status}</span></td>
-                                                <td className="px-6 py-4 min-w-[200px]">
-                                                    {trx.notes ? (
-                                                        <p className="text-[12px] text-red-600 font-medium whitespace-normal bg-red-50 px-3 py-2 rounded-lg border border-red-100 inline-block">{trx.notes}</p>
-                                                    ) : (<span className="text-gray-300 font-bold text-sm">-</span>)}
+
+                                                {/* BARANG DIPINJAM */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0 md:min-w-[280px]">
+                                                    <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Barang Dipinjam</span>
+                                                        <p className="text-[12px] md:text-[13px] font-bold text-gray-700 whitespace-normal leading-snug">{trx.items || '-'}</p>
+                                                    </div>
+                                                </td>
+
+                                                {/* KEPERLUAN */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0 md:min-w-[200px]">
+                                                    <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Keperluan</span>
+                                                        <p className="text-[12px] md:text-[13px] font-medium text-gray-500 whitespace-normal line-clamp-2" title={trx.purpose}>{trx.purpose || '-'}</p>
+                                                    </div>
+                                                </td>
+
+                                                {/* DURASI PINJAM */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
+                                                    <div className="flex justify-between items-center md:block mt-1 md:mt-0">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Durasi Pinjam</span>
+                                                        <div className="inline-flex items-center gap-1.5 bg-[#F4F5F9] px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg border border-gray-100 group-hover:border-blue-100 transition-colors">
+                                                            <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                            <span className="text-[11px] md:text-[12px] font-bold text-gray-600">{trx.dates || '-'}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                {/* STATUS */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
+                                                    <div className="flex justify-between items-center md:block mt-1 md:mt-0">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Status</span>
+                                                        <span className={`px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[10px] md:text-[11px] font-black border uppercase tracking-wider inline-block ${getStatusStyle(trx.status)}`}>{trx.status}</span>
+                                                    </div>
+                                                </td>
+
+                                                {/* CATATAN ADMIN */}
+                                                <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 md:min-w-[200px]">
+                                                    <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
+                                                        <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Catatan Admin</span>
+                                                        {trx.notes ? (
+                                                            <p className="text-[11px] md:text-[12px] text-red-600 font-medium whitespace-normal bg-red-50 px-2.5 py-1.5 md:px-3 md:py-2 rounded-md md:rounded-lg border border-red-100 inline-block w-full md:w-auto mt-1 md:mt-0">{trx.notes}</p>
+                                                        ) : (<span className="text-gray-300 font-bold text-sm">-</span>)}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
-                                        /* EMPTY STATE (JIKA HASIL FILTER KOSONG) */
-                                        <tr>
-                                            <td colSpan="6" className="px-6 py-20 text-center">
+                                        <tr className="block md:table-row">
+                                            <td colSpan="6" className="block md:table-cell px-6 py-20 text-center">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
                                                         <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                     </div>
                                                     <h3 className="font-bold text-gray-800 text-[15px] mb-1">Data Tidak Ditemukan</h3>
                                                     <p className="text-[13px] text-gray-500 font-medium mb-4">Tidak ada transaksi yang cocok dengan filter atau pencarian Anda.</p>
-                                                    {(statusFilter !== 'Semua' || timeFilter !== 'Semua Waktu' || searchQuery !== '') && (
-                                                        <button onClick={() => { setStatusFilter('Semua'); setTimeFilter('Semua Waktu'); setSearchQuery(''); }} className="text-xs font-bold text-[#21409A] bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors">
-                                                            Reset Semua Filter
-                                                        </button>
-                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
                                     )}
                                 </tbody>
                             </table>
+
+                            {/* ================= KONTROL PAGINASI (TAMPIL JIKA LEBIH DARI 1 HALAMAN) ================= */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-between px-2 py-4 md:px-6 md:py-5 border-t border-gray-100 bg-transparent md:bg-white mt-1 md:mt-0">
+                                    <p className="text-[12px] text-gray-500 font-medium hidden sm:block">
+                                        Menampilkan <span className="font-bold text-gray-900">{indexOfFirstItem + 1}</span> - <span className="font-bold text-gray-900">{Math.min(indexOfLastItem, filteredTransactions.length)}</span> dari <span className="font-bold text-gray-900">{filteredTransactions.length}</span> entri
+                                    </p>
+
+                                    <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className="px-3 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#21409A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1 shadow-sm"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                                            <span className="hidden sm:inline">Prev</span>
+                                        </button>
+
+                                        {/* Angka Halaman (1, 2, 3...) */}
+                                        <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                                            {[...Array(totalPages)].map((_, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setCurrentPage(i + 1)}
+                                                    className={`w-8 h-8 flex items-center justify-center rounded-md text-xs font-bold transition-all ${currentPage === i + 1 ? 'bg-[#21409A] text-white shadow-md' : 'bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-900'}`}
+                                                >
+                                                    {i + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                            disabled={currentPage === totalPages}
+                                            className="px-3 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#21409A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1 shadow-sm"
+                                        >
+                                            <span className="hidden sm:inline">Next</span>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </main>

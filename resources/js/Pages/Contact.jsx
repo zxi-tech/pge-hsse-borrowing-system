@@ -57,14 +57,14 @@ export default function Contact({ auth }) {
 
                 {/* ================= NAVBAR RESPONSIVE ================= */}
                 <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent shrink-0">
-                    
+
                     {/* ZONA 1: Logo Kiri */}
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
-                        <img 
-                            src="/images/pertamina-logo (1).png" 
-                            alt="PGE" 
-                            className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" 
-                            onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} 
+                        <img
+                            src="/images/pertamina-logo (1).png"
+                            alt="PGE"
+                            className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105"
+                            onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }}
                         />
                     </div>
 
@@ -74,12 +74,12 @@ export default function Contact({ auth }) {
                             {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        
+
                         <Link href={user ? route('borrow.create') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Ajukan Peminjaman
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
-                        
+
                         <Link href={user ? route('borrow.status') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             Status
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
@@ -172,7 +172,7 @@ export default function Contact({ auth }) {
                 {/* ================= KONTEN UTAMA ================= */}
                 <main className="flex-grow max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-6 mb-20 w-full">
 
-                    {/* Header Text */}
+                    {/* Header Text (Dikembalikan ke Bahasa Indonesia) */}
                     <div className="mb-12 text-center">
                         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mb-3 tracking-tight">Hubungi Kami</h1>
                         <p className="text-sm text-gray-500 max-w-xl mx-auto font-medium leading-relaxed">
@@ -180,169 +180,181 @@ export default function Contact({ auth }) {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        {/* ... (Isi bagian Card dan Form biarkan tetap menggunakan kode yang sebelumnya) ... */}
 
-                        {/* Area Kiri: Info Kontak */}
-                        <div className="lg:col-span-5 space-y-6">
+                        {/* ================= AREA KIRI: 3 CARDS ================= */}
+                        <div className="lg:col-span-4 flex flex-col gap-4">
 
-                            {/* Kartu Alamat Utama */}
+                            {/* Card 1: Head Office (Link Aktif ke Google Maps) */}
                             <a
-                                href="https://www.google.com/maps/search/?api=1&query=PT.+Pertamina+Geothermal+Energy+Area+Lahendong,+Tomohon"
+                                href="https://maps.google.com/?q=PT+Pertamina+Geothermal+Energy+Area+Lahendong"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group cursor-pointer"
+                                className="bg-white p-6 rounded-[16px] border border-gray-200 shadow-sm flex items-start gap-4 transition-all duration-300 hover:border-[#21409A]/40 hover:shadow-md hover:-translate-y-0.5 group cursor-pointer"
+                                title="Buka di Google Maps"
                             >
-                                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#21409A] transition-colors">
-                                    <svg className="w-6 h-6 text-[#21409A] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                <div className="w-10 h-10 shrink-0 bg-[#F1F5F9] rounded-full flex items-center justify-center mt-0.5 group-hover:bg-[#21409A] transition-colors duration-300">
+                                    <svg className="w-5 h-5 text-gray-700 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </div>
-                                <h3 className="text-lg font-black text-gray-900 mb-2">
-                                    PT. Pertamina Geothermal Energy<br />Area Lahendong
-                                </h3>
-                                <p className="text-sm text-gray-500 leading-relaxed font-medium">
-                                    Kelurahan Tondangow, Kecamatan Tomohon Selatan<br />
-                                    Kota Tomohon, Sulawesi Utara 95438<br />
-                                    Indonesia
-                                </p>
+                                <div>
+                                    <h3 className="text-[15px] font-bold text-gray-900 mb-1.5 flex items-center gap-1.5">
+                                        Kantor
+                                        <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#21409A] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    </h3>
+                                    <p className="text-[12px] text-gray-600 leading-relaxed font-medium">
+                                        Jl. Raya Tomohon No.420, Kolongan Satu,<br />
+                                        Kec. Tomohon Sel., Kota Tomohon, Sulawesi Utara 95362
+                                    </p>
+                                </div>
                             </a>
 
-                            {/* GRID 2x2 UNTUK WA & EMAIL */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                                {/* WA 1 - Operasional */}
-                                <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-green-300 hover:shadow-md transition-all group block">
-                                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#00A651] transition-colors">
-                                        <svg className="w-5 h-5 text-[#00A651] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                                        </svg>
+                            {/* Card 2: WhatsApp Support (Link Klik Langsung ke Chat WA) */}
+                            <div className="bg-white p-6 rounded-[16px] border border-gray-200 shadow-sm transition-shadow hover:shadow-md">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <svg className="w-5 h-5 text-[#00A651]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
+                                    <h3 className="text-[15px] font-bold text-gray-900">WhatsApp Support</h3>
+                                </div>
+                                <hr className="border-gray-100 mb-4" />
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Admin HSSE</p>
+                                        <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
+                                            +62 812-3456-7890
+                                        </a>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">WA Admin HSSE</h3>
-                                    <p className="text-xs text-gray-500 font-medium">+62 812-3456-7890</p>
-                                </a>
-
-                                {/* Email 1 - Operasional */}
-                                <a href="mailto:hsse.support@pge.com" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-red-300 hover:shadow-md transition-all group block">
-                                    <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#ED1C24] transition-colors">
-                                        <svg className="w-5 h-5 text-[#ED1C24] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.728L12 16.64l-6.545-4.912v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" />
-                                        </svg>
+                                    <div>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Admin IT</p>
+                                        <a href="https://wa.me/6289876543210" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
+                                            +62 898-7654-3210
+                                        </a>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">Email Admin HSSE</h3>
-                                    <p className="text-[11px] text-gray-500 font-medium truncate">hsse.support@pge.com</p>
-                                </a>
+                                </div>
+                            </div>
 
-                                {/* WA 2 - Sistem/IT */}
-                                <a href="https://wa.me/6289876543210" target="_blank" rel="noreferrer" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-green-300 hover:shadow-md transition-all group block">
-                                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#00A651] transition-colors">
-                                        <svg className="w-5 h-5 text-[#00A651] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                                        </svg>
+                            {/* Card 3: Email Support (Menggunakan Ikon Microsoft Outlook) */}
+                            <div className="bg-white p-6 rounded-[16px] border border-gray-200 shadow-sm transition-shadow hover:shadow-md">
+                                <div className="flex items-center gap-3 mb-4">
+                                    {/* Ikon Kustom Microsoft Outlook SVG */}
+                                    <svg className="w-5 h-5 text-[#0072C6]" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21.143 0H2.857A2.857 2.857 0 000 2.857v18.286A2.857 2.857 0 002.857 24h18.286A2.857 2.857 0 0024 21.143V2.857A2.857 2.857 0 0021.143 0zM12 14.57l-7.43-5.572h14.86zM4.57 6.857h14.86v1.144L12 13.57 4.57 9.001zm0 3.143l4.286 3.143-4.286 3.143zm14.86 6.286H4.57v-.571l4.286-3.143 3.144 2.286 3.143-2.286 4.286 3.143zm0-1.143l-4.286-3.143 4.286-3.143z" />
+                                    </svg>
+                                    <h3 className="text-[15px] font-bold text-gray-900">Email Support</h3>
+                                </div>
+                                <hr className="border-gray-100 mb-4" />
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">General Support</p>
+                                        <a href="mailto:support.hsse@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">support.hsse@pertamina.com</a>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">WA Admin IT</h3>
-                                    <p className="text-xs text-gray-500 font-medium">+62 898-7654-3210</p>
-                                </a>
-
-                                {/* Email 2 - Keluhan Umum */}
-                                <a href="mailto:complaint@pge.com" className="bg-white p-5 rounded-[20px] border border-gray-100 shadow-sm hover:border-red-300 hover:shadow-md transition-all group block">
-                                    <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-[#ED1C24] transition-colors">
-                                        <svg className="w-5 h-5 text-[#ED1C24] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.728L12 16.64l-6.545-4.912v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" />
-                                        </svg>
+                                    <div>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Complaints & Reporting</p>
+                                        <a href="mailto:complaint.hsse@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">complaint.hsse@pertamina.com</a>
                                     </div>
-                                    <h3 className="text-[13px] font-bold text-gray-900 mb-1">Email Admin IT</h3>
-                                    <p className="text-[11px] text-gray-500 font-medium truncate">layanan@pge.com</p>
-                                </a>
-
+                                </div>
                             </div>
                         </div>
 
-                        {/* Area Kanan: Form Pesan */}
-                        <div className="lg:col-span-7">
-                            <div className="bg-white p-8 lg:p-10 rounded-[24px] border border-gray-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)]">
-                                <h2 className="text-xl font-extrabold text-gray-900 mb-6">Kirim Pesan</h2>
+                        {/* ================= AREA KANAN: FORM PESAN ================= */}
+                        <div className="lg:col-span-8">
+                            <div className="bg-white p-6 sm:p-8 lg:p-10 rounded-[16px] border border-gray-200 shadow-sm h-full">
+                                <h2 className="text-xl font-bold text-gray-900 mb-6 tracking-tight">Kirim Pesan</h2>
 
                                 {isSent && (
-                                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-sm font-bold text-[#00A651] flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-sm font-bold text-[#00A651] flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Pesan Anda berhasil terkirim. Admin kami akan segera merespon!
+                                        Message sent successfully! Our admin will respond shortly.
                                     </div>
                                 )}
 
-                                <form onSubmit={submit} className="space-y-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <form onSubmit={submit} className="space-y-5">
 
-                                        {/* INPUT NAMA (TERKUNCI / BACA SAJA) */}
+                                    {/* ROW 1: Name & Email (LOCKED) */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                         <div>
-                                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Nama Lengkap</label>
+                                            <label className="block text-[12px] font-bold text-gray-900 mb-2">Nama Lengkap</label>
                                             <div className="relative">
-                                                <input type="text" value={data.name} readOnly className="w-full bg-[#F4F5F9] border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-500 cursor-not-allowed outline-none" />
-                                                <svg className="absolute right-4 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                <input type="text" value={data.name} readOnly disabled className="w-full bg-[#E5E7EB] border border-transparent rounded-md px-4 py-2.5 text-[13px] font-medium text-gray-500 cursor-not-allowed outline-none opacity-80" />
+                                                <svg className="absolute right-3.5 top-3 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                             </div>
                                         </div>
 
-                                        {/* INPUT EMAIL (TERKUNCI / BACA SAJA) */}
                                         <div>
-                                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email</label>
+                                            <label className="block text-[12px] font-bold text-gray-900 mb-2">Alamat Email</label>
                                             <div className="relative">
-                                                <input type="email" value={data.email} readOnly className="w-full bg-[#F4F5F9] border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-500 cursor-not-allowed outline-none" />
-                                                <svg className="absolute right-4 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                <input type="email" value={data.email} readOnly disabled className="w-full bg-[#E5E7EB] border border-transparent rounded-md px-4 py-2.5 text-[13px] font-medium text-gray-500 cursor-not-allowed outline-none opacity-80" />
+                                                <svg className="absolute right-3.5 top-3 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Input Subjek dan Pesan tetap bisa diedit */}
+                                    {/* ROW 2: Subject */}
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Subjek Pesan *</label>
-                                        <input type="text" value={data.subject} onChange={e => setData('subject', e.target.value)} required className="w-full bg-[#F8FAFC] border-transparent focus:bg-white focus:border-[#21409A]/30 focus:ring-4 focus:ring-[#21409A]/10 rounded-xl px-4 py-3 text-sm font-bold text-gray-900 transition-all outline-none" placeholder="Contoh: Kendala Peminjaman Sepatu Safety..." />
+                                        <label className="block text-[12px] font-bold text-gray-900 mb-2">Subjek Pesan</label>
+                                        <input type="text" value={data.subject} onChange={e => setData('subject', e.target.value)} required className="w-full bg-white border border-gray-200 focus:border-[#21409A] focus:ring-2 focus:ring-[#21409A]/10 rounded-md px-4 py-2.5 text-[13px] font-medium text-gray-900 transition-all outline-none" placeholder="Contoh: Kendala Peminjaman Safety Helmet..." />
                                     </div>
 
+                                    {/* ROW 3: Message */}
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Pesan Anda *</label>
-                                        <textarea value={data.message} onChange={e => setData('message', e.target.value)} required rows="5" className="w-full bg-[#F8FAFC] border-transparent focus:bg-white focus:border-[#21409A]/30 focus:ring-4 focus:ring-[#21409A]/10 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all outline-none resize-none" placeholder="Ceritakan detail pertanyaan atau kendala Anda di sini..."></textarea>
+                                        <label className="block text-[12px] font-bold text-gray-900 mb-2">Pesan Anda</label>
+                                        <textarea value={data.message} onChange={e => setData('message', e.target.value)} required rows="5" className="w-full bg-white border border-gray-200 focus:border-[#21409A] focus:ring-2 focus:ring-[#21409A]/10 rounded-md px-4 py-3 text-[13px] font-medium text-gray-900 transition-all outline-none resize-none" placeholder="Ceritakan detail pertanyaan atau kendala Anda di sini..."></textarea>
                                     </div>
 
-                                    <button type="submit" disabled={processing} className="w-full py-4 bg-[#21409A] hover:bg-[#1a3380] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 flex items-center justify-center gap-2">
-                                        {processing ? 'Mengirim...' : (
-                                            <>
-                                                Kirim Pesan Sekarang
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                            </>
-                                        )}
-                                    </button>
+                                    {/* Submit Button (Rata Kanan) */}
+                                    <div className="flex justify-end pt-2">
+                                        <button type="submit" disabled={processing} className="bg-[#21409A] hover:bg-[#1a3380] text-white px-6 py-2.5 rounded-lg text-[13px] font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                            {processing ? 'Sending...' : (
+                                                <>
+                                                    Kirim Pesan Sekarang
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+
                                 </form>
                             </div>
                         </div>
                     </div>
                 </main>
 
+                {/* ================= FOOTER DENGAN PERBAIKAN MOBILE ================= */}
                 <footer className="mt-auto shrink-0 bg-[#F4F5FA]">
-     <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium">
-        <div>© 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.</div>
-        
-        {/* 👇 CREDIT DEVELOPER (NAMA ASLI + GITHUB) 👇 */}
-        <div className="flex items-center space-x-2 mt-4 md:mt-0">
-            <span>Developed by</span>
-            <a 
-                href="https://github.com/zxi-tech" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-1.5 text-[#21409A] hover:text-[#1a3380] font-bold transition-colors group"
-                title="Lihat Portofolio GitHub"
-            >
-                <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 100 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path>
-                </svg>
-                Timothy (@zxi-tech)
-            </a>
-        </div>
-    </div>
-    
-    {/* Garis Warna Warni Bawah */}
-    <div className="h-1.5 flex w-full mt-4 md:mt-0">
-        <div className="bg-[#21409A] flex-1"></div>
-        <div className="bg-[#ED1C24] flex-1"></div>
-        <div className="bg-[#FBBF24] flex-1"></div>
-    </div>
-</footer>
+                    <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-6 md:py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium gap-4 md:gap-0">
+
+                        {/* Teks Copyright (Rata tengah di HP, Rata kiri di Desktop) */}
+                        <div className="text-center md:text-left leading-relaxed">
+                            © 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.
+                        </div>
+
+                        {/* 👇 Garis Pembatas Khusus HP (Sembunyi di Desktop) 👇 */}
+                        <div className="w-16 h-[2px] bg-gray-300 rounded-full md:hidden"></div>
+
+                        {/* 👇 CREDIT DEVELOPER (NAMA ASLI + GITHUB) 👇 */}
+                        <div className="flex items-center justify-center space-x-2">
+                            <span>Developed by</span>
+                            <a
+                                href="https://github.com/zxi-tech"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 text-[#21409A] hover:text-[#1a3380] font-bold transition-colors group"
+                                title="Lihat Portofolio GitHub"
+                            >
+                                <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 100 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path>
+                                </svg>
+                                Timothy (@zxi-tech)
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Garis Warna Warni Bawah */}
+                    <div className="h-1.5 flex w-full">
+                        <div className="bg-[#21409A] flex-1"></div>
+                        <div className="bg-[#ED1C24] flex-1"></div>
+                        <div className="bg-[#FBBF24] flex-1"></div>
+                    </div>
+                </footer>
 
             </div>
         </>
