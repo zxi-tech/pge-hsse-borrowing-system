@@ -97,6 +97,19 @@ export default function Status({ auth, transactions }) {
         }
     };
 
+    const getStatusRibbonColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'menunggu': return '#FBBF24'; // Kuning
+            case 'disetujui':
+            case 'dipinjam': return '#21409A'; // Biru PGE
+            case 'ditolak': return '#ED1C24'; // Merah PGE
+            case 'selesai':
+            case 'dikembalikan': return '#00A651'; // Hijau PGE
+            case 'terlambat': return '#E11D48'; // Merah Gelap
+            default: return '#D1D5DB'; // Abu-abu
+        }
+    };
+
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -379,7 +392,12 @@ export default function Status({ auth, transactions }) {
                                 <tbody className="block md:table-row-group divide-y-0 md:divide-y divide-gray-50">
                                     {currentItems.length > 0 ? (
                                         currentItems.map((trx, index) => (
-                                            <tr key={index} className="flex flex-col md:table-row bg-white md:bg-transparent border border-gray-200 md:border-0 rounded-[16px] md:rounded-none mb-3 md:mb-0 p-3 md:p-0 shadow-sm md:shadow-none hover:bg-blue-50/30 transition-colors group">
+                                            <tr
+                                                key={index}
+                                                // Warna garis dinamis HANYA akan terlihat di HP karena di bawah ada class md:border-l-0
+                                                style={{ borderLeftColor: getStatusRibbonColor(trx.status) }}
+                                                className="flex flex-col md:table-row bg-white md:bg-transparent border border-gray-200 md:border-0 border-l-[6px] md:border-l-0 rounded-[16px] md:rounded-none overflow-hidden mb-3 md:mb-0 p-3 md:p-0 shadow-sm md:shadow-none hover:bg-blue-50/30 transition-colors group"
+                                            >
 
                                                 {/* ID TRANSAKSI */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
