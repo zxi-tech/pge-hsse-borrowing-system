@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         // Hitung total entitas pekerja aktif (mengabaikan role admin) untuk summary metric
-        $totalUsers = User::where('role', 'user')->count();
+        $totalUsers = User::where('role', '!=', 'admin')->count();
 
         // Agregasi total kuantitas fisik APD dari tabel item_sizes
         $totalItems = ItemSize::sum('stock');

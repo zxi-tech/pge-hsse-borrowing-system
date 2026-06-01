@@ -243,57 +243,12 @@ export default function AdminLayout({ user, children }) {
                 {/* Header Top */}
                 <header className="h-[72px] bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10 flex-shrink-0 gap-8">
 
-                    <div className="hidden md:flex flex-1 h-[60px] border-b-2 border-gray-100 pb-1 relative group mt-auto" title="Sistem Keamanan HSSE Sedang Berpatroli!">
-
-                        <span className="absolute bottom-2 left-2 text-xs font-extrabold text-gray-300 tracking-widest uppercase">HSSE Security Patrol Area</span>
-
-                        <div className="patrol-track relative flex items-end">
-
-                            <div className="chibi-container relative flex items-end">
-
-                                {/* 👇 WADAH JEJAK ASAP & TEKS (DI LUAR FLIP-WRAPPER) 👇 */}
-                                <div className="chibi-smoke-trail relative">
-                                    {/* Efek Asap */}
-                                    <div className="chibi-smoke-cloud w-3 h-3"></div>
-                                    <div className="chibi-smoke-cloud w-4 h-4" style={{ animationDelay: '0.1s', left: '-12px' }}></div>
-
-                                    {/* 👇 TEKS PESAN YANG NGIKUTIN 👇 */}
-                                    <span className="patrol-text absolute -top-1">
-                                        {patrolMessages[chibiMsgIndex]}
-                                    </span>
-                                </div>
-                                {/* 👆 ========================================= 👆 */}
-
-                                <div className="chibi-flip-wrapper">
-                                    <div className="chibi-body">
-                                        {/* SVG Chibi Engineer Mungil */}
-                                        <svg width="40" height="45" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M16 38C16 30 20 26 32 26C44 26 48 30 48 38V56C48 58.2091 46.2091 60 44 60H20C17.7909 60 16 58.2091 16 56V38Z" fill="#00A651" />
-                                            <path d="M22 26L16 38M42 26L48 38" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
-                                            <path d="M16 50H48" stroke="#E2E8F0" strokeWidth="3" />
-
-                                            <rect x="22" y="58" width="6" height="6" rx="2" fill="#334155" />
-                                            <rect x="36" y="58" width="6" height="6" rx="2" fill="#334155" />
-
-                                            <rect x="12" y="34" width="6" height="14" rx="3" fill="#00A651" />
-                                            <rect x="46" y="34" width="6" height="14" rx="3" fill="#00A651" />
-
-                                            <rect x="20" y="16" width="24" height="20" rx="10" fill="#FFDCB3" />
-                                            <circle cx="27" cy="24" r="2.5" fill="#1E293B" />
-                                            <circle cx="37" cy="24" r="2.5" fill="#1E293B" />
-                                            <path d="M28 29C28 29 30 32 32 32C34 32 36 29 36 29" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
-
-                                            <path d="M14 18C14 8.05887 22.0589 0 32 0C41.9411 0 50 8.05887 50 18V20H14V18Z" fill="#F8FAFC" />
-                                            <rect x="26" y="2" width="4" height="16" fill="#21409A" />
-                                            <rect x="30" y="2" width="4" height="16" fill="#ED1C24" />
-                                            <rect x="34" y="2" width="4" height="16" fill="#00A651" />
-
-                                            <rect x="47" y="44" width="4" height="8" rx="1" fill="#475569" />
-                                            <circle cx="49" cy="43" r="2" fill="#FBBF24" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
+                    {/* ================= FOOTER / WATERMARK SISTEM ================= */}
+                    <div className="hidden md:flex flex-1 h-[60px] border-b-2 border-gray-100 pb-3 relative mt-auto items-end px-2">
+                        <div className="w-full flex flex-col justify-end">
+                            <span className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-0.5">
+                                Sistem Manajemen HSSE
+                            </span>
                         </div>
                     </div>
 
