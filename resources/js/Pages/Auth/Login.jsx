@@ -18,22 +18,33 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden relative">
             <Head title="Login Akun" />
 
-            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row -mt-28 md:mt-0">
+            <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row -mt-28 md:mt-0 relative z-10">
 
-                {/* KOLOM KIRI: FORM LOGIN AREA */}
-                <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
+                {/* ================= KOLOM KIRI: FORM LOGIN AREA ================= */}
+                <div className="relative w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center overflow-hidden bg-white/95 md:bg-white">
 
-                    <div className="mb-6">
+                    {/* 👇 GAMBAR WATERMARK (HANYA MUNCUL DI HP - login-image2.png) 👇 */}
+                    <div className="absolute inset-0 z-0 md:hidden pointer-events-none opacity-50">
+                        <img
+                            src="/images/login-image2.png"
+                            alt="Background Mobile"
+                            className="w-full h-full object-cover origin-center scale-110"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop";
+                            }}
+                        />
+                    </div>
+
+                    {/* HEADER KONTEN */}
+                    <div className="relative z-10 mb-6">
                         <img
                             src="/images/pertamina-logo (1).png"
                             alt="Logo PGE"
-                            // Responsivity hack: Tarik logo sedikit ke atas (-mt-12) khusus layar desktop
-                            // agar proporsi form login dan gambar di kolom kanan lebih presisi
                             className="h-10 w-auto mb-6 object-contain md:-mt-12"
-                            // Error boundary fallback jika file gambar lokal terhapus/gagal dimuat
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "https://via.placeholder.com/150x40?text=Logo+PGE";
@@ -48,9 +59,10 @@ export default function Login() {
                         </p>
                     </div>
 
-                    <form onSubmit={submit} className="space-y-4">
+                    {/* FORM INPUT */}
+                    <form onSubmit={submit} className="relative z-10 space-y-4">
 
-                        {/* ================= INPUT: EMAIL ================= */}
+                        {/* INPUT: EMAIL */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Email
@@ -61,38 +73,35 @@ export default function Login() {
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
-                                className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg px-3.5 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium"
+                                className="w-full bg-white md:bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg px-3.5 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium"
                                 placeholder="nama@pertamina.com"
                             />
 
-                            {/* Render helper text error jika ada validasi failed dari Laravel */}
                             {errors.email && (
                                 <p className="text-red-500 text-[10px]">{errors.email}</p>
                             )}
                         </div>
 
-                        {/* ================= INPUT: PASSWORD ================= */}
+                        {/* INPUT: PASSWORD */}
                         <div className="flex flex-col gap-1.5 relative">
                             <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                 Password
                             </label>
 
                             <div className="relative">
-                                {/* Toggle dinamis text/password bedasarkan state boolean showPassword */}
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     required
-                                    className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-3.5 pr-10 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium tracking-widest"
+                                    className="w-full bg-white md:bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-3.5 pr-10 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium tracking-widest"
                                     placeholder="••••••••"
                                 />
 
-                                {/* Toggle Show/Hide Password Button */}
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#00A651] transition-colors"
                                 >
                                     {showPassword ? (
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,12 +121,11 @@ export default function Login() {
                             )}
                         </div>
 
-                        {/* ================= ACTION BUTTONS ================= */}
+                        {/* ACTION BUTTONS */}
                         <div className="pt-3 flex flex-col gap-3">
                             <button
                                 type="submit"
                                 disabled={processing}
-                                // Animasi button disable/loading state (handling double-click spam)
                                 className={`w-full py-2.5 rounded-lg text-sm font-bold text-white shadow-md transition-all duration-300 ${processing
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-[#21409A] hover:bg-[#1a3380] hover:shadow-lg transform hover:-translate-y-0.5'
@@ -126,7 +134,8 @@ export default function Login() {
                                 {processing ? 'Memproses...' : 'Masuk'}
                             </button>
 
-                            <p className="text-center text-xs text-gray-600 font-medium">
+                            {/* 👇 TOMBOL DAFTAR DIKUNCI / DISEMBUNYIKAN SEMENTARA 👇 */}
+                            {/* <p className="text-center text-xs text-gray-600 font-medium relative z-10">
                                 Belum punya akun?{' '}
                                 <Link
                                     href={route('register')}
@@ -135,20 +144,21 @@ export default function Login() {
                                     Daftar
                                 </Link>
                             </p>
+                            */}
                         </div>
                     </form>
                 </div>
 
-                {/* KOLOM KANAN: COVER IMAGE (Hidden on Mobile) */}
-                <div className="hidden md:block md:w-5/12 p-3">
+                {/* ================= KOLOM KANAN: COVER IMAGE (Hanya Muncul di Desktop) ================= */}
+                <div className="hidden md:block md:w-5/12 p-3 bg-white">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
+                        {/* 👇 MENGEMBALIKAN GAMBAR DESKTOP - login-image1.png 👇 */}
                         <img
-                            src="/images/login-image.png"
+                            src="/images/login-image1.png"
                             alt="Pekerja Pertamina"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                                 e.target.onerror = null;
-                                // Fallback Unsplash URL jika asset gagal dimuat
                                 e.target.src = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop";
                             }}
                         />

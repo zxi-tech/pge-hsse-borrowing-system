@@ -9,7 +9,8 @@ class ItemSize extends Model
     protected $fillable = [
         'item_id',
         'size_name',
-        'stock'
+        'stock',
+        'status'
     ];
 
     // Relasi: Ukuran ini milik Satu Barang

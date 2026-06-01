@@ -121,4 +121,32 @@ class UserController extends Controller
             return back()->with('success', 'Email dan Status berhasil diperbarui melalui verifikasi OTP!');
         }
     }
+
+    public function secretCreate()
+    {
+        return Inertia::render('SecretCreate');
+    }
+
+    public function secretStore(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'nip' => 'required|string|max:50|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'department' => 'required|string|max:255',
+        ]);
+
+        \App\Models\User::create([
+            'name' => $request->name,
+            'nip' => $request->nip,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'department' => $request->department,
+            'status' => 'Aktif', // Otomatis langsung aktif
+            'role' => 'pekerja', // Asumsi role default adalah pekerja
+        ]);
+
+        return redirect()->route('users.index');
+    }
 }

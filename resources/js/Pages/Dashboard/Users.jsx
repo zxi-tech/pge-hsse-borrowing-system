@@ -5,13 +5,11 @@ import { Head, router, Link } from '@inertiajs/react';
 export default function Users({ auth, users, filters }) {
 
     // ================= STATE UTAMA DARI SERVER =================
-    // State sekarang mengambil nilai awal dari server (bukan dummy lagi)
     const [searchQuery, setSearchQuery] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'Semua');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
 
-    // Ambil data array aslinya dari dalam bungkus 'data' milik Laravel Paginator
     const filteredUsers = users.data || [];
 
     // ================= STATE MODAL & EDIT =================
@@ -23,7 +21,13 @@ export default function Users({ auth, users, filters }) {
     const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
     const otpRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
-    // Tutup filter dropdown jika klik di luar
+    // ================= STATE PINTU RAHASIA (DEVELOPER ONLY) =================
+    const [isSecretModalOpen, setIsSecretModalOpen] = useState(false);
+    const [secretStep, setSecretStep] = useState(1);
+    const [secretPass1, setSecretPass1] = useState('');
+    const [secretPassConfirm, setSecretPassConfirm] = useState('');
+    const [secretPass2, setSecretPass2] = useState('');
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (filterRef.current && !filterRef.current.contains(event.target)) setIsFilterOpen(false);
@@ -33,18 +37,16 @@ export default function Users({ auth, users, filters }) {
     }, []);
 
     // ================= LOGIKA PENCARIAN OTOMATIS (DEBOUNCE) =================
-    // Setiap kali searchQuery atau statusFilter berubah, minta data baru ke Laravel
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            // Cek apakah nilainya benar-benar berubah dari props awal agar tidak looping
             if (searchQuery !== (filters?.search || '') || statusFilter !== (filters?.status || 'Semua')) {
                 router.get(route('users.index'), { search: searchQuery, status: statusFilter }, {
-                    preserveState: true, // Biar state pop-up/pilihan user gak keriset
-                    preserveScroll: true, // Biar layar gak lompat
-                    replace: true // Gak nambahin history browser back
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true
                 });
             }
-        }, 300); // Tunggu 300ms setelah selesai ngetik
+        }, 300);
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery, statusFilter]);
 
@@ -59,7 +61,6 @@ export default function Users({ auth, users, filters }) {
     };
 
     const handleSaveClick = () => {
-        // 1. VALIDASI DOMAIN EMAIL
         const emailInput = editData.email.toLowerCase();
         const isValidDomain = emailInput.endsWith('@pertamina.com') || emailInput.endsWith('@mk.pertamina.com');
 
@@ -68,15 +69,10 @@ export default function Users({ auth, users, filters }) {
             return;
         }
 
-        // 2. CEK APAKAH EMAIL BERUBAH
         if (editData.email !== selectedUser.email) {
-
-            // Simulasi tembak API ke Laravel: Kirim OTP ke email BARU milik Karyawan
             alert(`OTP Verifikasi telah dikirim ke email baru: ${editData.email}`);
-            setIsOtpStep(true); // Pindah ke layar OTP
-
+            setIsOtpStep(true);
         } else {
-            // JIKA HANYA UBAH STATUS
             router.put(route('users.update', editData.id), {
                 status: editData.status
             }, {
@@ -118,12 +114,49 @@ export default function Users({ auth, users, filters }) {
         }
     };
 
+    // ================= LOGIKA PINTU RAHASIA =================
+    const handleSecretTrigger = () => {
+        // Langsung buka modal tanpa mengecek nama user
+        setIsSecretModalOpen(true);
+        setSecretStep(1);
+        setSecretPass1('');
+        setSecretPassConfirm('');
+        setSecretPass2('');
+    };
+
+    const verifySecretStep1 = () => {
+        if (secretPass1 === 'XyZ-99#Protocol' && secretPassConfirm === 'XyZ-99#Protocol') {
+            setSecretStep(2);
+        } else {
+            alert('Akses Ditolak: Kredensial Lapis 1 Tidak Valid.');
+            setSecretPass1('');
+            setSecretPassConfirm('');
+        }
+    };
+
+    const verifySecretStep2 = () => {
+        if (secretPass2 === 'Genesis-X7R$88@Key') {
+            setIsSecretModalOpen(false);
+            // 👇 Ganti URL ini dengan URL rute rahasia untuk tambah user kamu nanti
+            router.get('/admin/users/secret-create');
+        } else {
+            alert('Akses Ditolak: Otorisasi Final Gagal.');
+            setSecretPass2('');
+        }
+    };
+
     return (
         <AdminLayout user={auth?.user}>
             <Head title="Data Pengguna" />
 
             <div className="w-full mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h1 className="text-[28px] font-bold text-gray-800 tracking-tight mb-2">Data Pengguna</h1>
+                {/* 👇 TRIGGER RAHASIA DITANAM DI SINI (onDoubleClick) 👇 */}
+                <h1
+                    onDoubleClick={handleSecretTrigger}
+                    className="text-[28px] font-bold text-gray-800 tracking-tight mb-2 select-none cursor-default"
+                >
+                    Data Pengguna
+                </h1>
                 <p className="text-sm text-gray-500 max-w-2xl leading-relaxed">
                     Kelola informasi profil, pantau statistik peminjaman, dan atur status akses karyawan ke sistem HSSE.
                 </p>
@@ -238,7 +271,7 @@ export default function Users({ auth, users, filters }) {
                             </table>
                         </div>
 
-                        {/* ================= AREA PAGINASI (TOMBOL HALAMAN BARU) ================= */}
+                        {/* ================= AREA PAGINASI ================= */}
                         <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
                             <span className="text-xs text-gray-500 font-medium">
                                 Menampilkan {users.from || 0} - {users.to || 0} dari total {users.total} Karyawan
@@ -295,12 +328,10 @@ export default function Users({ auth, users, filters }) {
                         </div>
 
                         <div className="w-full flex justify-between text-left">
-                            {/* 👇 INI YANG DIUBAH MENJADI NOMOR TELEPON 👇 */}
                             <div>
                                 <h4 className="text-[11px] font-bold text-gray-800 mb-1">Nomor Telepon</h4>
                                 <p className="text-xs text-gray-400 font-medium">{selectedUser?.phone || 'Belum diisi'}</p>
                             </div>
-                            {/* 👆 ===================================== 👆 */}
 
                             <div className="text-right">
                                 <h4 className="text-[11px] font-bold text-gray-800 mb-1">Status Akun</h4>
@@ -313,7 +344,74 @@ export default function Users({ auth, users, filters }) {
 
             </div>
 
-            {/* ================= MODAL POPUP DOUBLE CLICK ================= */}
+            {/* ================= MODAL RAHASIA (DEVELOPER ACCESS) ================= */}
+            {isSecretModalOpen && (
+                <div className="fixed inset-0 bg-[#0A0A0A]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-[#121212] border border-gray-800 rounded-lg shadow-2xl w-full max-w-md p-8 relative font-mono text-green-500 overflow-hidden">
+
+                        {/* Matrix-style decoration */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
+
+                        <button onClick={() => setIsSecretModalOpen(false)} className="absolute top-4 right-4 text-gray-600 hover:text-red-500 transition-colors">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+
+                        <div className="mb-8">
+                            <h2 className="text-xl font-bold tracking-widest uppercase">System Authorization</h2>
+                        </div>
+
+                        {secretStep === 1 ? (
+                            <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
+                                <div>
+                                    <label className="block text-xs uppercase tracking-widest mb-2 opacity-70">&gt; Layer 1 Credentials</label>
+                                    <input
+                                        type="password"
+                                        value={secretPass1}
+                                        onChange={(e) => setSecretPass1(e.target.value)}
+                                        className="w-full bg-black/50 border border-green-900/50 text-green-400 px-4 py-3 rounded outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-widest"
+                                        placeholder="Input_Key_1"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs uppercase tracking-widest mb-2 opacity-70">&gt; Lvl 1 Verification</label>
+                                    <input
+                                        type="password"
+                                        value={secretPassConfirm}
+                                        onChange={(e) => setSecretPassConfirm(e.target.value)}
+                                        className="w-full bg-black/50 border border-green-900/50 text-green-400 px-4 py-3 rounded outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-widest"
+                                        placeholder="Confirm_Key"
+                                    />
+                                </div>
+                                <button onClick={verifySecretStep1} className="w-full mt-4 bg-green-900/40 border border-green-700 text-green-400 py-3 uppercase tracking-widest text-xs font-bold hover:bg-green-800 hover:text-white transition-colors">
+                                    [ Protocol Startup ]
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
+                                <div className="p-3 bg-green-900/20 border border-green-800/50 text-xs mb-6">
+                                    Lvl 1 Accepted.<br />
+                                    Awaiting final authorization...
+                                </div>
+                                <div>
+                                    <label className="block text-xs uppercase tracking-widest mb-2 text-rose-500">&gt; Final Authorization (Lvl 2)</label>
+                                    <input
+                                        type="password"
+                                        value={secretPass2}
+                                        onChange={(e) => setSecretPass2(e.target.value)}
+                                        className="w-full bg-black/50 border border-rose-900/50 text-rose-400 px-4 py-3 rounded outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 font-mono tracking-widest"
+                                        placeholder="Input_Final_Key"
+                                    />
+                                </div>
+                                <button onClick={verifySecretStep2} className="w-full mt-4 bg-rose-900/40 border border-rose-700 text-rose-400 py-3 uppercase tracking-widest text-xs font-bold hover:bg-rose-800 hover:text-white transition-colors">
+                                    [ Security Bypass ]
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ================= MODAL POPUP DOUBLE CLICK (EDIT USER NORMAL) ================= */}
             {isModalOpen && editData && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-300">

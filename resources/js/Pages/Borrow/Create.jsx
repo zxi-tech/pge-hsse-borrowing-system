@@ -8,11 +8,15 @@ export default function Create({ auth, items }) {
     const displayItems = items && items.length > 0 ? items : [
         {
             id: 1, name: 'Safety Helmet', type: 'asset', photo_path: null,
-            sizes: [{ id: 11, size_name: 'All Size', stock: 10 }]
+            sizes: [{ id: 11, size_name: 'All Size', stock: 10, status: 'available' }]
         },
         {
             id: 2, name: 'Coverall Onshore', type: 'asset', photo_path: null,
-            sizes: [{ id: 21, size_name: 'M', stock: 5 }, { id: 22, size_name: 'L', stock: 12 }, { id: 23, size_name: 'XL', stock: 8 }]
+            sizes: [
+                { id: 21, size_name: 'M', stock: 5, status: 'available' },
+                { id: 22, size_name: 'L', stock: 12, status: 'available' },
+                { id: 23, size_name: 'XL', stock: 8, status: 'laundry' }
+            ]
         }
     ];
 
@@ -28,10 +32,27 @@ export default function Create({ auth, items }) {
 
     // ================= STATES INTERAKTIVITAS DROPDOWN & MOBILE =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk Menu HP
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // Menutup dropdown profil jika user klik di luar area
+    // ================= STATE CUSTOM ALERT CARD =================
+    const [customAlert, setCustomAlert] = useState({
+        show: false,
+        title: '',
+        message: '',
+        color: 'orange' // 'orange' untuk laundry, 'red' untuk perbaikan/habis
+    });
+
+    // Auto-close alert card setelah 6 detik
+    useEffect(() => {
+        if (customAlert.show) {
+            const timer = setTimeout(() => {
+                setCustomAlert(prev => ({ ...prev, show: false }));
+            }, 6000);
+            return () => clearTimeout(timer);
+        }
+    }, [customAlert.show]);
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -94,12 +115,22 @@ export default function Create({ auth, items }) {
         e.preventDefault();
 
         if (selectedSummary.totalItems === 0) {
-            alert('PILIH BARANG DULU: Silakan isi jumlah barang yang ingin dipinjam.');
+            setCustomAlert({
+                show: true,
+                title: '⚠️ Pilih Barang Terlebih Dahulu',
+                message: 'Silakan isi jumlah barang yang ingin Anda pinjam sebelum mengajukan.',
+                color: 'red'
+            });
             return;
         }
 
         if (!data.start_date || !data.end_date || !data.purpose) {
-            alert('FORM BELUM LENGKAP: Harap pastikan Tanggal dan Tujuan sudah terisi!');
+            setCustomAlert({
+                show: true,
+                title: '⚠️ Form Belum Lengkap',
+                message: 'Harap pastikan Tanggal Pinjam, Tanggal Kembali, dan Tujuan Keperluan sudah terisi semua.',
+                color: 'red'
+            });
             return;
         }
 
@@ -110,7 +141,6 @@ export default function Create({ auth, items }) {
             },
             onError: (err) => {
                 console.error("Error dari Laravel:", err);
-                alert("Pengajuan Ditolak Server! Lihat kotak merah di bagian atas formulir.");
             }
         });
     };
@@ -136,13 +166,38 @@ export default function Create({ auth, items }) {
         });
     };
 
+    // 👇 FUNGSI INTERCEPTOR YANG SUDAH DIUBAH MEMAKAI CUSTOM ALERT 👇
+    const handleDisabledClick = (size) => {
+        if (size.status === 'laundry') {
+            setCustomAlert({
+                show: true,
+                title: '⚠️ Ukuran Sedang Tidak Tersedia',
+                message: `Saat ini APD ukuran [ ${size.size_name} ] sedang dalam proses laundry, sehingga belum bisa dipinjam. Silakan pilih ukuran lain yang tersedia atau cek kembali nanti. Terima kasih 😊`,
+                color: 'orange'
+            });
+        } else if (size.status === 'maintenance') {
+            setCustomAlert({
+                show: true,
+                title: '⚠️ APD Sedang Dalam Perbaikan',
+                message: `Saat ini APD ukuran [ ${size.size_name} ] sedang menjalani proses perbaikan atau maintenance sehingga belum dapat dipinjam. Silakan pilih ukuran lain yang tersedia. Terima kasih 😊`,
+                color: 'red'
+            });
+        } else if (size.stock === 0) {
+            setCustomAlert({
+                show: true,
+                title: '⚠️ Stok Tidak Tersedia',
+                message: `Maaf, APD ukuran [ ${size.size_name} ] saat ini sedang tidak tersedia karena stok habis atau masih digunakan oleh pekerja lain. Silakan pilih ukuran lain yang tersedia 😊`,
+                color: 'red'
+            });
+        }
+    };
+
     const isItemSelected = (itemId) => {
         const itemSizes = data.selected_items[itemId];
         if (!itemSizes) return false;
         return Object.values(itemSizes).some(qty => qty > 0);
     };
 
-    // Helper Inisial Nama
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -152,12 +207,31 @@ export default function Create({ auth, items }) {
         <>
             <Head title="Ajukan Peminjaman" />
 
+            {/* ================= CUSTOM ALERT CARD (POP-UP ATAS) ================= */}
+            <div
+                className={`fixed top-6 md:top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md transition-all duration-500 ease-in-out ${customAlert.show ? 'translate-y-0 opacity-100 visible' : '-translate-y-10 opacity-0 invisible'
+                    }`}
+            >
+                <div className={`bg-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border-l-[6px] p-4 md:p-5 flex flex-col gap-2 ${customAlert.color === 'orange' ? 'border-orange-500' : 'border-red-500'}`}>
+                    <div className="flex justify-between items-start gap-3">
+                        <h3 className={`font-extrabold text-sm md:text-base leading-tight ${customAlert.color === 'orange' ? 'text-orange-600' : 'text-red-600'}`}>
+                            {customAlert.title}
+                        </h3>
+                        <button onClick={() => setCustomAlert({ ...customAlert, show: false })} className="text-gray-400 hover:text-gray-600 transition-colors p-1 bg-gray-50 hover:bg-gray-100 rounded-full shrink-0">
+                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <p className="text-gray-600 text-xs md:text-sm font-medium leading-relaxed">
+                        {customAlert.message}
+                    </p>
+                </div>
+            </div>
+
             <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20 text-gray-800 selection:bg-[#21409A] selection:text-white">
 
                 {/* ================= NAVBAR RESPONSIVE ================= */}
                 <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent">
 
-                    {/* ZONA 1: Logo Kiri */}
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
                         <img
                             src="/images/pertamina-logo (1).png"
@@ -167,14 +241,12 @@ export default function Create({ auth, items }) {
                         />
                     </div>
 
-                    {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
                         <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
 
-                        {/* Menu Aktif */}
                         <Link href={route('borrow.create')} className="relative group py-2 hover:text-[#21409A] text-[#21409A] transition-colors duration-300">
                             Ajukan Peminjaman
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
@@ -191,7 +263,6 @@ export default function Create({ auth, items }) {
                         </Link>
                     </div>
 
-                    {/* ZONA 3: Profil & Tombol Mobile (Kanan) */}
                     <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
                         {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
@@ -212,9 +283,8 @@ export default function Create({ auth, items }) {
                                     <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
-                                {/* Dropdown Profil */}
                                 {isProfileMenuOpen && (
-                                    <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
                                         <div className="px-4 py-3 border-b border-gray-50">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Masuk sebagai</p>
                                             <p className="text-sm font-bold text-gray-900 truncate">{user?.email || 'user@pertamina.com'}</p>
@@ -238,11 +308,7 @@ export default function Create({ auth, items }) {
                             </Link>
                         )}
 
-                        {/* HAMBURGER MENU BUTTON (HANYA MUNCUL DI HP) */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
-                        >
+                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMobileMenuOpen ? (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -253,9 +319,8 @@ export default function Create({ auth, items }) {
                         </button>
                     </div>
 
-                    {/* DROPDOWN MENU MOBILE */}
                     {isMobileMenuOpen && (
-                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4">
                             <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
                                 {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
                             </Link>
@@ -269,7 +334,6 @@ export default function Create({ auth, items }) {
                 {/* ================= KONTEN HALAMAN ================= */}
                 <main className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-4 lg:mt-10">
 
-                    {/* BLOK NOTIFIKASI SUKSES */}
                     {flash?.success && (
                         <div className="mb-8 p-4 rounded-2xl bg-green-50 border border-green-200 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="bg-[#00A651] text-white p-2 rounded-full shrink-0 shadow-sm">
@@ -283,7 +347,6 @@ export default function Create({ auth, items }) {
                         </div>
                     )}
 
-                    {/* BLOK NOTIFIKASI ERROR */}
                     {(flash?.error || Object.keys(errors).length > 0) && (
                         <div className="mb-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="flex items-center gap-2 mb-2">
@@ -299,7 +362,6 @@ export default function Create({ auth, items }) {
                         </div>
                     )}
 
-                    {/* HEADER JUDUL */}
                     <div className="mb-8 text-center md:text-left">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Ajukan Peminjaman APD</h1>
                         <p className="text-sm text-gray-500 max-w-2xl leading-relaxed mx-auto md:mx-0">Lengkapi detail peminjaman dan pilih perlengkapan yang Anda butuhkan untuk keperluan lapangan.</p>
@@ -385,17 +447,62 @@ export default function Create({ auth, items }) {
                                                         </div>
                                                         <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full border flex items-center justify-center transition-transform duration-300 shrink-0 ml-2 ${expandedItems[item.id] ? 'rotate-180 bg-[#00A651] border-[#00A651] text-white' : 'bg-white border-gray-200 text-gray-400'}`}><svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                                                     </div>
+
+                                                    {/* AREA VARIAN UKURAN */}
                                                     <div className={`transition-all duration-300 ease-in-out ${expandedItems[item.id] ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                                                         <div className="p-3 md:p-4 pt-0 border-t border-gray-100 bg-gray-50/50">
                                                             <p className="text-[10px] md:text-[11px] font-bold text-gray-500 mb-2 md:mb-3 uppercase tracking-wider mt-2 md:mt-3">Tentukan Jumlah Pinjam per Ukuran</p>
+
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                                                                 {item.sizes.map(size => {
+                                                                    const isLaundry = size.status === 'laundry';
+                                                                    const isMaintenance = size.status === 'maintenance';
                                                                     const isOutOfStock = size.stock === 0;
+                                                                    const isDisabled = isOutOfStock || isLaundry || isMaintenance;
                                                                     const currentVal = data.selected_items[item.id]?.[size.id] || '';
+
                                                                     return (
-                                                                        <div key={size.id} className={`bg-white border p-2.5 md:p-3 rounded-xl flex items-center justify-between shadow-sm transition-colors ${currentVal > 0 ? 'border-[#00A651]' : 'border-gray-200'}`}>
-                                                                            <div className="flex flex-col"><span className="text-xs md:text-sm font-bold text-gray-800">{size.size_name}</span><span className={`text-[9px] md:text-[10px] font-bold ${isOutOfStock ? 'text-red-500' : 'text-gray-500'}`}>Sisa: {size.stock}</span></div>
-                                                                            <div className="w-16 md:w-20"><input type="number" min="0" max={size.stock} disabled={isOutOfStock} placeholder="0" value={currentVal} onChange={(e) => handleQuantityChange(item.id, size.id, e.target.value)} className={`w-full text-center border rounded-lg py-1 md:py-1.5 text-xs md:text-sm font-bold outline-none focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all ${isOutOfStock ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' : currentVal > 0 ? 'border-[#00A651] text-[#00A651] bg-green-50/30' : 'border-gray-300 text-gray-900'}`} /></div>
+                                                                        <div
+                                                                            key={size.id}
+                                                                            onClick={() => isDisabled ? handleDisabledClick(size) : null}
+                                                                            className={`border p-2.5 md:p-3 rounded-xl flex items-center justify-between shadow-sm transition-colors relative
+                                                                            ${currentVal > 0 ? 'border-[#00A651] bg-white' : 'border-gray-200 bg-white'}
+                                                                            ${isDisabled ? 'opacity-80 bg-gray-100/50 cursor-pointer' : ''}`}
+                                                                        >
+                                                                            <div className="flex flex-col gap-1">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="text-xs md:text-sm font-bold text-gray-800">{size.size_name}</span>
+
+                                                                                    {isLaundry && (
+                                                                                        <span className="bg-orange-100 text-orange-600 text-[8px] px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                                                                                            Laundry
+                                                                                        </span>
+                                                                                    )}
+                                                                                    {isMaintenance && (
+                                                                                        <span className="bg-red-100 text-red-600 text-[8px] px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                                                                                            Perbaikan
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+
+                                                                                <span className={`text-[9px] md:text-[10px] font-bold ${isOutOfStock && !isLaundry && !isMaintenance ? 'text-red-500' : 'text-gray-500'}`}>
+                                                                                    {isDisabled ? (isOutOfStock && !isLaundry && !isMaintenance ? 'Stok Habis' : 'Terkunci') : `Sisa: ${size.stock}`}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            <div className="w-16 md:w-20">
+                                                                                <input
+                                                                                    type="number"
+                                                                                    min="0"
+                                                                                    max={size.stock}
+                                                                                    disabled={isDisabled}
+                                                                                    placeholder="0"
+                                                                                    value={currentVal}
+                                                                                    onChange={(e) => handleQuantityChange(item.id, size.id, e.target.value)}
+                                                                                    className={`w-full text-center border rounded-lg py-1 md:py-1.5 text-xs md:text-sm font-bold outline-none focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all 
+                                                                                    ${isDisabled ? 'bg-gray-200 border-gray-300 text-gray-400 pointer-events-none' : currentVal > 0 ? 'border-[#00A651] text-[#00A651] bg-green-50/30' : 'border-gray-300 text-gray-900'}`}
+                                                                                />
+                                                                            </div>
                                                                         </div>
                                                                     );
                                                                 })}

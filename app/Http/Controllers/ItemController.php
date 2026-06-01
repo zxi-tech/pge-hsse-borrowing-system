@@ -34,6 +34,7 @@ class ItemController extends Controller
             'sizes' => 'required|array|min:1',
             'sizes.*.size_name' => 'required|string|max:50',
             'sizes.*.stock' => 'required|integer|min:0',
+            'sizes.*.status' => 'nullable|string|in:available,laundry,maintenance', // 👈 Validasi status
         ]);
 
         // Wrap dalam DB transaction untuk menjaga integritas data relasional (Item -> ItemSize -> IncomingItem)
@@ -59,6 +60,7 @@ class ItemController extends Controller
                     'item_id' => $item->id,
                     'size_name' => $size['size_name'],
                     'stock' => $size['stock'],
+                    'status' => $size['status'] ?? 'available', // 👈 Simpan status
                 ]);
 
                 // Auto-generate audit trail (IncomingItem) jika input awal memiliki stok > 0
@@ -97,6 +99,7 @@ class ItemController extends Controller
             'sizes.*.id' => 'nullable|integer',
             'sizes.*.size_name' => 'required|string|max:50',
             'sizes.*.stock' => 'required|integer|min:0',
+            'sizes.*.status' => 'nullable|string|in:available,laundry,maintenance', // 👈 Validasi status
         ]);
 
         DB::beginTransaction();
@@ -141,12 +144,15 @@ class ItemController extends Controller
                             ]);
                         }
 
+                        // Update data ukuran lama yang sudah ada di database
                         $oldSize->update([
                             'size_name' => $sizeData['size_name'],
                             'stock' => $sizeData['stock'],
+                            'status' => $sizeData['status'] ?? 'available', // 👈 Update status
                         ]);
                     }
                 } else {
+                    // Jika ini adalah penambahan varian ukuran BARU saat di halaman edit
                     if ($sizeData['stock'] > 0) {
                         IncomingItem::create([
                             'item_id' => $item->id,
@@ -162,6 +168,7 @@ class ItemController extends Controller
                         'item_id' => $item->id,
                         'size_name' => $sizeData['size_name'],
                         'stock' => $sizeData['stock'],
+                        'status' => $sizeData['status'] ?? 'available', // 👈 Simpan status varian baru
                     ]);
                 }
             }
@@ -201,7 +208,6 @@ class ItemController extends Controller
             DB::rollBack();
 
             // Cegah aplikasi crash akibat SQL Error 23000 (Integrity Constraint Violation)
-            // Kasus: Barang ditolak untuk dihapus karena ID-nya sudah melekat pada tabel Transaksi pekerja yang tidak boleh hilang
             if ($e->getCode() == '23000') {
                 return redirect()->back()->with('error', 'GAGAL: Barang ini sudah pernah dipinjam oleh pegawai. Tidak dapat dihapus permanen demi integritas data laporan!');
             }

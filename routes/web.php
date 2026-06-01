@@ -8,6 +8,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\IncomingItemController;
+use App\Http\Controllers\StatisticsController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -95,10 +96,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::put('/users/{id}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
 
+    Route::get('/admin/users/secret-create', [UserController::class, 'secretCreate'])->name('users.secret-create');
+    Route::post('/admin/users/secret-store', [UserController::class, 'secretStore'])->name('users.secret-store');
+
     // Pesan Masuk (Admin)
     Route::get('/messages', [\App\Http\Controllers\ContactMessageController::class, 'index'])->name('messages.index');
     Route::put('/messages/{id}/read', [\App\Http\Controllers\ContactMessageController::class, 'markAsRead'])->name('messages.read');
     Route::delete('/messages/{id}', [\App\Http\Controllers\ContactMessageController::class, 'destroy'])->name('messages.destroy');
+
+    // 👇 RUTE STATISTIK DIPINDAHKAN KE SINI (LAPISAN 3) 👇
+    Route::get('/admin/statistics/export', [StatisticsController::class, 'export'])->name('statistics.export'); // 👈 TAMBAHKAN BARIS INI
+    Route::get('/admin/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
 });
 
 require __DIR__ . '/auth.php';

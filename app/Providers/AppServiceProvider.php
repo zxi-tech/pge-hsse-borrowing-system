@@ -21,7 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Vite::prefetch(concurrency: 3);
-        URL::forceScheme('https');
+        // HTTPS hanya dipaksa JIKA APP_URL di .env menggunakan https (seperti Ngrok)
+        if (str_contains(config('app.url'), 'https')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }
