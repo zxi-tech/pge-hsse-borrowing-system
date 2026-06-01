@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Menambahkan kolom status dengan nilai default 'Aktif'
-            $table->string('status', 50)->default('Aktif')->after('role');
-        });
+        // Pengecekan dilakukan DI LUAR closure Blueprint agar lebih aman
+        if (!Schema::hasColumn('users', 'status')) {
+            Schema::table('users', function (Blueprint $table) {
+                // Menambahkan kolom status dengan nilai default 'Aktif'
+                $table->string('status', 50)->default('Aktif')->after('role');
+            });
+        }
     }
 
     /**
@@ -22,9 +25,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Menghapus kolom status jika migration dibatalkan (rollback)
-            $table->dropColumn('status');
-        });
+        if (Schema::hasColumn('users', 'status')) {
+            Schema::table('users', function (Blueprint $table) {
+                // Menghapus kolom status jika migration dibatalkan (rollback)
+                $table->dropColumn('status');
+            });
+        }
     }
 };

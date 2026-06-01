@@ -31,7 +31,8 @@ export default function Login() {
                         <img
                             src="/images/login-image2.png"
                             alt="Background Mobile"
-                            className="w-full h-full object-cover origin-center scale-110"
+                            // Tambahkan translate-x-8 dan ubah scale ke 125
+                            className="w-full h-full object-cover origin-center scale-[1] translate-x-[30%]"
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop";

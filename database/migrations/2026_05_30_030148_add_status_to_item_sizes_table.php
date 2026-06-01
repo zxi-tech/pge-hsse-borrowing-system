@@ -6,18 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::table('item_sizes', function (Blueprint $table) {
-            // Menambahkan kolom status, posisinya ditaruh setelah kolom stock
-            $table->string('status')->default('available')->after('stock');
-        });
+        // Cek dulu, kalau sudah ada, biarkan saja dan jangan error
+        if (!Schema::hasColumn('item_sizes', 'status')) {
+            Schema::table('item_sizes', function (Blueprint $table) {
+                $table->string('status')->default('available')->after('stock');
+            });
+        }
     }
 
-    public function down(): void
+    public function down()
     {
-        Schema::table('item_sizes', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        if (Schema::hasColumn('item_sizes', 'status')) {
+            Schema::table('item_sizes', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+        }
     }
 };

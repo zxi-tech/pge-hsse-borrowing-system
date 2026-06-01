@@ -4,12 +4,11 @@ import { Link, Head } from '@inertiajs/react';
 export default function Welcome({ auth }) {
     const user = auth?.user;
 
-    // ================= STATES INTERAKTIVITAS =================
+    // STATES INTERAKTIVITAS
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // Menutup dropdown profil jika user klik di luar area
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -25,8 +24,7 @@ export default function Welcome({ auth }) {
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
-    // ================= DATA KATALOG APD (BENTO GRID) =================
-    // 👇 Sekarang kita tambahkan kendali ukuran & posisi di sini 👇
+
     const apdKatalog = [
         {
             id: 1,
@@ -38,10 +36,9 @@ export default function Welcome({ auth }) {
             pillBg: "bg-[#00A651] text-white",
             iconBg: "bg-[#18191E] text-white group-hover:bg-[#00A651]",
             linkText: "Learn more",
-            linkHref: route('borrow.create'),
-            // 👇 KENDALI KHUSUS GAMBAR HELM (HP) 👇
-            imageSizeClasses: "max-h-24 sm:max-h-48 scale-[1.35]", // Sedikit lebih besar
-            imagePositionClasses: "-translate-y-2 -translate-x-1", // Lebih tinggi & agak kiri
+            linkHref: "https://www.pge.pertamina.com/id/kesehatan-dan-keselamatan-kerja",
+            imageSizeClasses: "max-h-24 sm:max-h-48 scale-[1.35]",
+            imagePositionClasses: "-translate-y-2 -translate-x-1",
         },
         {
             id: 2,
@@ -53,10 +50,9 @@ export default function Welcome({ auth }) {
             pillBg: "bg-white text-gray-900",
             iconBg: "bg-[#18191E] text-white group-hover:bg-white group-hover:text-[#00A651]",
             linkText: "Learn more",
-            linkHref: route('borrow.create'),
-            // 👇 KENDALI KHUSUS GAMBAR GOGGLES (HP) 👇
-            imageSizeClasses: "max-h-20 sm:max-h-48 scale-[1.5]", // Paling besar
-            imagePositionClasses: "-translate-y-2 -translate-x-1", // Turun dikit, lebih kiri
+            linkHref: "https://www.pge.pertamina.com/id/kesehatan-dan-keselamatan-kerja",
+            imageSizeClasses: "max-h-20 sm:max-h-48 scale-[1.5]",
+            imagePositionClasses: "-translate-y-2 -translate-x-1",
         },
         {
             id: 3,
@@ -68,10 +64,9 @@ export default function Welcome({ auth }) {
             pillBg: "bg-white text-gray-900",
             iconBg: "bg-white text-[#1A1C23] group-hover:bg-[#00A651] group-hover:text-white",
             linkText: "Learn more",
-            linkHref: route('borrow.create'),
-            // 👇 KENDALI KHUSUS GAMBAR COVERALL (HP) 👇
-            imageSizeClasses: "max-h-28 sm:max-h-48 scale-[1.2]", // Skala normal, tapi h-tinggi
-            imagePositionClasses: "translate-y-1 -translate-x-1", // Sedikit turun agar estetik
+            linkHref: "https://www.pge.pertamina.com/id/kesehatan-dan-keselamatan-kerja",
+            imageSizeClasses: "max-h-28 sm:max-h-48 scale-[1.2]",
+            imagePositionClasses: "translate-y-1 -translate-x-1",
         },
         {
             id: 4,
@@ -83,8 +78,7 @@ export default function Welcome({ auth }) {
             pillBg: "bg-[#00A651] text-white",
             iconBg: "bg-[#18191E] text-white group-hover:bg-[#00A651]",
             linkText: "Learn more",
-            linkHref: route('borrow.create'),
-            // 👇 KENDALI KHUSUS GAMBAR SEPATU (HP) 👇
+            linkHref: "https://www.pge.pertamina.com/id/kesehatan-dan-keselamatan-kerja",
             imageSizeClasses: "max-h-24 sm:max-h-48 scale-[1.3]",
             imagePositionClasses: "-translate-y-2 -translate-x-1",
         },
@@ -98,8 +92,7 @@ export default function Welcome({ auth }) {
             pillBg: "bg-white text-gray-900",
             iconBg: "bg-[#18191E] text-white group-hover:bg-white group-hover:text-[#00A651]",
             linkText: "Learn more",
-            linkHref: route('borrow.create'),
-            // 👇 KENDALI KHUSUS GAMBAR SARUNG TANGAN (HP) 👇
+            linkHref: "https://www.pge.pertamina.com/id/kesehatan-dan-keselamatan-kerja",
             imageSizeClasses: "max-h-20 sm:max-h-48 scale-[1.4]",
             imagePositionClasses: "-translate-y-2 -translate-x-1",
         },
@@ -123,7 +116,6 @@ export default function Welcome({ auth }) {
 
             <div className="min-h-screen bg-[#F4F7FF] font-sans text-gray-900 overflow-x-hidden flex flex-col selection:bg-[#21409A] selection:text-white antialiased">
 
-                {/* ================= NAVBAR ================= */}
                 <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent shrink-0">
 
                     {/* ZONA 1: Logo Kiri */}
@@ -220,8 +212,6 @@ export default function Welcome({ auth }) {
                     )}
                 </nav>
 
-                {/* ================= HERO SECTION ================= */}
-                {/* 👇 RATA KIRI, padding-bottom ditambah, min-h laptop disusutkan 👇 */}
                 <main className="relative w-full max-w-[1536px] mx-auto px-6 lg:px-12 xl:px-20 flex flex-col lg:grid lg:grid-cols-2 items-start justify-start lg:justify-between pt-8 lg:pt-0 pb-12 lg:pb-0 z-10 min-h-0 lg:min-h-[42vh] overflow-hidden lg:overflow-visible shrink-0 antialiased">
 
                     {/* Teks */}
@@ -243,18 +233,18 @@ export default function Welcome({ auth }) {
                         </div>
                     </div>
 
-                    {/* Gambar Pekerja */}
-                    <div className="absolute inset-x-0 bottom-0 z-0 flex justify-center items-end opacity-[0.25] pointer-events-none lg:relative lg:opacity-100 lg:pointer-events-auto lg:justify-end lg:items-center">
-                        <img src="/images/hero-workers.png" alt="Pekerja HSSE Pertamina" className="w-[150%] max-w-[550px] lg:w-[900px] xl:w-[1000px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] lg:-translate-y-12 mb-[470px] lg:mb-0" />
+                    <div className="absolute inset-x-0 bottom-18 sm:bottom-28 z-0 flex justify-center items-end opacity-[0.35] pointer-events-none lg:relative lg:bottom-auto lg:opacity-100 lg:pointer-events-auto lg:justify-end lg:items-center">
+                        <img
+                            src="/images/hero-workers.png"
+                            alt="Pekerja HSSE Pertamina"
+                            className="w-[120%] max-w-[450px] sm:max-w-[550px] lg:w-[900px] xl:w-[1000px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] lg:-translate-y-12"
+                        />
                     </div>
                 </main>
 
-                {/* ================= APD BENTO GRID SECTION ================= */}
-                {/* 👇 Background Transparan, Jarak laptop dirapatkan 👇 */}
                 <section className="w-full bg-transparent pt-2 pb-16 lg:pt-3 lg:pb-24 shrink-0 flex-1 relative antialiased z-10">
                     <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20">
 
-                        {/* Header Section (Diperkecil total untuk mobile) */}
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-12 mb-6 md:mb-12">
                             <h2 className="inline-block bg-[#00A651] text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-lg md:text-3xl tracking-wide shrink-0 antialiased">
                                 Alat Pelindung Diri
@@ -285,24 +275,38 @@ export default function Welcome({ auth }) {
                                             {item.desc}
                                         </p>
                                         <div className="mt-auto">
-                                            <Link href={item.linkHref} className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
-                                                <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
-                                                    <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
+                                            {item.linkHref.startsWith('http') ? (
+                                                <a href={item.linkHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
+                                                    <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
+                                                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
+                                                        {item.linkText}
+                                                    </span>
+                                                    <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
                                                     </svg>
-                                                </div>
-                                                <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
-                                                    {item.linkText}
-                                                </span>
-                                                <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </Link>
+                                                </a>
+                                            ) : (
+                                                <Link href={item.linkHref} className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
+                                                    <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
+                                                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
+                                                        {item.linkText}
+                                                    </span>
+                                                    <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* KANAN: Gambar atau Ikon */}
-                                    {/* 👇 KITA TERAPKAN KENDALI DINAMIS DI SINI 👇 */}
                                     <div className="absolute sm:relative bottom-0 sm:bottom-auto right-0 sm:right-auto w-[40%] sm:w-[45%] flex justify-end sm:justify-center items-end sm:items-center h-full z-0 sm:z-10 opacity-80 sm:opacity-100 pointer-events-none">
                                         {item.isIcon ? (
                                             <svg className="w-20 h-20 sm:w-28 sm:h-28 text-white opacity-90 drop-shadow-md -translate-x-4 -translate-y-2 sm:translate-x-0 sm:translate-y-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,7 +318,6 @@ export default function Welcome({ auth }) {
                                             <img
                                                 src={item.image}
                                                 alt={item.title}
-                                                /* 👇 INI KUNCI UTAMA: Kita memanggil property dinamis dari array 👇 */
                                                 className={`object-contain drop-shadow-xl origin-bottom-right sm:origin-center sm:translate-y-0 sm:translate-x-0 transition-transform duration-500 group-hover:scale-[1.55] sm:group-hover:scale-125 
                                                     ${item.imageSizeClasses || 'max-h-24 sm:max-h-48 scale-110'} 
                                                     ${item.imagePositionClasses || '-translate-y-4 -translate-x-4'}`

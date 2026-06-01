@@ -146,7 +146,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'department' => $request->department,
             'status' => 'Aktif',
-            'role' => 'pekerja',
+            'role' => 'user',
+            'email_verified_at' => now(),
         ]);
 
         return redirect()->route('users.index');

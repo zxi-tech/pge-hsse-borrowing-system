@@ -15,7 +15,7 @@ export default function SecretCreate() {
         e.preventDefault();
         post(route('users.secret-store'), {
             onSuccess: () => {
-                alert('User berhasil disuntikkan ke database!');
+                alert('New user record successfully added to the database!');
                 router.get(route('users.index'));
             }
         });
@@ -30,7 +30,6 @@ export default function SecretCreate() {
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4 font-mono text-green-500 relative overflow-hidden">
             <Head title="Developer Override" />
 
-            {/* Dekorasi Ala Matrix */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
 
             <div className="w-full max-w-lg bg-[#121212] border border-green-900 rounded-lg shadow-2xl p-8 relative z-10">
@@ -72,7 +71,7 @@ export default function SecretCreate() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs uppercase tracking-widest mb-2 opacity-70">Email Resmi</label>
+                            <label className="block text-xs uppercase tracking-widest mb-2 opacity-70">Email</label>
                             <input type="email" value={data.email} onChange={e => setData('email', e.target.value)} required className="w-full bg-black/50 border border-green-900/50 text-green-400 px-4 py-3 rounded outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest" placeholder="email@pertamina" />
                             {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
                         </div>
@@ -90,7 +89,7 @@ export default function SecretCreate() {
                     </div>
 
                     <button type="submit" disabled={processing} className="w-full mt-6 bg-green-900/40 border border-green-700 text-green-400 py-4 uppercase tracking-widest text-xs font-bold hover:bg-green-800 hover:text-white transition-colors">
-                        {processing ? '[ MENGIRIM DATA... ]' : '[ EXCUTE ]'}
+                        {processing ? '[ UPLOADING DATA... ]' : '[ EXCUTE ]'}
                     </button>
                 </form>
             </div>
