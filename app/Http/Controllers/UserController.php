@@ -132,6 +132,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'nip' => 'required|string|max:50|unique:users',
+            'phone' => 'required|string|max:20', 
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'department' => 'required|string|max:255',
@@ -140,11 +141,12 @@ class UserController extends Controller
         \App\Models\User::create([
             'name' => $request->name,
             'nip' => $request->nip,
+            'phone' => $request->phone,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'department' => $request->department,
-            'status' => 'Aktif', // Otomatis langsung aktif
-            'role' => 'pekerja', // Asumsi role default adalah pekerja
+            'status' => 'Aktif',
+            'role' => 'pekerja',
         ]);
 
         return redirect()->route('users.index');

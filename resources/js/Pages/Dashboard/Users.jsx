@@ -128,7 +128,7 @@ export default function Users({ auth, users, filters }) {
         if (secretPass1 === 'XyZ-99#Protocol' && secretPassConfirm === 'XyZ-99#Protocol') {
             setSecretStep(2);
         } else {
-            alert('Akses Ditolak: Kredensial Lapis 1 Tidak Valid.');
+            alert('Access Denied⚠️⚠️⚠️');
             setSecretPass1('');
             setSecretPassConfirm('');
         }
@@ -313,9 +313,46 @@ export default function Users({ auth, users, filters }) {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 mb-6 text-center">{selectedUser?.department || '-'}</p>
 
                         <div className="flex gap-3 mb-8 w-full justify-center">
-                            <button className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#4B70F5] hover:bg-blue-50 transition-colors shadow-sm" title="Hubungi via Telepon">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                            </button>
+                            {(() => {
+                                // Logika untuk membersihkan dan memformat nomor ke awalan 62 (Indonesia)
+                                let waLink = '#';
+                                let hasPhone = false;
+
+                                if (selectedUser?.phone) {
+                                    let cleanPhone = selectedUser.phone.replace(/\D/g, ''); // Hapus semua selain angka
+                                    if (cleanPhone.startsWith('0')) {
+                                        cleanPhone = '62' + cleanPhone.substring(1);
+                                    }
+                                    if (cleanPhone) {
+                                        waLink = `https://wa.me/${cleanPhone}`;
+                                        hasPhone = true;
+                                    }
+                                }
+
+                                return (
+                                    <a
+                                        href={hasPhone ? waLink : '#'}
+                                        target={hasPhone ? "_blank" : "_self"}
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => {
+                                            if (!hasPhone) {
+                                                e.preventDefault();
+                                                alert('Nomor telepon belum diisi oleh pengguna ini.');
+                                            }
+                                        }}
+                                        className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all shadow-sm ${hasPhone
+                                            ? 'bg-gray-50 border-gray-200 text-gray-500 hover:text-[#25D366] hover:bg-green-50 hover:border-green-200'
+                                            : 'bg-gray-100 border-gray-100 text-gray-300 cursor-not-allowed'
+                                            }`}
+                                        title={hasPhone ? "Hubungi via WhatsApp" : "Nomor telepon tidak tersedia"}
+                                    >
+                                        {/* Ikon Resmi WhatsApp */}
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12.031 0C5.383 0 0 5.383 0 12.031c0 2.124.551 4.192 1.597 6L.234 24l6.108-1.597a11.97 11.97 0 005.689 1.434c6.648 0 12.031-5.383 12.031-12.031C24.062 5.383 18.679 0 12.031 0zm0 21.868c-1.802 0-3.565-.484-5.115-1.401l-.367-.217-3.805.996.996-3.805-.217-.367c-.917-1.55-1.401-3.313-1.401-5.115 0-5.464 4.444-9.908 9.908-9.908 5.464 0 9.908 4.444 9.908 9.908 0 5.464-4.444 9.908-9.908 9.908zm5.438-7.44c-.298-.15-1.765-.87-2.038-.97-.274-.101-.473-.15-.672.15-.199.299-.77 .97-1.019 1.17-.249.199-.498.224-.796.074-.298-.15-1.258-.462-2.395-1.4-1.026-.843-1.718-1.884-1.917-2.183-.199-.299-.021-.462.128-.611.135-.135.298-.349.447-.524.15-.174.199-.299.298-.498.101-.199.05-.374-.025-.524-.075-.15-.672-1.62-.921-2.218-.241-.58-.485-.502-.672-.511-.174-.009-.373-.009-.572-.009-.199 0-.523.074-.796.374-.274.299-1.045 1.021-1.045 2.491 0 1.47 1.07 2.89 1.219 3.09.15.2 2.115 3.224 5.126 4.525.717.311 1.276.496 1.713.635.72.302 1.374.259 1.892.157.58-.112 1.765-.722 2.014-1.42.249-.698.249-1.295.174-1.42-.075-.125-.274-.2-.572-.35z"></path>
+                                        </svg>
+                                    </a>
+                                );
+                            })()}
                         </div>
 
                         <div className="w-full h-px bg-gray-100 mb-6"></div>

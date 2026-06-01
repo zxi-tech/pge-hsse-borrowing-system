@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
-// Import Library Excel & Chart
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
@@ -245,9 +244,7 @@ class StatisticsController extends Controller
         ]);
     }
 
-    // =========================================================
     // FUNGSI EXPORT EXCEL DENGAN CHART NATIVE 
-    // =========================================================
     public function export(Request $request)
     {
         $itemId = $request->query('item_id', 'all');
@@ -285,7 +282,6 @@ class StatisticsController extends Controller
             $startDate = Carbon::now()->subMonths(5)->startOfMonth();
             $formatKey = 'Y-m'; // Bulanan
         } else {
-            // ALL TIME (Ambil transaksi paling tua)
             $oldest = Transaction::orderBy('created_at', 'asc')->first();
             $startDate = $oldest ? Carbon::parse($oldest->created_at)->startOfMonth() : Carbon::now()->startOfMonth();
             $formatKey = 'Y-m'; // Bulanan
@@ -333,9 +329,7 @@ class StatisticsController extends Controller
             }
         }
 
-        // =========================================================
         // 3. INISIASI EXCEL
-        // =========================================================
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Statistik'); 
@@ -369,12 +363,8 @@ class StatisticsController extends Controller
         $sheet->getColumnDimension('A')->setAutoSize(true);
         $sheet->getColumnDimension('B')->setAutoSize(true);
         $sheet->getColumnDimension('C')->setAutoSize(true);
-
-        // ====================================================
-        // 4. MEMBANGUN GRAFIK (CHARTS)
-        // ====================================================
         
-        // --- CHART 1: PIE CHART (Kondisi) ---
+        // CHART 1: PIE CHART (Kondisi)
         $dataSeriesLabelsPie = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Statistik!$B$1', null, 1)];
         $xAxisTickValuesPie = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Statistik!$A$2:$A$4', null, 3)];
         $dataSeriesValuesPie = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Statistik!$B$2:$B$4', null, 3)];
@@ -392,7 +382,7 @@ class StatisticsController extends Controller
         $chartPie->setBottomRightPosition('K12');
         $sheet->addChart($chartPie);
 
-        // --- CHART 2: BAR CHART (Aktivitas Peminjaman) ---
+        // CHART 2: BAR CHART (Aktivitas Peminjaman)
         // Label Series: "Dipinjam" & "Dikembalikan"
         $dataSeriesLabelsBar = [
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Statistik!$B$'.$startRow, null, 1),
@@ -418,20 +408,15 @@ class StatisticsController extends Controller
         );
 
         $layoutBar = new \PhpOffice\PhpSpreadsheet\Chart\Layout();
-        $layoutBar->setShowVal(true); // Memunculkan angka di ujung batang
+        $layoutBar->setShowVal(true);
         $plotAreaBar = new PlotArea($layoutBar, [$seriesBar]);
         $titleText = 'Aktivitas ' . ($timeRange == 'all' ? 'Sepanjang Waktu' : ($timeRange == '180' ? '6 Bulan Terakhir' : $timeRange . ' Hari Terakhir'));
         $chartBar = new Chart('chart_aktivitas', new Title($titleText), new Legend(Legend::POSITION_RIGHT, null, false), $plotAreaBar);
         
-        // Posisikan Grafik Bar di bawah Grafik Pie
         $chartBar->setTopLeftPosition('E14');
         $chartBar->setBottomRightPosition('O28');
         $sheet->addChart($chartBar);
 
-
-        // =========================================================
-        // 5. EKSPOR VIA TEMP FILE (ANTI CRASH)
-        // =========================================================
         $fileName = 'Laporan_' . str_replace(' ', '_', $itemName) . '_' . date('Ymd_Hi') . '.xlsx';
         $tempFile = storage_path('app/' . $fileName);
 
