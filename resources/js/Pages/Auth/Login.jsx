@@ -6,6 +6,8 @@ export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
+        // 👇 1. Tambahkan state remember di sini
+        remember: false,
     });
 
     // Local state toggle untuk fitur "Show/Hide Password"
@@ -26,12 +28,11 @@ export default function Login() {
                 {/* ================= KOLOM KIRI: FORM LOGIN AREA ================= */}
                 <div className="relative w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center overflow-hidden bg-white/95 md:bg-white">
 
-                    {/* 👇 GAMBAR WATERMARK (HANYA MUNCUL DI HP - login-image2.png) 👇 */}
+                    {/* GAMBAR WATERMARK (HANYA MUNCUL DI HP - login-image2.png) */}
                     <div className="absolute inset-0 z-0 md:hidden pointer-events-none opacity-50">
                         <img
                             src="/images/login-image2.png"
                             alt="Background Mobile"
-                            // Tambahkan translate-x-8 dan ubah scale ke 125
                             className="w-full h-full object-cover origin-center scale-[1] translate-x-[30%]"
                             onError={(e) => {
                                 e.target.onerror = null;
@@ -122,8 +123,25 @@ export default function Login() {
                             )}
                         </div>
 
+                        {/* 👇 2. TAMBAHKAN CHECKBOX INGAT SAYA DI SINI 👇 */}
+                        <div className="flex items-center justify-between pt-1">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    name="remember"
+                                    checked={data.remember}
+                                    onChange={(e) => setData('remember', e.target.checked)}
+                                    className="w-3.5 h-3.5 text-[#00A651] bg-white border-gray-300 rounded focus:ring-[#00A651] focus:ring-2 transition-colors cursor-pointer"
+                                />
+                                <span className="text-[11px] text-gray-500 font-bold group-hover:text-gray-800 transition-colors">
+                                    Ingat Saya
+                                </span>
+                            </label>
+                        </div>
+                        {/* 👆 AKHIR DARI CHECKBOX INGAT SAYA 👆 */}
+
                         {/* ACTION BUTTONS */}
-                        <div className="pt-3 flex flex-col gap-3">
+                        <div className="pt-2 flex flex-col gap-3">
                             <button
                                 type="submit"
                                 disabled={processing}
@@ -134,18 +152,6 @@ export default function Login() {
                             >
                                 {processing ? 'Memproses...' : 'Masuk'}
                             </button>
-
-                            {/* 👇 TOMBOL DAFTAR DIKUNCI / DISEMBUNYIKAN SEMENTARA 👇 */}
-                            {/* <p className="text-center text-xs text-gray-600 font-medium relative z-10">
-                                Belum punya akun?{' '}
-                                <Link
-                                    href={route('register')}
-                                    className="text-[#21409A] font-bold hover:underline"
-                                >
-                                    Daftar
-                                </Link>
-                            </p>
-                            */}
                         </div>
                     </form>
                 </div>
@@ -153,7 +159,6 @@ export default function Login() {
                 {/* ================= KOLOM KANAN: COVER IMAGE (Hanya Muncul di Desktop) ================= */}
                 <div className="hidden md:block md:w-5/12 p-3 bg-white">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
-                        {/* 👇 MENGEMBALIKAN GAMBAR DESKTOP - login-image1.png 👇 */}
                         <img
                             src="/images/login-image1.png"
                             alt="Pekerja Pertamina"
