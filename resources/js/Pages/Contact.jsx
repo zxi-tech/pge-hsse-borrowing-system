@@ -219,13 +219,13 @@ export default function Contact({ auth }) {
                                 <div className="space-y-4">
                                     <div>
                                         <p className="text-[12px] font-bold text-gray-900 mb-0.5">Admin HSSE</p>
-                                        <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
+                                        <a href="https://wa.me/62895635778291" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
                                             +62 812-3456-7890
                                         </a>
                                     </div>
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Admin IT</p>
-                                        <a href="https://wa.me/6289876543210" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Admin HSSE 2</p>
+                                        <a href="https://wa.me/628991650508" target="_blank" rel="noopener noreferrer" className="text-[12px] text-gray-600 font-medium hover:text-[#00A651] hover:underline transition-colors block">
                                             +62 898-7654-3210
                                         </a>
                                     </div>
@@ -245,11 +245,7 @@ export default function Contact({ auth }) {
                                 <div className="space-y-4">
                                     <div>
                                         <p className="text-[12px] font-bold text-gray-900 mb-0.5">General Support</p>
-                                        <a href="mailto:support.hsse@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">support.hsse@pertamina.com</a>
-                                    </div>
-                                    <div>
-                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">Complaints & Reporting</p>
-                                        <a href="mailto:complaint.hsse@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">complaint.hsse@pertamina.com</a>
+                                        <a href="mailto:admin.k3ll.LHD@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">admin.k3ll.LHD@pertamina.com</a>
                                     </div>
                                 </div>
                             </div>
@@ -318,19 +314,15 @@ export default function Contact({ auth }) {
                     </div>
                 </main>
 
-                {/* ================= FOOTER DENGAN PERBAIKAN MOBILE ================= */}
                 <footer className="mt-auto shrink-0 bg-[#F4F5FA]">
                     <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-6 md:py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium gap-4 md:gap-0">
 
-                        {/* Teks Copyright (Rata tengah di HP, Rata kiri di Desktop) */}
                         <div className="text-center md:text-left leading-relaxed">
                             © 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.
                         </div>
 
-                        {/* 👇 Garis Pembatas Khusus HP (Sembunyi di Desktop) 👇 */}
                         <div className="w-16 h-[2px] bg-gray-300 rounded-full md:hidden"></div>
 
-                        {/* 👇 CREDIT DEVELOPER (NAMA ASLI + GITHUB) 👇 */}
                         <div className="flex items-center justify-center space-x-2">
                             <span>Developed by</span>
                             <a
@@ -347,8 +339,6 @@ export default function Contact({ auth }) {
                             </a>
                         </div>
                     </div>
-
-                    {/* Garis Warna Warni Bawah */}
                     <div className="h-1.5 flex w-full">
                         <div className="bg-[#21409A] flex-1"></div>
                         <div className="bg-[#ED1C24] flex-1"></div>

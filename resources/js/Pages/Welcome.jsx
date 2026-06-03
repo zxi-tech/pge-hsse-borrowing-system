@@ -112,7 +112,7 @@ export default function Welcome({ auth }) {
 
     return (
         <>
-            <Head title="SIMPAN-BANG | Pertamina Geothermal Energy" />
+            <Head title="SiapAPD | Pertamina Geothermal Energy" />
 
             <div className="min-h-screen bg-[#F4F7FF] font-sans text-gray-900 overflow-x-hidden flex flex-col selection:bg-[#21409A] selection:text-white antialiased">
 
@@ -218,7 +218,7 @@ export default function Welcome({ auth }) {
                     <div className="relative z-20 flex flex-col items-start text-left justify-start w-full mt-0 lg:mt-8">
                         <h1 className="text-[26px] sm:text-[34px] md:text-[48px] xl:text-[54px] font-semibold text-[#111827] leading-[1.15] tracking-tight antialiased">
                             Sistem Manajemen <br className="hidden lg:block" />
-                            Peminjaman Barang <br className="hidden lg:block" />
+                            Peminjaman APD <br className="hidden lg:block" />
                             <span className="font-black block mt-1 md:mt-2 tracking-normal">
                                 <span className="text-[#1D7044]">H</span><span className="text-[#21409A]">S</span><span className="text-[#F37021]">S</span><span className="text-[#005B4E]">E</span>
                             </span>
@@ -235,9 +235,9 @@ export default function Welcome({ auth }) {
 
                     <div className="absolute inset-x-0 bottom-18 sm:bottom-28 z-0 flex justify-center items-end opacity-[0.35] pointer-events-none lg:relative lg:bottom-auto lg:opacity-100 lg:pointer-events-auto lg:justify-end lg:items-center">
                         <img
-                            src="/images/hero-workers.png"
+                            src="/images/hero-worker3.png"
                             alt="Pekerja HSSE Pertamina"
-                            className="w-[120%] max-w-[450px] sm:max-w-[550px] lg:w-[900px] xl:w-[1000px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] lg:-translate-y-12"
+                            className="w-[120%] max-w-[750px] sm:max-w-[700px] lg:w-[950px] xl:w-[1050px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] translate-x-[-10px] translate-y-[0px] lg:translate-x-[10px] lg:translate-y-[-80px]"
                         />
                     </div>
                 </main>
