@@ -112,7 +112,7 @@ export default function Welcome({ auth }) {
 
     return (
         <>
-            <Head title="SimpanBang | Pertamina Geothermal Energy" />
+            <Head title="SIMPAN-BANG | Pertamina Geothermal Energy" />
 
             <div className="min-h-screen bg-[#F4F7FF] font-sans text-gray-900 overflow-x-hidden flex flex-col selection:bg-[#21409A] selection:text-white antialiased">
 
