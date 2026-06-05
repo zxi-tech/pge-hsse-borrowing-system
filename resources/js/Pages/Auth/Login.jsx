@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login() {
-    // Data binding form via Inertia.js untuk sinkronisasi otomatis dengan backend Laravel
+    // Data binding form via Inertia.js
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
-        // 👇 1. Tambahkan state remember di sini
-        remember: false,
     });
 
     // Local state toggle untuk fitur "Show/Hide Password"
     const [showPassword, setShowPassword] = useState(false);
 
-    // Intercept default form submission browser lalu passing payload via Inertia POST
+    // Intercept default form submission browser
     const submit = (e) => {
         e.preventDefault();
         post(route('login'));
@@ -28,7 +26,7 @@ export default function Login() {
                 {/* ================= KOLOM KIRI: FORM LOGIN AREA ================= */}
                 <div className="relative w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center overflow-hidden bg-white/95 md:bg-white">
 
-                    {/* GAMBAR WATERMARK (HANYA MUNCUL DI HP - login-image2.png) */}
+                    {/* GAMBAR WATERMARK (HANYA MUNCUL DI HP) */}
                     <div className="absolute inset-0 z-0 md:hidden pointer-events-none opacity-50">
                         <img
                             src="/images/login-image2.png"
@@ -123,25 +121,8 @@ export default function Login() {
                             )}
                         </div>
 
-                        {/* 👇 2. TAMBAHKAN CHECKBOX INGAT SAYA DI SINI 👇 */}
-                        <div className="flex items-center justify-between pt-1">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    name="remember"
-                                    checked={data.remember}
-                                    onChange={(e) => setData('remember', e.target.checked)}
-                                    className="w-3.5 h-3.5 text-[#00A651] bg-white border-gray-300 rounded focus:ring-[#00A651] focus:ring-2 transition-colors cursor-pointer"
-                                />
-                                <span className="text-[11px] text-gray-500 font-bold group-hover:text-gray-800 transition-colors">
-                                    Ingat Saya
-                                </span>
-                            </label>
-                        </div>
-                        {/* 👆 AKHIR DARI CHECKBOX INGAT SAYA 👆 */}
-
                         {/* ACTION BUTTONS */}
-                        <div className="pt-2 flex flex-col gap-3">
+                        <div className="pt-3 flex flex-col gap-3">
                             <button
                                 type="submit"
                                 disabled={processing}
@@ -156,7 +137,7 @@ export default function Login() {
                     </form>
                 </div>
 
-                {/* ================= KOLOM KANAN: COVER IMAGE (Hanya Muncul di Desktop) ================= */}
+                {/* ================= KOLOM KANAN: COVER IMAGE ================= */}
                 <div className="hidden md:block md:w-5/12 p-3 bg-white">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
