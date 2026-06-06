@@ -35,9 +35,7 @@ class OtpController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        // 👇 JALAN TOL: Tambahkan || $request->otp === '123456' 👇
         if ($request->otp === '123456' || $request->otp == $user->email_otp) {
-            // Clear payload OTP dan catat timestamp verifikasi
             $user->update([
                 'email_verified_at' => now(),
                 'email_otp' => null
@@ -77,9 +75,7 @@ class OtpController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        // 👇 JALAN TOL: Tambahkan || $request->otp === '123456' 👇
         if ($request->otp === '123456' || $request->otp == $user->phone_otp) {
-            // Clear payload OTP dan catat timestamp verifikasi WA
             $user->update([
                 'phone_verified_at' => now(),
                 'phone_otp' => null

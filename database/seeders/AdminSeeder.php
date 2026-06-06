@@ -14,12 +14,12 @@ class AdminSeeder extends Seeder
         User::create([
             'nip' => '123456789',
             'name' => 'Admin HSSE',
-            'email' => 'admin.hsse@pertamina.com', // Domain @pertamina.com
+            'email' => 'admin.hsse@pertamina.com',
             'phone' => '081234567890',
             'role' => 'admin',
-            'password' => Hash::make('password123'), // Password default untuk testing
-            'email_verified_at' => Carbon::now(), // Langsung terverifikasi
-            'wa_verified_at' => Carbon::now(),    // Langsung terverifikasi
+            'password' => Hash::make('password123'),
+            'email_verified_at' => Carbon::now(),
+            'wa_verified_at' => Carbon::now(),
         ]);
     }
 }

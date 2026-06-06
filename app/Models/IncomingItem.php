@@ -17,13 +17,13 @@ class IncomingItem extends Model
         'notes',
     ];
 
-    // Relasi: 1 Log Barang Masuk ini milik 1 Barang (Item)
+    // Relasi: Log Barang Masuk ini milik 1 Barang (Item)
     public function item()
     {
         return $this->belongsTo(Item::class);
     }
 
-    // Relasi: 1 Log Barang Masuk ini dicatat oleh 1 Admin (User)
+    // Relasi: Log Barang Masuk ini dicatat oleh 1 Admin (User)
     public function user()
     {
         return $this->belongsTo(User::class);

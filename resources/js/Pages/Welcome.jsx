@@ -237,7 +237,7 @@ export default function Welcome({ auth }) {
                         <img
                             src="/images/hero-worker3.png"
                             alt="Pekerja HSSE Pertamina"
-                            className="w-[120%] max-w-[750px] sm:max-w-[700px] lg:w-[950px] xl:w-[1050px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] translate-x-[-10px] translate-y-[0px] lg:translate-x-[10px] lg:translate-y-[-80px]"
+                            className="w-[160%] sm:w-[120%] max-w-[850px] sm:max-w-[700px] lg:w-[950px] xl:w-[1050px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] translate-x-[-60px] translate-y-[-80px] lg:translate-x-[10px] lg:translate-y-[-80px] origin-bottom"
                         />
                     </div>
                 </main>

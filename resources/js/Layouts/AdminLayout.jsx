@@ -2,28 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 
 export default function AdminLayout({ user, children }) {
-    // =========================================================================
-    // UI STATE MANAGEMENT
-    // =========================================================================
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // Easter Egg / Mascot UI: Rotasi pesan dinamis untuk animasi Chibi patroli
-    const patrolMessages = [
-        "Area Aman!",
-        "Cek Stok APD",
-        "Suhu & Tekanan Normal",
-        "Utamakan Keselamatan",
-        "Patroli Zona Uap"
-    ];
-    const [chibiMsgIndex, setChibiMsgIndex] = useState(0);
-
-    // Fetch global shared props yang di-inject dari middleware HandleInertiaRequests Laravel
+    // Mengambil data global dari middleware Inertia (Laravel)
     const { unread_messages_count } = usePage().props;
     const isRouteActive = (pattern) => route().current(pattern);
 
-    // Event Listener: Auto-close dropdown profil saat mendeteksi outside click (UX Enhancement)
+    // Auto-close dropdown profil saat klik di luar area menu
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -34,128 +21,13 @@ export default function AdminLayout({ user, children }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Timer sinkronisasi: Update index array pesan persis setiap 24 detik
-    // (Waktu disesuaikan dengan 1 full cycle CSS keyframe animation Chibi agar transisi mulus)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setChibiMsgIndex((prev) => (prev + 1) % patrolMessages.length);
-        }, 24000);
-        return () => clearInterval(interval);
-    }, [patrolMessages.length]);
-
-    // Placeholder handler untuk endpoint/fitur yang masih dalam tahap UI Mockup
-    const handleComingSoon = (featureName) => {
-        alert(`Fitur ${featureName} saat ini sedang dalam tahap pengembangan. Segera Hadir! 🚀`);
-    };
-
     return (
         <div className="flex h-screen bg-[#F4F5FA] font-sans text-gray-800 overflow-hidden">
 
-
-            <style>{`
-                /* Bergerak santai ke ujung, melambat, lalu kembali */
-                @keyframes patrolResponsive {
-                    0%       { left: 0%; }
-                    42%      { left: calc(100% - 40px); } /* Tiba di ujung kanan dekat notifikasi */
-                    50%      { left: calc(100% - 40px); } /* Berhenti sebentar / stand by */
-                    92%      { left: 0%; } /* Tiba di ujung kiri */
-                    100%     { left: 0%; } /* Berhenti sebentar */
-                }
-                
-                /* Memutar badan 180 derajat secara perlahan dan realistis */
-                @keyframes smoothFlip {
-                    0%, 42%   { transform: rotateY(0deg); }
-                    47%, 92%  { transform: rotateY(180deg); }
-                    97%, 100% { transform: rotateY(360deg); }
-                }
-                
-                /* Langkah kaki mantul-mantul pelan */
-                @keyframes chibiWalk {
-                    0%, 100% { transform: translateY(0); }
-                    50%      { transform: translateY(-2.5px); }
-                }
-
-                /* 👇 CSS BARU UNTUK TEKS DI BELAKANG & ASAP 👇 */
-                
-                /* Animasi Teks Muncul, Melayang Pelan, lalu Hilang (HANYA KETIKA JALAN KE KANAN 0-42%) */
-                @keyframes textTailFade {
-                    0%   { opacity: 0; transform: translateX(5px); }
-                    5%   { opacity: 1; transform: translateX(0px); } /* Muncul penuh */
-                    35%  { opacity: 1; transform: translateX(0px); } /* Tetap muncul saat jalan */
-                    42%  { opacity: 0; transform: translateX(-15px); } /* Menghilang saat melambat/berhenti di ujung */
-                    100% { opacity: 0; transform: translateX(-15px); }
-                }
-
-                /* Animasi Kumpulan Asap Mengembang & Menghilang (HANYA KETIKA JALAN KE KANAN 0-42%) */
-                @keyframes smokeEffect {
-                    0%   { transform: translate(0, 0) scale(1); opacity: 0; }
-                    5%   { transform: translate(-2px, -3px) scale(1.1); opacity: 0.6; } /* Muncul */
-                    15%  { transform: translate(-5px, -6px) scale(1.3); opacity: 0.5; }
-                    30%  { transform: translate(-8px, -8px) scale(1.5); opacity: 0.3; }
-                    42%  { transform: translate(-12px, -10px) scale(1.6); opacity: 0; } /* Menghilang */
-                    100% { transform: translate(-12px, -10px) scale(1.6); opacity: 0; }
-                }
-                
-                .patrol-track {
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                }
-                
-                /* Durasinya diubah jadi 24 detik agar sangat santai */
-                .chibi-container {
-                    position: absolute;
-                    bottom: 0;
-                    animation: patrolResponsive 24s ease-in-out infinite;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                }
-                
-                .chibi-flip-wrapper {
-                    animation: smoothFlip 24s ease-in-out infinite;
-                    transform-style: preserve-3d;
-                }
-                
-                .chibi-body {
-                    animation: chibiWalk 0.6s ease-in-out infinite;
-                }
-
-                /* Wadah Asap Trail yang sinkron dengan jalan ke kanan */
-                .chibi-smoke-trail {
-                    position: absolute;
-                    bottom: 0px;
-                    left: 20px; /* Posisikan di belakang kaki (di kiri badan saat hadap kanan) */
-                    pointer-events: none;
-                    animation: textTailFade 24s ease-in-out infinite;
-                }
-
-                /* Elemen Asap */
-                .chibi-smoke-cloud {
-                    position: absolute;
-                    bottom: 0px;
-                    left: -15px; /* Sedikit geser ke kiri */
-                    background: #E2E8F0; /* Latar abu-abu terang seperti asap */
-                    border-radius: 50%; /* Membuatnya bulat */
-                    opacity: 0;
-                    animation: smokeEffect 24s ease-in-out infinite;
-                    animation-delay: 0s;
-                }
-
-                /* Teks Jejak Asap */
-                .patrol-text {
-                    color: #00A651; /* Warna hijau PGE */
-                    font-size: 10px;
-                    font-weight: 800;
-                    font-style: italic;
-                    white-space: nowrap;
-                    margin-left: 5px; /* Jarak dari asal asap */
-                }
-            `}</style>
-
-            {/* ================= SIDEBAR (KIRI) ================= */}
+            {/* SIDEBAR KIRI */}
             <aside className={`${isSidebarCollapsed ? 'w-[80px]' : 'w-[260px]'} bg-white border-r border-gray-100 flex flex-col z-20 flex-shrink-0 transition-all duration-300 ease-in-out`}>
 
+                {/* LOGO */}
                 <div className="h-[72px] flex items-center justify-between px-4 border-b border-transparent overflow-hidden">
                     <img
                         src="/images/pertamina-logo (1).png"
@@ -173,6 +45,7 @@ export default function AdminLayout({ user, children }) {
                     </button>
                 </div>
 
+                {/* MENU NAVIGASI */}
                 <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar">
 
                     <div className={`px-3 pt-4 pb-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-300 ${isSidebarCollapsed ? 'opacity-0 h-0 p-0 overflow-hidden' : 'opacity-100'}`}>
@@ -194,7 +67,6 @@ export default function AdminLayout({ user, children }) {
                         {!isSidebarCollapsed && <span className="whitespace-nowrap">Manajemen Barang</span>}
                     </Link>
 
-                    {/* 👇 MENU BARU: STATISTIK APD 👇 */}
                     <Link href={route('statistics.index')} className={`flex items-center gap-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 ${isSidebarCollapsed ? 'justify-center px-0' : 'px-3'} ${isRouteActive('statistics.*') ? 'bg-[#00A651] text-white shadow-md shadow-[#00A651]/30' : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900'}`}>
                         <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         {!isSidebarCollapsed && <span className="whitespace-nowrap">Statistik APD</span>}
@@ -229,6 +101,7 @@ export default function AdminLayout({ user, children }) {
 
                 </nav>
 
+                {/* LOGOUT */}
                 <div className={`p-4 border-t border-gray-100 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
                     <Link href={route('logout')} method="post" as="button" title="Logout" className={`flex items-center gap-3 w-full text-left py-2.5 rounded-lg text-[14px] font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors ${isSidebarCollapsed ? 'justify-center px-0' : 'px-3'}`}>
                         <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
@@ -237,13 +110,13 @@ export default function AdminLayout({ user, children }) {
                 </div>
             </aside>
 
-            {/* ================= AREA KANAN (HEADER + KONTEN + FOOTER) ================= */}
+            {/* KONTEN UTAMA & HEADER KANAN */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
 
-                {/* Header Top */}
+                {/* HEADER ATAS */}
                 <header className="h-[72px] bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10 flex-shrink-0 gap-8">
 
-                    {/* ================= FOOTER / WATERMARK SISTEM ================= */}
+                    {/* JUDUL SISTEM */}
                     <div className="hidden md:flex flex-1 h-[60px] border-b-2 border-gray-100 pb-3 relative mt-auto items-end px-2">
                         <div className="w-full flex flex-col justify-end">
                             <span className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-0.5">
@@ -252,9 +125,10 @@ export default function AdminLayout({ user, children }) {
                         </div>
                     </div>
 
-                    {/* KANAN: Lonceng Notifikasi & Profil */}
+                    {/* HEADER KANAN: Notifikasi & Profil */}
                     <div className="flex items-center space-x-6 flex-shrink-0 ml-auto">
 
+                        {/* Tombol Notifikasi */}
                         <div className="flex items-center">
                             <button onClick={() => router.get(route('messages.index'))} className="hover:text-[#00A651] text-gray-500 transition-colors relative p-2 rounded-full hover:bg-green-50" title="Notifikasi Pesan">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
@@ -266,6 +140,7 @@ export default function AdminLayout({ user, children }) {
 
                         <div className="hidden sm:block w-px h-6 bg-gray-200"></div>
 
+                        {/* Dropdown Profil */}
                         <div className="relative" ref={profileMenuRef}>
                             <div
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
@@ -298,6 +173,7 @@ export default function AdminLayout({ user, children }) {
                                 <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
 
+                            {/* Menu Dropdown */}
                             {isProfileMenuOpen && (
                                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                     <div className="px-4 py-3 border-b border-gray-50">
@@ -325,11 +201,13 @@ export default function AdminLayout({ user, children }) {
                     </div>
                 </header>
 
+                {/* AREA RENDER KONTEN (CHILDREN) */}
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#F4F5FA] flex flex-col">
                     <div className="flex-1 p-6 lg:p-8">
                         {children}
                     </div>
 
+                    {/* FOOTER */}
                     <footer className="mt-auto flex-shrink-0 bg-[#F4F5FA]">
                         <div className="px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium">
                             <div>
@@ -352,6 +230,7 @@ export default function AdminLayout({ user, children }) {
                             </div>
                         </div>
 
+                        {/* Garis Warna Identitas Pertamina */}
                         <div className="h-1.5 flex w-full">
                             <div className="bg-[#21409A] flex-1"></div>
                             <div className="bg-[#ED1C24] flex-1"></div>

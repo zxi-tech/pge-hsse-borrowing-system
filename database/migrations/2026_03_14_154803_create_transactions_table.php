@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             
-            // 👇 INI DIA LACI YANG HILANG! Kita tambahkan di sini 👇
             $table->text('purpose');
             
             $table->enum('status', ['menunggu', 'dipinjam', 'selesai', 'ditolak', 'terlambat'])->default('menunggu');

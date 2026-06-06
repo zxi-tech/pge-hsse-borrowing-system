@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Status({ auth, transactions }) {
@@ -6,14 +6,14 @@ export default function Status({ auth, transactions }) {
 
     // ================= STATES INTERAKTIVITAS & MOBILE =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk Menu HP
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
     // State Filter Status
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
     const [statusFilter, setStatusFilter] = useState('Semua');
-    const statusOptions = ['Semua', 'Menunggu', 'Dipinjam', 'Selesai', 'Ditolak'];
+    const statusOptions = ['Semua', 'Menunggu', 'Dipinjam', 'Selesai', 'Ditolak', 'Terlambat'];
 
     // State Filter Waktu
     const [isTimeFilterOpen, setIsTimeFilterOpen] = useState(false);
@@ -25,14 +25,12 @@ export default function Status({ auth, transactions }) {
 
     // ================= STATES PAGINASI =================
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Menampilkan 5 kartu per halaman (Bisa kamu ubah nanti jika ingin 10)
+    const itemsPerPage = 5;
 
-    // Reset ke halaman 1 setiap kali user mengetik pencarian atau mengubah filter
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, statusFilter, timeFilter]);
 
-    // Menutup dropdown jika user klik di luar area
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) setIsProfileMenuOpen(false);
@@ -43,10 +41,38 @@ export default function Status({ auth, transactions }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // ================= LOGIKA PENGECEKAN KETERLAMBATAN (VISUAL OVERRIDE) =================
+    // Kita sulap data transactions dari Laravel sebelum di-render ke tabel
+    const processedTransactions = useMemo(() => {
+        if (!transactions) return [];
+
+        return transactions.map(trx => {
+            let currentStatus = trx.status?.toLowerCase();
+
+            // Cek jika statusnya dipinjam/disetujui dan memiliki tanggal kembali (end_date)
+            if ((currentStatus === 'dipinjam' || currentStatus === 'disetujui') && trx.end_date) {
+                const endDate = new Date(trx.end_date);
+                const today = new Date();
+
+                // Reset jam ke 00:00:00 agar perbandingan adil hanya berdasarkan tanggal
+                endDate.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+
+                // Jika hari ini LEBIH BESAR dari batas tanggal kembali, ubah jadi terlambat
+                if (today > endDate) {
+                    currentStatus = 'terlambat';
+                }
+            }
+            return { ...trx, status: currentStatus };
+        });
+    }, [transactions]);
+
+
     // ================= LOGIKA FILTER & PENCARIAN =================
-    const filteredTransactions = transactions?.filter(trx => {
+    // Sekarang kita filter dari data yang sudah di-proses (processedTransactions), BUKAN transactions asli
+    const filteredTransactions = processedTransactions.filter(trx => {
         // 1. Filter Status
-        const matchesStatus = statusFilter === 'Semua' || trx.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesStatus = statusFilter === 'Semua' || trx.status === statusFilter.toLowerCase();
 
         // 2. Filter Pencarian
         const searchLower = searchQuery.toLowerCase();
@@ -75,7 +101,7 @@ export default function Status({ auth, transactions }) {
         }
 
         return matchesStatus && matchesSearch && matchesTime;
-    }) || [];
+    });
 
     // ================= LOGIKA PEMOTONGAN DATA (PAGINASI) =================
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
@@ -242,28 +268,28 @@ export default function Status({ auth, transactions }) {
                             {[
                                 {
                                     label: 'Total',
-                                    value: transactions?.length || 0,
+                                    value: processedTransactions?.length || 0,
                                     color: 'text-gray-800',
                                     bgIcon: 'bg-gray-100',
                                     icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                 },
                                 {
                                     label: 'Menunggu',
-                                    value: transactions?.filter(t => t.status === 'menunggu').length || 0,
+                                    value: processedTransactions?.filter(t => t.status === 'menunggu').length || 0,
                                     color: 'text-amber-500',
                                     bgIcon: 'bg-amber-50',
                                     icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 },
                                 {
                                     label: 'Dipinjam',
-                                    value: transactions?.filter(t => t.status === 'dipinjam' || t.status === 'disetujui').length || 0,
+                                    value: processedTransactions?.filter(t => t.status === 'dipinjam' || t.status === 'disetujui').length || 0,
                                     color: 'text-blue-600',
                                     bgIcon: 'bg-blue-50',
                                     icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                                 },
                                 {
                                     label: 'Selesai',
-                                    value: transactions?.filter(t => t.status === 'selesai').length || 0,
+                                    value: processedTransactions?.filter(t => t.status === 'selesai' || t.status === 'dikembalikan').length || 0,
                                     color: 'text-emerald-500',
                                     bgIcon: 'bg-emerald-50',
                                     icon: <svg className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -274,7 +300,6 @@ export default function Status({ auth, transactions }) {
                                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{item.label}</p>
                                         <h2 className={`text-2xl font-black leading-none ${item.color}`}>{item.value}</h2>
                                     </div>
-                                    {/* Lingkaran Ikon */}
                                     <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center shrink-0 ${item.bgIcon} transition-transform group-hover:scale-110`}>
                                         {item.icon}
                                     </div>
@@ -394,7 +419,6 @@ export default function Status({ auth, transactions }) {
                                         currentItems.map((trx, index) => (
                                             <tr
                                                 key={index}
-                                                // Warna garis dinamis HANYA akan terlihat di HP karena di bawah ada class md:border-l-0
                                                 style={{ borderLeftColor: getStatusRibbonColor(trx.status) }}
                                                 className="flex flex-col md:table-row bg-white md:bg-transparent border border-gray-200 md:border-0 border-l-[6px] md:border-l-0 rounded-[16px] md:rounded-none overflow-hidden mb-3 md:mb-0 p-3 md:p-0 shadow-sm md:shadow-none hover:bg-blue-50/30 transition-colors group"
                                             >
@@ -469,7 +493,7 @@ export default function Status({ auth, transactions }) {
                                 </tbody>
                             </table>
 
-                            {/* ================= KONTROL PAGINASI (TAMPIL JIKA LEBIH DARI 1 HALAMAN) ================= */}
+                            {/* ================= KONTROL PAGINASI ================= */}
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-between px-2 py-4 md:px-6 md:py-5 border-t border-gray-100 bg-transparent md:bg-white mt-1 md:mt-0">
                                     <p className="text-[12px] text-gray-500 font-medium hidden sm:block">
@@ -505,7 +529,7 @@ export default function Status({ auth, transactions }) {
                                             className="px-3 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-[#21409A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1 shadow-sm"
                                         >
                                             <span className="hidden sm:inline">Next</span>
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7-7"></path></svg>
                                         </button>
                                     </div>
                                 </div>

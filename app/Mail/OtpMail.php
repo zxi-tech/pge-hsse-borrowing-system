@@ -29,7 +29,6 @@ class OtpMail extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
-        // Menghubungkan ke file template otp.blade.php
         return new Content(
             view: 'emails.otp',
         );
