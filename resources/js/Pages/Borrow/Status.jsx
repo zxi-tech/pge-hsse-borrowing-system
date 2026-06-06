@@ -4,18 +4,17 @@ import { Head, Link } from '@inertiajs/react';
 export default function Status({ auth, transactions }) {
     const user = auth?.user;
 
-    // ================= STATES INTERAKTIVITAS & MOBILE =================
+    // ================= STATE MANAGEMENT: UI INTERACTIVITY =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // State Filter Status
+    // ================= STATE MANAGEMENT: FILTER & SEARCH =================
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
     const [statusFilter, setStatusFilter] = useState('Semua');
     const statusOptions = ['Semua', 'Menunggu', 'Dipinjam', 'Selesai', 'Ditolak', 'Terlambat'];
 
-    // State Filter Waktu
     const [isTimeFilterOpen, setIsTimeFilterOpen] = useState(false);
     const timeFilterRef = useRef(null);
     const [timeFilter, setTimeFilter] = useState('Semua Waktu');
@@ -23,14 +22,16 @@ export default function Status({ auth, transactions }) {
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    // ================= STATES PAGINASI =================
+    // ================= STATE MANAGEMENT: PAGINATION =================
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
+    // Effect: Me-reset paginasi ke halaman pertama saat parameter pencarian/filter diubah
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, statusFilter, timeFilter]);
 
+    // Effect: Event Listener untuk menutup dropdown (Profil & Filter) saat user klik di luar elemen (Outside Click)
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) setIsProfileMenuOpen(false);
@@ -41,24 +42,24 @@ export default function Status({ auth, transactions }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // ================= LOGIKA PENGECEKAN KETERLAMBATAN (VISUAL OVERRIDE) =================
-    // Kita sulap data transactions dari Laravel sebelum di-render ke tabel
+    // ================= DATA PROCESSING: VISUAL OVERRIDE (LATE STATUS) =================
+    // Mencegat (Intercept) data transaksi untuk menyuntikkan status 'Terlambat' secara dinamis berdasarkan perbandingan tanggal (Frontend check)
     const processedTransactions = useMemo(() => {
         if (!transactions) return [];
 
         return transactions.map(trx => {
             let currentStatus = trx.status?.toLowerCase();
 
-            // Cek jika statusnya dipinjam/disetujui dan memiliki tanggal kembali (end_date)
+            // Cek jika status barang masih dipinjam/disetujui dan memiliki batas waktu pengembalian (end_date)
             if ((currentStatus === 'dipinjam' || currentStatus === 'disetujui') && trx.end_date) {
                 const endDate = new Date(trx.end_date);
                 const today = new Date();
 
-                // Reset jam ke 00:00:00 agar perbandingan adil hanya berdasarkan tanggal
+                // Normalisasi jam ke 00:00:00 untuk perbandingan murni berdasarkan hari/tanggal
                 endDate.setHours(0, 0, 0, 0);
                 today.setHours(0, 0, 0, 0);
 
-                // Jika hari ini LEBIH BESAR dari batas tanggal kembali, ubah jadi terlambat
+                // Override status ke 'terlambat' jika tanggal hari ini telah melewati batas waktu pengembalian
                 if (today > endDate) {
                     currentStatus = 'terlambat';
                 }
@@ -68,20 +69,20 @@ export default function Status({ auth, transactions }) {
     }, [transactions]);
 
 
-    // ================= LOGIKA FILTER & PENCARIAN =================
-    // Sekarang kita filter dari data yang sudah di-proses (processedTransactions), BUKAN transactions asli
+    // ================= DATA FILTERING ENGINE =================
+    // Mem-filter array hasil proses (processedTransactions) berdasarkan kombinasi 3 kriteria: Status, String Query, dan Time Range
     const filteredTransactions = processedTransactions.filter(trx => {
-        // 1. Filter Status
+        // 1. Cek Kesesuaian Status
         const matchesStatus = statusFilter === 'Semua' || trx.status === statusFilter.toLowerCase();
 
-        // 2. Filter Pencarian
+        // 2. Cek Kesesuaian Pencarian String (ID Transaksi, Nama Barang, Tujuan)
         const searchLower = searchQuery.toLowerCase();
         const matchesSearch =
             (trx.id || '').toLowerCase().includes(searchLower) ||
             (trx.items || '').toLowerCase().includes(searchLower) ||
             (trx.purpose || '').toLowerCase().includes(searchLower);
 
-        // 3. Filter Waktu (Menggunakan created_at dari database)
+        // 3. Cek Kesesuaian Rentang Waktu (Berdasarkan timestamp created_at)
         let matchesTime = true;
         if (timeFilter !== 'Semua Waktu' && trx.created_at) {
             const trxDate = new Date(trx.created_at);
@@ -103,13 +104,14 @@ export default function Status({ auth, transactions }) {
         return matchesStatus && matchesSearch && matchesTime;
     });
 
-    // ================= LOGIKA PEMOTONGAN DATA (PAGINASI) =================
+    // ================= PAGINATION LOGIC CALCULATION =================
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredTransactions.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredTransactions.slice(indexOfFirstItem, indexOfLastItem); // Array final yang dirender ke DOM (Tabel)
 
-    // ================= HELPER FUNCTIONS =================
+    // ================= HELPER UTILITIES: UI STYLING =================
+    // Mapping warna background, teks, dan border badge berdasarkan keyword status
     const getStatusStyle = (status) => {
         switch (status?.toLowerCase()) {
             case 'menunggu': return 'bg-amber-50 text-amber-600 border-amber-200';
@@ -123,19 +125,21 @@ export default function Status({ auth, transactions }) {
         }
     };
 
+    // Mapping warna solid (Hex) untuk aksen pita (Ribbon) di sebelah kiri kartu (Mobile UI)
     const getStatusRibbonColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'menunggu': return '#FBBF24'; // Kuning
+            case 'menunggu': return '#FBBF24'; // Kuning (Amber)
             case 'disetujui':
-            case 'dipinjam': return '#21409A'; // Biru PGE
-            case 'ditolak': return '#ED1C24'; // Merah PGE
+            case 'dipinjam': return '#21409A'; // Biru (PGE Corporate Color)
+            case 'ditolak': return '#ED1C24'; // Merah (PGE Corporate Color)
             case 'selesai':
-            case 'dikembalikan': return '#00A651'; // Hijau PGE
-            case 'terlambat': return '#E11D48'; // Merah Gelap
-            default: return '#D1D5DB'; // Abu-abu
+            case 'dikembalikan': return '#00A651'; // Hijau (PGE Corporate Color)
+            case 'terlambat': return '#E11D48'; // Merah Gelap (Rose)
+            default: return '#D1D5DB'; // Abu-abu default
         }
     };
 
+    // Helper untuk membuat fallback Avatar 2 huruf dari string Nama
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -147,15 +151,15 @@ export default function Status({ auth, transactions }) {
 
             <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20 text-gray-800 selection:bg-[#21409A] selection:text-white">
 
-                {/* ================= NAVBAR RESPONSIVE ================= */}
+                {/* Navbar (Main Navigation) */}
                 <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-50 bg-transparent relative">
 
-                    {/* ZONA 1: Logo Kiri */}
+                    {/* Navbar Kiri: Logo Container */}
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
                         <img src="/images/pertamina-logo (1).png" alt="Pertamina Geothermal Energy" className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }} />
                     </div>
 
-                    {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
+                    {/* Navbar Tengah: Main Links (Desktop Only) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
                         <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
@@ -166,7 +170,7 @@ export default function Status({ auth, transactions }) {
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
                         </Link>
 
-                        {/* Menu Aktif */}
+                        {/* Active Route Link */}
                         <Link href={route('borrow.status')} className="relative group py-2 hover:text-[#21409A] text-[#21409A] transition-colors duration-300">
                             Status
                             <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#21409A] scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
@@ -178,10 +182,11 @@ export default function Status({ auth, transactions }) {
                         </Link>
                     </div>
 
-                    {/* ZONA 3: Profil & Tombol Mobile (Kanan) */}
+                    {/* Navbar Kanan: User Profile & Mobile Toggle */}
                     <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
                         {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
+                                {/* Profile Trigger Button */}
                                 <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-2 md:space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white hover:shadow-sm hover:border-gray-200'}`}>
                                     <div className="relative">
                                         <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-xs md:text-sm border-2 border-white shadow-sm overflow-hidden">
@@ -196,6 +201,7 @@ export default function Status({ auth, transactions }) {
                                     <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
+                                {/* Profile Dropdown Options */}
                                 {isProfileMenuOpen && (
                                     <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
                                         <div className="px-4 py-3 border-b border-gray-50">
@@ -221,7 +227,7 @@ export default function Status({ auth, transactions }) {
                             </Link>
                         )}
 
-                        {/* HAMBURGER MENU BUTTON (HANYA MUNCUL DI HP) */}
+                        {/* Hamburger Button (Mobile Only) */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
@@ -236,7 +242,7 @@ export default function Status({ auth, transactions }) {
                         </button>
                     </div>
 
-                    {/* DROPDOWN MENU MOBILE */}
+                    {/* Mobile Full Screen Menu Panel */}
                     {isMobileMenuOpen && (
                         <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-50 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
                             <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
@@ -257,13 +263,14 @@ export default function Status({ auth, transactions }) {
 
                 <main className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-6 relative z-10">
 
-                    {/* ================= HEADER & SUMMARY STATS ================= */}
+                    {/* ================= HEADER & STATISTIK CARD KARTU ================= */}
                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start lg:items-center justify-between mb-12">
                         <div className="flex-1">
                             <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-950 mb-3 tracking-tight">Status Peminjaman APD</h1>
                             <p className="text-sm text-gray-500 max-w-xl font-medium leading-relaxed">Pantau seluruh riwayat dan status terkini pengajuan alat pelindung diri Anda di sini.</p>
                         </div>
 
+                        {/* Statistik Dinamis Berdasarkan Filter processedTransactions */}
                         <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 shrink-0">
                             {[
                                 {
@@ -308,13 +315,13 @@ export default function Status({ auth, transactions }) {
                         </div>
                     </div>
 
-                    {/* ================= TABEL AREA DENGAN TOOLBAR ================= */}
+                    {/* ================= AREA TABEL DATA & TOOLBAR ================= */}
                     <div className="bg-white rounded-[24px] shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col overflow-visible">
 
-                        {/* TOOLBAR (SEARCH & FILTERS) */}
+                        {/* Toolbar: Search input & Filter Dropdowns */}
                         <div className="p-5 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-50">
 
-                            {/* Search Bar */}
+                            {/* Komponen Search Bar Dinamis */}
                             <div className="relative w-full md:max-w-md group">
                                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                     <svg className="h-4 w-4 text-gray-400 group-focus-within:text-[#21409A] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -326,6 +333,7 @@ export default function Status({ auth, transactions }) {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full bg-[#F8FAFC] border-transparent focus:bg-white focus:border-[#21409A]/30 focus:ring-4 focus:ring-[#21409A]/10 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-gray-800 placeholder-gray-400 transition-all outline-none"
                                 />
+                                {/* Tombol Reset Search */}
                                 {searchQuery && (
                                     <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -333,10 +341,9 @@ export default function Status({ auth, transactions }) {
                                 )}
                             </div>
 
-                            {/* Dropdown Filters (Status & Waktu) */}
                             <div className="flex w-full md:w-auto gap-3">
 
-                                {/* Filter Status */}
+                                {/* Komponen Filter Select: Status */}
                                 <div className="relative flex-1 md:flex-none" ref={filterRef}>
                                     <button
                                         onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -366,7 +373,7 @@ export default function Status({ auth, transactions }) {
                                     )}
                                 </div>
 
-                                {/* Filter Waktu */}
+                                {/* Komponen Filter Select: Rentang Waktu */}
                                 <div className="relative flex-1 md:flex-none" ref={timeFilterRef}>
                                     <button
                                         onClick={() => setIsTimeFilterOpen(!isTimeFilterOpen)}
@@ -399,10 +406,11 @@ export default function Status({ auth, transactions }) {
                             </div>
                         </div>
 
-                        {/* ================= TABEL DATA & PAGINASI ================= */}
+                        {/* Rendering Tabel Data (Responsive: Menggunakan block stack di Mobile dan thead di Desktop) */}
                         <div className="p-4 md:p-0 bg-gray-50/30 md:bg-transparent rounded-b-[24px] overflow-hidden md:overflow-x-auto custom-scrollbar flex flex-col">
                             <table className="w-full text-left block md:table whitespace-nowrap">
 
+                                {/* Header Tabel Khusus Desktop */}
                                 <thead className="hidden md:table-header-group">
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
                                         <th className="px-6 py-4 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">ID Transaksi</th>
@@ -414,6 +422,7 @@ export default function Status({ auth, transactions }) {
                                     </tr>
                                 </thead>
 
+                                {/* Iterasi Data Tabel dari array currentItems (Paginasi Output) */}
                                 <tbody className="block md:table-row-group divide-y-0 md:divide-y divide-gray-50">
                                     {currentItems.length > 0 ? (
                                         currentItems.map((trx, index) => (
@@ -423,7 +432,7 @@ export default function Status({ auth, transactions }) {
                                                 className="flex flex-col md:table-row bg-white md:bg-transparent border border-gray-200 md:border-0 border-l-[6px] md:border-l-0 rounded-[16px] md:rounded-none overflow-hidden mb-3 md:mb-0 p-3 md:p-0 shadow-sm md:shadow-none hover:bg-blue-50/30 transition-colors group"
                                             >
 
-                                                {/* ID TRANSAKSI */}
+                                                {/* Kolom: ID TRANSAKSI */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
                                                     <div className="flex justify-between items-center md:block">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">ID Transaksi</span>
@@ -431,7 +440,7 @@ export default function Status({ auth, transactions }) {
                                                     </div>
                                                 </td>
 
-                                                {/* BARANG DIPINJAM */}
+                                                {/* Kolom: BARANG DIPINJAM */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0 md:min-w-[280px]">
                                                     <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Barang Dipinjam</span>
@@ -439,7 +448,7 @@ export default function Status({ auth, transactions }) {
                                                     </div>
                                                 </td>
 
-                                                {/* KEPERLUAN */}
+                                                {/* Kolom: TUJUAN PINJAM (KEPERLUAN) */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0 md:min-w-[200px]">
                                                     <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Keperluan</span>
@@ -447,7 +456,7 @@ export default function Status({ auth, transactions }) {
                                                     </div>
                                                 </td>
 
-                                                {/* DURASI PINJAM */}
+                                                {/* Kolom: DURASI PINJAM */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
                                                     <div className="flex justify-between items-center md:block mt-1 md:mt-0">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Durasi Pinjam</span>
@@ -458,7 +467,7 @@ export default function Status({ auth, transactions }) {
                                                     </div>
                                                 </td>
 
-                                                {/* STATUS */}
+                                                {/* Kolom: STATUS BADGE */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 border-b border-dashed border-gray-100 md:border-0">
                                                     <div className="flex justify-between items-center md:block mt-1 md:mt-0">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Status</span>
@@ -466,7 +475,7 @@ export default function Status({ auth, transactions }) {
                                                     </div>
                                                 </td>
 
-                                                {/* CATATAN ADMIN */}
+                                                {/* Kolom: CATATAN ADMIN / ALASAN TOLAK */}
                                                 <td className="block md:table-cell px-0 md:px-6 py-1.5 md:py-4 md:min-w-[200px]">
                                                     <div className="flex flex-col md:block items-start gap-0.5 md:gap-0 mt-1 md:mt-0">
                                                         <span className="md:hidden text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Catatan Admin</span>
@@ -478,6 +487,7 @@ export default function Status({ auth, transactions }) {
                                             </tr>
                                         ))
                                     ) : (
+                                        // Empty State (Fallback UI saat pencarian nihil)
                                         <tr className="block md:table-row">
                                             <td colSpan="6" className="block md:table-cell px-6 py-20 text-center">
                                                 <div className="flex flex-col items-center justify-center">
@@ -493,13 +503,15 @@ export default function Status({ auth, transactions }) {
                                 </tbody>
                             </table>
 
-                            {/* ================= KONTROL PAGINASI ================= */}
+                            {/* ================= KONTROL KOMPONEN PAGINASI ================= */}
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-between px-2 py-4 md:px-6 md:py-5 border-t border-gray-100 bg-transparent md:bg-white mt-1 md:mt-0">
+                                    {/* Informasi Data Tampil */}
                                     <p className="text-[12px] text-gray-500 font-medium hidden sm:block">
                                         Menampilkan <span className="font-bold text-gray-900">{indexOfFirstItem + 1}</span> - <span className="font-bold text-gray-900">{Math.min(indexOfLastItem, filteredTransactions.length)}</span> dari <span className="font-bold text-gray-900">{filteredTransactions.length}</span> entri
                                     </p>
 
+                                    {/* Button Navigasi (Prev, Page Numbers, Next) */}
                                     <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end">
                                         <button
                                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -510,7 +522,7 @@ export default function Status({ auth, transactions }) {
                                             <span className="hidden sm:inline">Prev</span>
                                         </button>
 
-                                        {/* Angka Halaman (1, 2, 3...) */}
+                                        {/* Dynamic Page Number Generation */}
                                         <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
                                             {[...Array(totalPages)].map((_, i) => (
                                                 <button

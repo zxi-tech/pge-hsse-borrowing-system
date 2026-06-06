@@ -3,26 +3,27 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, router, Link } from '@inertiajs/react';
 
 export default function Messages({ auth, messages }) {
+    // State Management
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterTab, setFilterTab] = useState('Semua'); // Semua, Unread, Read
+    const [filterTab, setFilterTab] = useState('Semua');
 
-    // Format tanggal cantik
+    // Helper: Format timestamp ke format lokal Indonesia
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleDateString('id-ID', options);
     };
 
-    // Generate warna avatar acak berdasarkan nama
+    // Helper: Generate warna background avatar dinamis berdasarkan panjang string nama
     const getAvatarColor = (name) => {
         const colors = ['bg-blue-100 text-blue-700', 'bg-emerald-100 text-emerald-700', 'bg-amber-100 text-amber-700', 'bg-rose-100 text-rose-700', 'bg-purple-100 text-purple-700'];
         const index = name?.length % colors.length || 0;
         return colors[index];
     };
 
-    // Fungsi klik pesan untuk BUKA MODAL (Otomatis tandai sudah dibaca)
+    // Handler: Buka modal detail dan kirim PUT request untuk update status is_read
     const handleSelectMessage = (msg) => {
-        setSelectedMessage(msg); // Buka Pop-up Modal
+        setSelectedMessage(msg);
 
         if (!msg.is_read) {
             router.put(route('messages.read', msg.id), {}, {
@@ -32,28 +33,29 @@ export default function Messages({ auth, messages }) {
         }
     };
 
-    // Fungsi Hapus Pesan
+    // Handler: Hapus pesan secara permanen (DELETE request)
     const handleDeleteMessage = (e, id) => {
-        e.stopPropagation(); // Mencegah klik membuka pop-up pesan
+        e.stopPropagation();
         if (confirm('Apakah Anda yakin ingin menghapus pesan ini secara permanen?')) {
             router.delete(route('messages.destroy', id), {
                 preserveScroll: true,
                 onSuccess: () => {
                     if (selectedMessage?.id === id) {
-                        setSelectedMessage(null); // Tutup modal jika pesan yang sedang dibuka dihapus
+                        setSelectedMessage(null);
                     }
                 }
             });
         }
     };
 
-    // Logika Filter & Search
+    // Data Derivation: Filter pesan berdasarkan input pencarian dan tab aktif
     const displayedMessages = messages?.data?.filter(msg => {
         const matchesSearch = msg.name.toLowerCase().includes(searchQuery.toLowerCase()) || (msg.subject && msg.subject.toLowerCase().includes(searchQuery.toLowerCase()));
         const matchesFilter = filterTab === 'Semua' ? true : filterTab === 'Unread' ? !msg.is_read : msg.is_read;
         return matchesSearch && matchesFilter;
     }) || [];
 
+    // Kalkulasi jumlah pesan yang belum dibaca untuk badge indikator
     const unreadCount = messages?.data?.filter(m => !m.is_read).length || 0;
 
     return (
@@ -62,7 +64,7 @@ export default function Messages({ auth, messages }) {
 
             <div className="w-full flex flex-col pb-10">
 
-                {/* Header Judul */}
+                {/* Header Konten */}
                 <div className="w-full mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h1 className="text-[28px] font-bold text-gray-800 tracking-tight mb-2">Pesan Masuk</h1>
                     <p className="text-sm text-gray-500 max-w-2xl leading-relaxed">
@@ -70,13 +72,13 @@ export default function Messages({ auth, messages }) {
                     </p>
                 </div>
 
-                {/* ================= TABEL PESAN FULL WIDTH ================= */}
+                {/* Area Tabel Data */}
                 <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-500 delay-75">
 
-                    {/* Toolbar: Tabs & Search */}
+                    {/* Toolbar: Tab Filter & Search Bar */}
                     <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 bg-white">
 
-                        {/* Tabs Filter (Pill Style - DIPERBAIKI agar tidak melar) */}
+                        {/* Tab Navigation */}
                         <div className="inline-flex bg-gray-50 p-1 rounded-xl shrink-0 overflow-x-auto max-w-full custom-scrollbar">
                             {['Semua', 'Unread', 'Read'].map(tab => (
                                 <button
@@ -90,7 +92,7 @@ export default function Messages({ auth, messages }) {
                             ))}
                         </div>
 
-                        {/* Search Bar */}
+                        {/* Search Input */}
                         <div className="relative w-full sm:max-w-xs group">
                             <svg className="absolute left-3.5 top-2.5 w-4 h-4 text-gray-400 group-focus-within:text-[#21409A] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <input
@@ -103,12 +105,11 @@ export default function Messages({ auth, messages }) {
                         </div>
                     </div>
 
-                    {/* Area Tabel (DIPERBAIKI: Jarak Antar Kolom Dirapatkan) */}
+                    {/* Render Tabel Pesan */}
                     <div className="overflow-x-auto min-h-[400px]">
                         <table className="w-full text-left whitespace-nowrap table-fixed min-w-[800px]">
                             <thead>
                                 <tr className="text-gray-400 text-[11px] font-bold tracking-widest uppercase border-b border-gray-100 bg-gray-50/30">
-                                    {/* Ukuran lebar dikurangi dan padding diperkecil (px-4) agar makin rapat */}
                                     <th className="px-4 py-4 w-10"></th>
                                     <th className="px-4 py-4 w-56">Pengirim</th>
                                     <th className="px-4 py-4 w-48">Subjek</th>
@@ -126,7 +127,7 @@ export default function Messages({ auth, messages }) {
                                             title="Klik ganda untuk membuka detail pesan"
                                             className={`cursor-pointer transition-colors duration-200 select-none group ${!msg.is_read ? 'bg-blue-50/20 hover:bg-blue-50/50' : 'bg-white hover:bg-gray-50'}`}
                                         >
-                                            {/* Indikator Titik Biru */}
+                                            {/* Unread Indicator */}
                                             <td className="pl-6 py-4">
                                                 {!msg.is_read ? (
                                                     <div className="w-2.5 h-2.5 bg-[#21409A] rounded-full shadow-sm ring-4 ring-blue-100"></div>
@@ -135,7 +136,7 @@ export default function Messages({ auth, messages }) {
                                                 )}
                                             </td>
 
-                                            {/* Nama Pengirim */}
+                                            {/* Data Pengirim */}
                                             <td className="px-4 py-4 truncate">
                                                 <div className="flex items-center gap-3 truncate">
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${getAvatarColor(msg.name)}`}>
@@ -148,7 +149,7 @@ export default function Messages({ auth, messages }) {
                                                 </div>
                                             </td>
 
-                                            {/* Subjek */}
+                                            {/* Data Subjek */}
                                             <td className="px-4 py-4 truncate">
                                                 <div className={`text-[13px] truncate ${!msg.is_read ? 'font-bold text-gray-900' : 'font-semibold text-gray-600'}`}>
                                                     {msg.subject || '(Tanpa Subjek)'}
@@ -162,12 +163,12 @@ export default function Messages({ auth, messages }) {
                                                 </div>
                                             </td>
 
-                                            {/* Tanggal */}
+                                            {/* Data Tanggal */}
                                             <td className="px-4 py-4 text-xs font-medium text-gray-400 truncate">
                                                 {formatDate(msg.created_at)}
                                             </td>
 
-                                            {/* Aksi (Tombol Hapus) */}
+                                            {/* Aksi */}
                                             <td className="px-4 py-4 text-right">
                                                 <button
                                                     onClick={(e) => handleDeleteMessage(e, msg.id)}
@@ -196,7 +197,7 @@ export default function Messages({ auth, messages }) {
                         </table>
                     </div>
 
-                    {/* PAGINASI TABEL */}
+                    {/* Pagination Component */}
                     {messages?.links?.length > 3 && (
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 shrink-0 flex items-center justify-between">
                             <span className="text-[11px] text-gray-500 font-medium">
@@ -219,12 +220,12 @@ export default function Messages({ auth, messages }) {
 
             </div>
 
-            {/* ================= MODAL POP-UP BACA PESAN ================= */}
+            {/* Modal Detail Pesan */}
             {selectedMessage && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
 
-                        {/* Header Modal */}
+                        {/* Modal Header */}
                         <div className="p-6 lg:p-8 border-b border-gray-100 flex justify-between items-start bg-white shrink-0 relative">
                             <div className="flex-1 pr-10">
                                 <h2 className="text-2xl font-black text-gray-900 mb-6 leading-tight">
@@ -243,7 +244,7 @@ export default function Messages({ auth, messages }) {
                                 </div>
                             </div>
 
-                            {/* Tombol Close Modal (X) */}
+                            {/* Close Button */}
                             <button
                                 onClick={() => setSelectedMessage(null)}
                                 className="absolute top-6 right-6 w-8 h-8 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"
@@ -252,7 +253,7 @@ export default function Messages({ auth, messages }) {
                             </button>
                         </div>
 
-                        {/* Body Modal (Isi Pesan) */}
+                        {/* Modal Body */}
                         <div className="p-6 lg:p-8 overflow-y-auto custom-scrollbar bg-[#F4F5FA] flex-1">
                             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm min-h-[200px]">
                                 <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
@@ -261,7 +262,7 @@ export default function Messages({ auth, messages }) {
                             </div>
                         </div>
 
-                        {/* Footer Modal (Aksi) - Tombol Balas dihapus, posisi tombol hapus dipindah ke kanan */}
+                        {/* Modal Footer Action */}
                         <div className="p-5 lg:px-8 lg:py-5 border-t border-gray-100 bg-white shrink-0 flex items-center justify-end">
                             <button
                                 onClick={(e) => handleDeleteMessage(e, selectedMessage.id)}

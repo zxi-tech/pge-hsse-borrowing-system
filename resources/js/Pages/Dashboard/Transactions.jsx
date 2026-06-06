@@ -4,9 +4,9 @@ import { Head, useForm, router } from '@inertiajs/react';
 
 export default function Transactions({ auth, transactions }) {
 
-    // 👇 LOGIKA BARU: Deteksi Keterlambatan Otomatis 👇
+    // DATA DERIVATION: VISUAL OVERRIDE (LATE STATUS) 
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset jam agar akurat per hari
+    today.setHours(0, 0, 0, 0);
 
     const displayTransactions = (transactions || []).map(trx => {
         let currentStatus = trx.status?.toLowerCase();
@@ -14,21 +14,21 @@ export default function Transactions({ auth, transactions }) {
         if (currentStatus === 'dipinjam') {
             let endDate = null;
 
-            // 1. Coba baca dari trx.end_date jika Laravel mengirimkannya
+            // 1. Prioritas membaca properti end_date langsung (jika API menyediakan format ISO/Date)
             if (trx.end_date) {
                 endDate = new Date(trx.end_date);
             }
-            // 2. Jika tidak ada, KITA BEDAH teks trx.dates (Contoh: "10 Apr 2026 - 12 Apr 2026")
+            // 2. Fallback: Ekstraksi dan parsing tanggal akhir dari string rentang waktu (ex: "10 Apr 2026 - 12 Apr 2026")
             else if (trx.dates && trx.dates.includes(' - ')) {
-                const textTanggalKembali = trx.dates.split(' - ')[1]; // Ambil teks setelah " - "
+                const textTanggalKembali = trx.dates.split(' - ')[1];
                 endDate = new Date(textTanggalKembali);
             }
 
-            // 3. Jika berhasil menjadi format Waktu/Tanggal yang sah, kita bandingkan!
+            // 3. Eksekusi komparasi jika endDate berhasil dikonversi menjadi Date object yang valid
             if (endDate && !isNaN(endDate.getTime())) {
                 endDate.setHours(0, 0, 0, 0);
 
-                // Jika hari ini LEBIH BESAR (lewat) dari tanggal kembali, jadikan terlambat
+                // Override status menjadi 'terlambat' jika hari ini melewati batas pengembalian
                 if (today > endDate) {
                     currentStatus = 'terlambat';
                 }
@@ -40,19 +40,21 @@ export default function Transactions({ auth, transactions }) {
             status: currentStatus
         };
     });
-    // 👆 ============================================== 👆
 
+    // STATE MANAGEMENT
     const [activeTab, setActiveTab] = useState('semua');
-    const [selectedTrx, setSelectedTrx] = useState(null);
 
-    // State Animasi Modal
+    // State Modal Management
+    const [selectedTrx, setSelectedTrx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
 
+    // Form Initialization untuk fitur Catatan Admin
     const { data, setData, reset } = useForm({
         notes: ''
     });
 
+    // EVENT HANDLERS: MODAL
     const openModal = (trx) => {
         setSelectedTrx(trx);
         setIsModalOpen(true);
@@ -68,7 +70,7 @@ export default function Transactions({ auth, transactions }) {
         }, 200);
     };
 
-    // KONEKSI ASLI KE BACKEND LARAVEL
+    // EVENT HANDLERS: TRANSACTION ACTIONS 
     const handleAction = (e, actionType) => {
         e.preventDefault();
 
@@ -81,13 +83,14 @@ export default function Transactions({ auth, transactions }) {
         });
     };
 
-    // Filter transaksi berdasarkan tab yang aktif
+    // DATA FILTERING
+    // Filter array transaksi berdasarkan tab status yang aktif
     const filteredTransactions = displayTransactions.filter(trx => {
         if (activeTab === 'semua') return true;
         return trx.status === activeTab;
     });
 
-    // Badge Status Premium
+    // HELPER UTILITIES: UI 
     const getStatusBadge = (status) => {
         const statusMap = {
             'menunggu': { bg: 'bg-[#FBBF24]', text: 'text-white', shadow: 'shadow-[#FBBF24]/40', icon: '⏱️' },
@@ -96,6 +99,7 @@ export default function Transactions({ auth, transactions }) {
         };
         const config = statusMap[status?.toLowerCase()] || { bg: 'bg-gray-500', text: 'text-white', shadow: 'shadow-gray-500/40', icon: '📌' };
         const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '-';
+
         return (
             <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide shadow-sm ${config.bg} ${config.text} ${config.shadow}`}>
                 <span className="text-[10px]">{config.icon}</span>{label}
@@ -103,6 +107,7 @@ export default function Transactions({ auth, transactions }) {
         );
     };
 
+    // Generate inisial 2 karakter untuk fallback avatar
     const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
     return (
@@ -111,12 +116,16 @@ export default function Transactions({ auth, transactions }) {
 
             <div className="w-full pb-12 relative animate-in fade-in duration-300">
 
+                {/* Header Konten */}
                 <div className="mb-8">
                     <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Daftar Peminjaman</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Pantau dan eksekusi transaksi peminjaman aset HSSE yang sedang aktif.</p>
                 </div>
 
+                {/* Tabel Transaksi Aktif */}
                 <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+
+                    {/* Toolbar: Tab Navigasi & Kolom Pencarian */}
                     <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50">
                         <div className="flex gap-2 bg-gray-100/80 p-1.5 rounded-xl w-full md:w-auto overflow-x-auto custom-scrollbar relative">
                             {['semua', 'menunggu', 'dipinjam', 'terlambat'].map((tab) => (
@@ -141,6 +150,7 @@ export default function Transactions({ auth, transactions }) {
                         </div>
                     </div>
 
+                    {/* Container Tabel Render */}
                     <div className="overflow-x-auto custom-scrollbar min-h-[400px]">
                         <table className="w-full text-left whitespace-nowrap table-fixed">
                             <thead>
@@ -157,7 +167,7 @@ export default function Transactions({ auth, transactions }) {
                                 {filteredTransactions.length > 0 ? filteredTransactions.map((trx, index) => (
                                     <tr key={index} className="hover:bg-[#F4F5FA] transition-colors duration-200 group cursor-pointer" onClick={() => openModal(trx)}>
                                         <td className="px-6 py-4">
-                                            {/* ID sudah diformat dari Backend */}
+                                            {/* ID Formatted dari Backend */}
                                             <span className="bg-gray-100 text-gray-500 font-bold px-3 py-1.5 rounded-lg text-xs font-mono border border-gray-200 group-hover:border-[#00A651]/30 group-hover:text-[#00A651] transition-colors duration-300">
                                                 {trx.id}
                                             </span>
@@ -188,6 +198,7 @@ export default function Transactions({ auth, transactions }) {
                                         </td>
                                     </tr>
                                 )) : (
+                                    // Fallback UI (Empty State)
                                     <tr>
                                         <td colSpan="6" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center justify-center text-gray-400 animate-in fade-in zoom-in duration-500">
@@ -205,7 +216,7 @@ export default function Transactions({ auth, transactions }) {
                 </div>
             </div>
 
-            {/* MODAL EKSEKUSI */}
+            {/* Modal Dialog: Eksekusi Transaksi (Tindak Lanjut) */}
             {isModalOpen && selectedTrx && (
                 <div
                     className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/50 transition-opacity duration-200 ease-in-out ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
@@ -222,6 +233,7 @@ export default function Transactions({ auth, transactions }) {
                             <div className="bg-[#ED1C24] flex-1"></div>
                         </div>
 
+                        {/* Header Modal */}
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 tracking-tight">Tindak Lanjut Transaksi</h2>
@@ -234,6 +246,7 @@ export default function Transactions({ auth, transactions }) {
                             </button>
                         </div>
 
+                        {/* Body Modal */}
                         <div className="p-6 overflow-y-auto bg-gray-50 flex-1 custom-scrollbar max-h-[65vh]">
                             <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                 <div className="flex items-center gap-3">
@@ -263,6 +276,7 @@ export default function Transactions({ auth, transactions }) {
                                 <p className="text-xs font-medium text-gray-700">{selectedTrx.purpose || 'Tidak ada catatan keperluan.'}</p>
                             </div>
 
+                            {/* Input Form: Catatan Admin */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm focus-within:border-[#21409A] transition-colors">
                                 <label className="text-[9px] font-bold text-[#21409A] uppercase tracking-widest mb-2 block">📝 Catatan Admin (Opsional)</label>
                                 <textarea
@@ -275,6 +289,7 @@ export default function Transactions({ auth, transactions }) {
                             </div>
                         </div>
 
+                        {/* Footer Modal: Eksekusi Action Buttons */}
                         <div className="px-6 py-4 border-t border-gray-100 bg-white">
                             {selectedTrx.status === 'menunggu' ? (
                                 <div className="flex justify-end gap-3">

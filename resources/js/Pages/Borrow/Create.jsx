@@ -5,32 +5,33 @@ export default function Create({ auth, items }) {
     const { flash } = usePage().props;
     const user = auth?.user;
 
+    // Memastikan array items tidak undefined
     const displayItems = items || [];
 
+    // Inisialisasi state form menggunakan Inertia.js
     const { data, setData, post, processing, reset, errors } = useForm({
         start_date: '',
         end_date: '',
         purpose: '',
-        selected_items: {}
+        selected_items: {} // Format: { item_id: { size_id: quantity } }
     });
 
+    // State UI & Interaktivitas
     const [expandedItems, setExpandedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
-
-    // ================= STATES INTERAKTIVITAS DROPDOWN & MOBILE =================
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
 
-    // ================= STATE CUSTOM ALERT CARD =================
+    // State Custom Alert untuk validasi stok & ketersediaan
     const [customAlert, setCustomAlert] = useState({
         show: false,
         title: '',
         message: '',
-        color: 'orange' // 'orange' untuk laundry, 'red' untuk perbaikan/habis
+        color: 'orange' // 'orange' untuk peringatan laundry, 'red' untuk perbaikan/habis
     });
 
-    // Auto-close alert card setelah 6 detik
+    // Effect: Auto-close Custom Alert setelah 6 detik
     useEffect(() => {
         if (customAlert.show) {
             const timer = setTimeout(() => {
@@ -40,6 +41,7 @@ export default function Create({ auth, items }) {
         }
     }, [customAlert.show]);
 
+    // Effect: Auto-close dropdown profil saat klik di luar elemen
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -50,6 +52,7 @@ export default function Create({ auth, items }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Effect: Reset form dan tutup accordion item setelah pengajuan berhasil (flash success)
     useEffect(() => {
         if (flash?.success) {
             reset();
@@ -57,12 +60,14 @@ export default function Create({ auth, items }) {
         }
     }, [flash?.success]);
 
+    // Memoization: Filter daftar barang berdasarkan input pencarian
     const filteredItems = useMemo(() => {
         return displayItems.filter(item =>
             item.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [displayItems, searchTerm]);
 
+    // Memoization: Kalkulasi ringkasan barang yang dipilih (total qty & rincian ukuran)
     const selectedSummary = useMemo(() => {
         let summary = [];
         let totalItems = 0;
@@ -98,9 +103,11 @@ export default function Create({ auth, items }) {
         return { summary, totalItems };
     }, [data.selected_items, displayItems]);
 
+    // Handler: Proses submit form dengan validasi manual di sisi Frontend
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // Validasi 1: Pastikan minimal ada 1 barang yang dipilih
         if (selectedSummary.totalItems === 0) {
             setCustomAlert({
                 show: true,
@@ -111,6 +118,7 @@ export default function Create({ auth, items }) {
             return;
         }
 
+        // Validasi 2: Pastikan detail jadwal dan keperluan terisi
         if (!data.start_date || !data.end_date || !data.purpose) {
             setCustomAlert({
                 show: true,
@@ -121,6 +129,7 @@ export default function Create({ auth, items }) {
             return;
         }
 
+        // Eksekusi POST request ke Backend Laravel
         post(route('borrow.store'), {
             preserveScroll: true,
             onSuccess: () => {
@@ -132,10 +141,12 @@ export default function Create({ auth, items }) {
         });
     };
 
+    // Handler: Buka/Tutup accordion varian ukuran barang
     const toggleItemExpansion = (itemId) => {
         setExpandedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
     };
 
+    // Handler: Mengubah state kuantitas barang yang dipilih
     const handleQuantityChange = (itemId, sizeId, qty) => {
         const parsedQty = parseInt(qty) || 0;
         setData(prev => {
@@ -153,7 +164,7 @@ export default function Create({ auth, items }) {
         });
     };
 
-    // 👇 FUNGSI INTERCEPTOR YANG SUDAH DIUBAH MEMAKAI CUSTOM ALERT 👇
+    // Interceptor: Menampilkan alert spesifik jika user mengklik ukuran yang tidak tersedia
     const handleDisabledClick = (size) => {
         if (size.status === 'laundry') {
             setCustomAlert({
@@ -179,12 +190,14 @@ export default function Create({ auth, items }) {
         }
     };
 
+    // Helper: Cek apakah item sedang dipilih (untuk styling UI Active State)
     const isItemSelected = (itemId) => {
         const itemSizes = data.selected_items[itemId];
         if (!itemSizes) return false;
         return Object.values(itemSizes).some(qty => qty > 0);
     };
 
+    // Helper: Generate inisial nama untuk avatar fallback
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -194,7 +207,7 @@ export default function Create({ auth, items }) {
         <>
             <Head title="Ajukan Peminjaman" />
 
-            {/* ================= CUSTOM ALERT CARD (POP-UP ATAS) ================= */}
+            {/* Custom Alert Pop-up */}
             <div
                 className={`fixed top-6 md:top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md transition-all duration-500 ease-in-out ${customAlert.show ? 'translate-y-0 opacity-100 visible' : '-translate-y-10 opacity-0 invisible'
                     }`}
@@ -216,9 +229,8 @@ export default function Create({ auth, items }) {
 
             <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20 text-gray-800 selection:bg-[#21409A] selection:text-white">
 
-                {/* ================= NAVBAR RESPONSIVE ================= */}
+                {/* Navigasi Utama */}
                 <nav className="relative w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-6 lg:py-8 z-50 bg-transparent">
-
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
                         <img
                             src="/images/pertamina-logo (1).png"
@@ -228,6 +240,7 @@ export default function Create({ auth, items }) {
                         />
                     </div>
 
+                    {/* Navigasi Link (Desktop) */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
                         <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
@@ -250,6 +263,7 @@ export default function Create({ auth, items }) {
                         </Link>
                     </div>
 
+                    {/* Profil User & Hamburger Button */}
                     <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
                         {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
@@ -270,6 +284,7 @@ export default function Create({ auth, items }) {
                                     <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
+                                {/* Dropdown Profil */}
                                 {isProfileMenuOpen && (
                                     <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
                                         <div className="px-4 py-3 border-b border-gray-50">
@@ -306,6 +321,7 @@ export default function Create({ auth, items }) {
                         </button>
                     </div>
 
+                    {/* Menu Navigasi (Mobile) */}
                     {isMobileMenuOpen && (
                         <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4">
                             <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
@@ -318,9 +334,10 @@ export default function Create({ auth, items }) {
                     )}
                 </nav>
 
-                {/* ================= KONTEN HALAMAN ================= */}
+                {/* Konten Utama */}
                 <main className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-4 lg:mt-10">
 
+                    {/* Alert Flash Message: Sukses */}
                     {flash?.success && (
                         <div className="mb-8 p-4 rounded-2xl bg-green-50 border border-green-200 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="bg-[#00A651] text-white p-2 rounded-full shrink-0 shadow-sm">
@@ -334,6 +351,7 @@ export default function Create({ auth, items }) {
                         </div>
                     )}
 
+                    {/* Alert Flash Message & Form Error: Gagal */}
                     {(flash?.error || Object.keys(errors).length > 0) && (
                         <div className="mb-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="flex items-center gap-2 mb-2">
@@ -354,11 +372,13 @@ export default function Create({ auth, items }) {
                         <p className="text-sm text-gray-500 max-w-2xl leading-relaxed mx-auto md:mx-0">Lengkapi detail peminjaman dan pilih perlengkapan yang Anda butuhkan untuk keperluan lapangan.</p>
                     </div>
 
+                    {/* Wrapper Form Pengajuan */}
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8" noValidate>
 
+                        {/* Kolom Kiri: Input Detail & Pemilihan Barang */}
                         <div className="lg:col-span-8 space-y-8">
 
-                            {/* CARD 1: DETAIL PEMINJAM */}
+                            {/* Bagian 1: Informasi Peminjam & Jadwal */}
                             <div className="bg-white rounded-[24px] shadow-sm border border-gray-200 overflow-hidden">
                                 <div className="bg-gray-50/50 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100 flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#21409A] shrink-0">
@@ -392,7 +412,7 @@ export default function Create({ auth, items }) {
                                 </div>
                             </div>
 
-                            {/* CARD 2: PILIH BARANG */}
+                            {/* Bagian 2: Katalog & Pemilihan Barang */}
                             <div className="bg-white rounded-[24px] shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                                 <div className="bg-gray-50/50 px-5 md:px-6 py-4 md:py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
@@ -410,12 +430,14 @@ export default function Create({ auth, items }) {
                                 </div>
                                 <div className="p-4 sm:p-5 md:p-6 space-y-3">
                                     {filteredItems.length === 0 ? (
-                                        <div className="text-center py-10"><p className="text-gray-500 font-medium text-sm">Barang "{searchTerm}" tidak ditemukan.</p></div>
+                                        <div className="text-center py-10"><p className="text-gray-500 font-medium text-sm">Barang belum tersedia di inventori.</p></div>
                                     ) : (
                                         filteredItems.map((item) => {
                                             const isSelected = isItemSelected(item.id);
                                             return (
                                                 <div key={item.id} className={`border rounded-2xl transition-all duration-300 overflow-hidden ${isSelected ? 'border-[#00A651] ring-1 ring-[#00A651]/20 bg-green-50/10' : 'border-gray-200 bg-white hover:border-[#21409A]/30'}`}>
+
+                                                    {/* Row Header: Nama & Info Singkat Barang */}
                                                     <div className="flex items-center justify-between p-3 md:p-4 cursor-pointer select-none" onClick={() => toggleItemExpansion(item.id)}>
                                                         <div className="flex items-center gap-3 md:gap-4">
                                                             <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 p-1.5">
@@ -435,7 +457,7 @@ export default function Create({ auth, items }) {
                                                         <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full border flex items-center justify-center transition-transform duration-300 shrink-0 ml-2 ${expandedItems[item.id] ? 'rotate-180 bg-[#00A651] border-[#00A651] text-white' : 'bg-white border-gray-200 text-gray-400'}`}><svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg></div>
                                                     </div>
 
-                                                    {/* AREA VARIAN UKURAN */}
+                                                    {/* Sub-bagian: Input Kuantitas per Ukuran */}
                                                     <div className={`transition-all duration-300 ease-in-out ${expandedItems[item.id] ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                                                         <div className="p-3 md:p-4 pt-0 border-t border-gray-100 bg-gray-50/50">
                                                             <p className="text-[10px] md:text-[11px] font-bold text-gray-500 mb-2 md:mb-3 uppercase tracking-wider mt-2 md:mt-3">Tentukan Jumlah Pinjam per Ukuran</p>
@@ -504,7 +526,7 @@ export default function Create({ auth, items }) {
                             </div>
                         </div>
 
-                        {/* KOLOM KANAN: RINGKASAN */}
+                        {/* Sidebar Kanan: Ringkasan Pengajuan (Sticky) */}
                         <div className="lg:col-span-4 relative mt-2 lg:mt-0">
                             <div className="lg:sticky lg:top-24 space-y-6">
                                 <div className="bg-white rounded-[24px] shadow-sm border border-[#21409A]/20 overflow-hidden flex flex-col">

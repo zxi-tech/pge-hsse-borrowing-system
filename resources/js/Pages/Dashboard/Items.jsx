@@ -5,13 +5,11 @@ import { Link } from '@inertiajs/react';
 
 export default function Items({ auth, items }) {
 
-    // ================= STATE & LOGIKA FORM MODAL =================
+    // State Modal Management
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // State untuk menyimpan data barang yang sedang diedit (null jika mode Tambah)
     const [editingItem, setEditingItem] = useState(null);
 
-    // 👇 TAMBAHAN: status 'available' ditambahkan sebagai default di dalam sizes 👇
+    // Inisialisasi Form & State Validation via Inertia
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         name: '',
         type: 'asset',
@@ -22,6 +20,7 @@ export default function Items({ auth, items }) {
         _method: 'POST'
     });
 
+    // Handler Modal Reset
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingItem(null);
@@ -29,7 +28,7 @@ export default function Items({ auth, items }) {
         clearErrors();
     };
 
-    // Fungsi untuk Buka Modal "Tambah"
+    // Handler Buka Modal Mode Create
     const openCreateModal = () => {
         setEditingItem(null);
         reset();
@@ -38,7 +37,7 @@ export default function Items({ auth, items }) {
         setIsModalOpen(true);
     };
 
-    // Fungsi untuk Buka Modal "Edit"
+    // Handler Buka Modal Mode Edit (Pre-fill Form Data)
     const openEditModal = (item) => {
         setEditingItem(item);
         clearErrors();
@@ -48,7 +47,6 @@ export default function Items({ auth, items }) {
             warehouse: item.warehouse || 'Gudang HSSE Utama',
             description: item.description || '',
             photo: null,
-            // 👇 TAMBAHAN: Pastikan saat edit, status ikut terbawa (atau default available) 👇
             sizes: item.sizes.length > 0
                 ? item.sizes.map(s => ({ ...s, status: s.status || 'available' }))
                 : [{ size_name: 'All Size', stock: 0, status: 'available' }],
@@ -57,7 +55,7 @@ export default function Items({ auth, items }) {
         setIsModalOpen(true);
     };
 
-    // ================= FUNGSI HAPUS BARANG =================
+    // Handler Delete Request (Destructive Action)
     const handleDelete = (item) => {
         if (window.confirm(`Peringatan!\n\nApakah Anda yakin ingin menghapus barang "${item.name}" secara permanen?\nSemua data stok dan foto barang ini akan hilang dan tidak dapat dikembalikan.`)) {
             router.delete(route('items.destroy', item.id), {
@@ -66,6 +64,7 @@ export default function Items({ auth, items }) {
         }
     };
 
+    // Handler Submit Form (Create / Update)
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -78,12 +77,12 @@ export default function Items({ auth, items }) {
             onSuccess: () => closeModal(),
             onError: (err) => {
                 console.error("Error dari Laravel:", err);
-                alert("Gagal menyimpan! Periksa tulisan merah pada formulir.");
+                alert("Gagal menyimpan! Periksa validasi pada formulir.");
             }
         });
     };
 
-    // 👇 TAMBAHAN: handleAddSize sekarang membawa default status 👇
+    // Handlers Dynamic Input Array (Ukuran & Stok Barang)
     const handleAddSize = () => setData('sizes', [...data.sizes, { size_name: '', stock: 0, status: 'available' }]);
     const handleRemoveSize = (index) => setData('sizes', data.sizes.filter((_, i) => i !== index));
     const handleSizeChange = (index, field, value) => {
@@ -92,7 +91,7 @@ export default function Items({ auth, items }) {
         setData('sizes', newSizes);
     };
 
-    // Logika hitung stok (Abaikan stok yang statusnya rusak/hilang, tapi laundry tetap dihitung total aset)
+    // Kalkulasi Total Stok Agregat (mengabaikan status untuk perhitungan fisik aset)
     const calculateTotalStock = (sizes) => {
         return sizes.reduce((total, size) => total + Number(size.stock), 0);
     };
@@ -103,7 +102,7 @@ export default function Items({ auth, items }) {
 
             <div className="w-full pb-8">
 
-                {/* ================= HEADER SECTION ================= */}
+                {/* Header Konten & Action Buttons */}
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                     <h1 className="text-xl font-bold text-gray-800 tracking-tight">
                         Manajemen Barang
@@ -129,7 +128,7 @@ export default function Items({ auth, items }) {
                     </div>
                 </div>
 
-                {/* ================= GRID DATA BARANG ================= */}
+                {/* Data Grid Rendering */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 
                     {items && items.length > 0 ? (
@@ -139,6 +138,7 @@ export default function Items({ auth, items }) {
                             return (
                                 <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-[#00A651]/30 transition-all duration-300 flex flex-col group">
 
+                                    {/* Image Preview & Badges */}
                                     <div className="h-40 bg-[#F8F9FA] p-4 flex items-center justify-center relative border-b border-gray-100">
 
                                         <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -171,6 +171,7 @@ export default function Items({ auth, items }) {
                                         )}
                                     </div>
 
+                                    {/* Item Details */}
                                     <div className="p-4 flex-1 flex flex-col text-center">
                                         <h3 className="text-xs font-bold text-gray-800 mb-1 leading-tight group-hover:text-[#00A651] transition-colors line-clamp-1">
                                             {item.name}
@@ -179,11 +180,11 @@ export default function Items({ auth, items }) {
                                             {item.description || 'Spesifikasi material standar PGE.'}
                                         </p>
 
+                                        {/* Stock & Variant Breakdown */}
                                         <div className="mb-4 bg-slate-50 rounded-lg p-2.5 border border-slate-100">
                                             <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider mb-2">Stok Per Varian</p>
                                             <div className="flex flex-wrap justify-center gap-1.5">
                                                 {item.sizes.map((size, index) => (
-                                                    // 👇 TAMBAHAN: Visual Badge diubah jika statusnya sedang laundry 👇
                                                     <div key={index} className={`inline-flex items-center border rounded px-1.5 py-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] ${size.status === 'laundry' ? 'bg-orange-50 border-orange-200' : 'bg-white border-slate-200'}`}>
                                                         <span className="text-[9px] text-slate-400 font-bold mr-1">{size.size_name}:</span>
                                                         <span className={`text-[9px] font-extrabold ${size.status === 'laundry' ? 'text-orange-500' : (size.stock > 0 ? 'text-slate-700' : 'text-red-500')}`}>
@@ -204,6 +205,7 @@ export default function Items({ auth, items }) {
                             );
                         })
                     ) : (
+                        // Fallback UI (Empty State)
                         <div className="col-span-full py-20 text-center bg-white rounded-xl border border-dashed border-gray-200">
                             <p className="text-gray-400 text-sm font-medium">Belum ada data barang tersedia.</p>
                         </div>
@@ -211,7 +213,7 @@ export default function Items({ auth, items }) {
                 </div>
             </div>
 
-            {/* ================= MODAL POP-UP (TAMBAH / EDIT) ================= */}
+            {/* Modal Form Dialog (Create / Edit Mode) */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-opacity">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
@@ -271,6 +273,7 @@ export default function Items({ auth, items }) {
 
                                 <div className="border-t border-gray-200 my-2"></div>
 
+                                {/* Dynamic Input Arrays: Variant, Stock, Status */}
                                 <div>
                                     <div className="flex justify-between items-end mb-3">
                                         <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">Varian Ukuran, Stok & Status *</label>
@@ -292,7 +295,6 @@ export default function Items({ auth, items }) {
                                                     <input type="number" min="0" value={size.stock} onChange={e => handleSizeChange(index, 'stock', e.target.value)} className="w-full border border-gray-300 rounded text-xs px-2 py-1.5 focus:ring-1 focus:ring-[#00A651] outline-none" placeholder="Qty" required />
                                                 </div>
 
-                                                {/* 👇 TAMBAHAN: Dropdown Status untuk setiap Varian 👇 */}
                                                 <div className="w-32">
                                                     <select
                                                         value={size.status || 'available'}

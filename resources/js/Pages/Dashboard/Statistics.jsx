@@ -2,20 +2,21 @@ import React, { useState, useMemo } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 
-// Import Recharts untuk berbagai jenis grafik kompleks
+// Recharts untuk grafik kompleks (Bar, Line, Composed)
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     LineChart, Line, ComposedChart
 } from 'recharts';
 
-// Import Chart.js untuk Doughnut Chart
+// Chart.js untuk Doughnut Chart
 import { Chart as ChartJS, ArcElement, Tooltip as ChartJsTooltip, Legend as ChartJsLegend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, ChartJsTooltip, ChartJsLegend);
 
 export default function Statistics({ auth, totalPeminjaman, miniLineData, totalMingguIni, deptDataBackend, itemStatsBackend, dropdownItems, globalChart, sizesChartData, latestActivities, activityStatsBackend }) {
-    // ================= DUMMY DATA & STATE FILTER =================
+
+    // Data Derivation & State Filter
     const itemsList = [
         { id: 'all', name: 'Semua APD (Ringkasan Global)' },
         ...(dropdownItems || [])
@@ -24,6 +25,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
     const [selectedItem, setSelectedItem] = useState('all');
     const [selectedTimeRange, setSelectedTimeRange] = useState('all');
 
+    // Kalkulasi Status Barang Terpilih
     const currentStats = itemStatsBackend && itemStatsBackend[selectedItem]
         ? itemStatsBackend[selectedItem]
         : { available: 0, laundry: 0, maintenance: 0 };
@@ -43,6 +45,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
 
     const deptData = deptDataBackend || [];
 
+    // Chart.js Configuration: Doughnut Chart Data Mapping
     const doughnutChartData = useMemo(() => {
         if (selectedItem === 'all' && globalChart) {
             return {
@@ -67,6 +70,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
         return { labels: [], datasets: [] };
     }, [selectedItem, globalChart, sizesChartData]);
 
+    // Chart.js Configuration: Kalkulasi Total Pcs untuk Label Tengah Donat
     const doughnutTotalPcs = useMemo(() => {
         if (selectedItem === 'all' && globalChart) return globalChart.total;
         if (sizesChartData && sizesChartData[selectedItem]) return sizesChartData[selectedItem].total;
@@ -86,7 +90,6 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                 }
             },
             tooltip: { enabled: true },
-
             centerText: {
                 totalValue: doughnutTotalPcs
             }
@@ -94,39 +97,36 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
         cutout: '80%',
     };
 
-    // 👇 PLUGIN CUSTOM CHART.JS UNTUK MELUKIS TEKS TEPAT DI TENGAH DONAT 👇
+    // Chart.js Custom Plugin: Render teks absolut di tengah area Doughnut
     const centerTextPlugin = {
         id: 'centerText',
-        // Tambahkan parameter `options` di sini 👇
         beforeDraw: (chart, args, options) => {
             const { ctx, chartArea } = chart;
             if (!chartArea) return;
 
             ctx.save();
-            // Menghitung titik tengah secara absolut dari area grafik
             const centerX = (chartArea.left + chartArea.right) / 2;
             const centerY = (chartArea.top + chartArea.bottom) / 2;
 
-            // 👇 AMBIL NILAI DINAMIS DARI OPTIONS 👇
             const dynamicTotal = options.totalValue !== undefined ? options.totalValue : 0;
 
-            // 1. Lukis Angka Total Pcs
+            // Render Nilai Angka
             ctx.font = '900 28px "Inter", sans-serif';
-            ctx.fillStyle = '#1f2937'; // text-gray-800
+            ctx.fillStyle = '#1f2937';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // Gunakan variabel dynamicTotal di sini
             ctx.fillText(dynamicTotal, centerX, centerY - 6);
 
-            // 2. Lukis Teks "TOTAL PCS"
+            // Render Label
             ctx.font = '700 9px "Inter", sans-serif';
-            ctx.fillStyle = '#9ca3af'; // text-gray-400
+            ctx.fillStyle = '#9ca3af';
             ctx.fillText('TOTAL PCS', centerX, centerY + 14);
 
             ctx.restore();
         }
     };
 
+    // Data Derivation: Aktivitas Mingguan (Recharts)
     const weeklyActivityData = activityStatsBackend && activityStatsBackend[selectedItem]
         ? activityStatsBackend[selectedItem]
         : [];
@@ -150,7 +150,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
 
             <div className="w-full pb-10 bg-[#F4F5FA] space-y-6">
 
-                {/* ================= HEADER & FILTER ================= */}
+                {/* Header Konten & Parameter Filter */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Statistik Peminjaman</h1>
@@ -159,7 +159,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
 
                     <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
 
-                        {/* 1. Dropdown Filter WAKTU */}
+                        {/* Filter Rentang Waktu */}
                         <div className="w-full sm:w-auto flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                             <svg className="w-4 h-4 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             <select
@@ -174,7 +174,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                             </select>
                         </div>
 
-                        {/* 2. Dropdown Filter BARANG */}
+                        {/* Filter Jenis Barang */}
                         <div className="w-full sm:w-auto flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                             <svg className="w-4 h-4 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                             <select
@@ -188,7 +188,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                             </select>
                         </div>
 
-                        {/* 3. TOMBOL EXCEL (Menggunakan Ziggy Route) */}
+                        {/* Export Action Trigger (Ziggy Route) */}
                         <a
                             href={route('statistics.export', { item_id: selectedItem, time_range: selectedTimeRange })}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#00A651] text-white text-sm font-bold px-5 py-3 sm:py-2.5 rounded-xl shadow-sm hover:bg-[#008c44] transition-colors"
@@ -200,8 +200,10 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                     </div>
                 </div>
 
+                {/* Baris Pertama Grid: Welcome Card & Mini Stats */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+                    {/* Welcome Info Card */}
                     <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center relative overflow-hidden">
                         <div className="relative z-10 w-2/3">
                             <h2 className="text-xl font-black text-gray-800 mb-2">
@@ -219,6 +221,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                         </div>
                     </div>
 
+                    {/* Total Peminjaman Accumulator Card */}
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between">
                         <div className="flex justify-between items-start">
                             <div className="w-8 h-8 rounded bg-blue-50 text-[#21409A] flex items-center justify-center">
@@ -233,6 +236,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                         </div>
                     </div>
 
+                    {/* Mini Sparkline Chart Card (Aktivitas Harian) */}
                     <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between">
                         <div>
                             <div className="flex justify-between items-center mb-1">
@@ -253,8 +257,10 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                     </div>
                 </div>
 
+                {/* Baris Kedua Grid: Vertical Bar & Gauge/Mini Cards & Main Doughnut */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+                    {/* Vertical Bar Chart: Distribusi Departemen */}
                     <div className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                         <div className="mb-4">
                             <h3 className="text-sm font-bold text-gray-800">Peminjaman per Departemen</h3>
@@ -274,7 +280,9 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                         </div>
                     </div>
 
+                    {/* Stacked Mini Analytics Cards */}
                     <div className="lg:col-span-4 grid grid-rows-2 gap-6">
+                        {/* Mini Card 1: Laundry Items */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
                             <div>
                                 <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">-12% ↓</span>
@@ -289,6 +297,8 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                                 </ResponsiveContainer>
                             </div>
                         </div>
+
+                        {/* Mini Card 2: Kondisi Baik Gauge */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
                             <div>
                                 <span className="text-[10px] font-bold text-[#21409A] bg-blue-50 px-1.5 py-0.5 rounded">+42% ↑</span>
@@ -304,6 +314,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                         </div>
                     </div>
 
+                    {/* Main Doughnut Chart Card (Chart.js) */}
                     <div className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col relative">
                         <div className="mb-4 text-center">
                             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
@@ -316,20 +327,20 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
 
                         <div className="flex-1 relative min-h-[260px]">
                             <div className="w-full h-full">
-                                {/* 👇 PLUGIN DIPASANG DI SINI 👇 */}
                                 <Doughnut
                                     data={doughnutChartData}
                                     options={doughnutOptions}
                                     plugins={[centerTextPlugin]}
                                 />
-                                {/* Overlay HTML CSS kita HAPUS total! */}
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* Baris Ketiga Grid: Composed Activity Chart & Tabel */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+                    {/* Tabel Aktivitas Terbaru */}
                     <div className="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-x-auto">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-sm font-bold text-gray-800">Aktivitas Pekerja Terbaru</h3>
@@ -345,7 +356,6 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                                 </tr>
                             </thead>
                             <tbody className="text-xs font-medium text-gray-700">
-                                {/* 👇 Menggunakan variabel latestActivities dari backend 👇 */}
                                 {(latestActivities || []).map((row, idx) => (
                                     <tr key={idx} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
                                         <td className="py-3 font-bold text-gray-800">{row.name}</td>
@@ -359,7 +369,6 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                                     </tr>
                                 ))}
 
-                                {/* Pesan kosong jika belum ada transaksi sama sekali */}
                                 {(!latestActivities || latestActivities.length === 0) && (
                                     <tr>
                                         <td colSpan="4" className="py-6 text-center text-gray-400 italic">
@@ -371,6 +380,7 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                         </table>
                     </div>
 
+                    {/* Composed Chart: Analisa Pinjam vs Kembali Mingguan */}
                     <div className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col">
                         <div className="flex justify-between items-start mb-4">
                             <div>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Register() {
-    // Inisialisasi state form via Inertia useForm hook
     const { data, setData, post, processing, errors } = useForm({
         nip: '',
         name: '',
@@ -23,17 +22,15 @@ export default function Register() {
         post(route('register'));
     };
 
-    // =========================================================================
     // INPUT MASKING HANDLERS
     // Sanitasi input secara real-time via Regex: Memaksa user HANYA bisa mengetik angka
-    // =========================================================================
     const handleNipChange = (e) => {
-        const numericValue = e.target.value.replace(/\D/g, ''); // Hapus semua karakter Non-Digit
+        const numericValue = e.target.value.replace(/\D/g, '');
         setData('nip', numericValue);
     };
 
     const handlePhoneChange = (e) => {
-        const numericValue = e.target.value.replace(/\D/g, ''); // Hapus semua karakter Non-Digit
+        const numericValue = e.target.value.replace(/\D/g, '');
         setData('phone', numericValue);
     };
 
@@ -41,13 +38,9 @@ export default function Register() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans selection:bg-[#21409A] selection:text-white overflow-hidden">
             <Head title="Registrasi Akun" />
 
-            {/* Layout Wrapper: Menggunakan md:min-h-[500px] untuk memastikan proporsi gambar 
-                dan form tetap seimbang (tidak terlalu memanjang/mengerdil) di layar desktop */}
             <div className="w-full max-w-[900px] md:min-h-[500px] bg-white rounded-[24px] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
-                {/* ========================================================= */}
                 {/* KOLOM KIRI: COVER IMAGE (Hidden on Mobile) */}
-                {/* ========================================================= */}
                 <div className="hidden md:block md:w-5/12 p-3">
                     <div className="w-full h-full rounded-[20px] overflow-hidden relative bg-gray-100">
                         <img
@@ -65,9 +58,7 @@ export default function Register() {
                     </div>
                 </div>
 
-                {/* ========================================================= */}
                 {/* KOLOM KANAN: COMPACT REGISTRATION FORM */}
-                {/* ========================================================= */}
                 <div className="w-full md:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
 
                     <div className="mb-5">

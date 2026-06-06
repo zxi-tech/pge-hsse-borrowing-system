@@ -5,17 +5,22 @@ import { Head } from '@inertiajs/react';
 export default function History({ auth, transactions }) {
     const displayTransactions = transactions || [];
 
+    // STATE MANAGEMENT
+    // State Tab Filter
     const [activeTab, setActiveTab] = useState('semua');
+
+    // State Modal Detail Riwayat
     const [selectedTrx, setSelectedTrx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
 
-    // ================= STATE EXPORT MODAL =================
+    // State Modal Export Excel
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-    const [exportType, setExportType] = useState('semua'); // 'semua', 'bulan_ini', 'tahun_ini', 'custom'
+    const [exportType, setExportType] = useState('semua');
     const [exportStart, setExportStart] = useState('');
     const [exportEnd, setExportEnd] = useState('');
 
+    // EVENT HANDLERS: MODAL DETAIL
     const openModal = (trx) => {
         setSelectedTrx(trx);
         setIsModalOpen(true);
@@ -30,11 +35,13 @@ export default function History({ auth, transactions }) {
         }, 200);
     };
 
-    // Fungsi untuk memicu download ke Backend Laravel
+    // EVENT HANDLERS: EXPORT EXCEL
+    // Fungsi untuk mengarahkan request download file ke Backend Laravel
     const handleExportDownload = () => {
         let url = route('transactions.export');
         url += `?type=${exportType}`;
 
+        // Validasi input khusus untuk export custom date range
         if (exportType === 'custom') {
             if (!exportStart || !exportEnd) {
                 return alert('Mohon isi tanggal mulai dan tanggal akhir terlebih dahulu.');
@@ -42,16 +49,19 @@ export default function History({ auth, transactions }) {
             url += `&start_date=${exportStart}&end_date=${exportEnd}`;
         }
 
-        // Pindah ke link download
         window.location.href = url;
-        setIsExportModalOpen(false); // Tutup modal setelah download mulai
+        setIsExportModalOpen(false);
     };
 
+    // DATA DERIVATION: FILTER
+    // Menyaring transaksi berdasarkan Tab yang sedang aktif (Semua, Selesai, Ditolak)
     const filteredTransactions = displayTransactions.filter(trx => {
         if (activeTab === 'semua') return true;
         return trx.status === activeTab;
     });
 
+    // HELPER UTILITIES: UI
+    // Generate styling visual untuk status badge
     const getStatusBadge = (status) => {
         const statusMap = {
             'selesai': { bg: 'bg-[#00A651]', text: 'text-white', shadow: 'shadow-[#00A651]/40', icon: '✅' },
@@ -59,6 +69,7 @@ export default function History({ auth, transactions }) {
         };
         const config = statusMap[status?.toLowerCase()] || { bg: 'bg-gray-200', text: 'text-gray-700', shadow: '', icon: '📌' };
         const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '-';
+
         return (
             <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide shadow-md ${config.bg} ${config.text} ${config.shadow}`}>
                 <span className="text-[10px]">{config.icon}</span>{label}
@@ -66,21 +77,23 @@ export default function History({ auth, transactions }) {
         );
     };
 
+    // Generate inisial untuk avatar fallback (maksimal 2 karakter)
     const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
     return (
         <AdminLayout user={auth?.user}>
             <Head title="Riwayat Transaksi" />
 
+            {/* Container Utama Konten */}
             <div className="w-full pb-12 relative animate-in fade-in duration-300">
 
+                {/* Header Section & Action Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                     <div>
                         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Riwayat Peminjaman</h1>
                         <p className="text-sm text-gray-500 mt-1 font-medium">Arsip seluruh transaksi yang telah selesai dikembalikan atau ditolak.</p>
                     </div>
 
-                    {/* TOMBOL BUKA MODAL EXPORT */}
                     <button
                         onClick={() => setIsExportModalOpen(true)}
                         className="bg-[#107C41] hover:bg-[#0c6132] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-1 duration-200"
@@ -90,7 +103,10 @@ export default function History({ auth, transactions }) {
                     </button>
                 </div>
 
+                {/* Main Card Wrapper */}
                 <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+
+                    {/* Tab Navigation Controls */}
                     <div className="p-6 border-b border-gray-100 flex flex-col xl:flex-row justify-between items-center gap-4 bg-gray-50/50">
                         <div className="flex gap-2 bg-gray-100/80 p-1.5 rounded-xl w-full md:w-auto overflow-x-auto custom-scrollbar relative">
                             {['semua', 'selesai', 'ditolak'].map((tab) => (
@@ -108,6 +124,7 @@ export default function History({ auth, transactions }) {
                         </div>
                     </div>
 
+                    {/* Data Table Rendering */}
                     <div className="overflow-x-auto custom-scrollbar min-h-[300px]">
                         <table className="w-full text-left whitespace-nowrap table-fixed">
                             <thead>
@@ -147,6 +164,7 @@ export default function History({ auth, transactions }) {
                                         </td>
                                     </tr>
                                 )) : (
+                                    // Fallback Empty State
                                     <tr>
                                         <td colSpan="6" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center justify-center text-gray-400">
@@ -164,11 +182,13 @@ export default function History({ auth, transactions }) {
                 </div>
             </div>
 
-            {/* MODAL DETAIL (TETAP SAMA SEPERTI SEBELUMNYA) */}
+            {/* MODAL: DETAIL RIWAYAT TRANSAKSI */}
             {isModalOpen && selectedTrx && (
                 <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/50 transition-opacity duration-200 ease-in-out ${isAnimating ? 'opacity-100' : 'opacity-0'}`} onClick={closeModal}>
                     <div className={`bg-white rounded-[24px] shadow-2xl w-full max-w-xl flex flex-col overflow-hidden transform transition-all duration-200 ease-out ${isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`} onClick={(e) => e.stopPropagation()}>
+
                         <div className="h-1.5 w-full flex"><div className="bg-[#21409A] flex-1"></div><div className="bg-[#00A651] flex-1"></div><div className="bg-[#FBBF24] flex-1"></div><div className="bg-[#ED1C24] flex-1"></div></div>
+
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
                             <div>
                                 <h2 className="text-lg font-bold text-[#21409A] tracking-tight">Detail Arsip Transaksi</h2>
@@ -176,6 +196,7 @@ export default function History({ auth, transactions }) {
                             </div>
                             <div>{getStatusBadge(selectedTrx.status)}</div>
                         </div>
+
                         <div className="p-6 overflow-y-auto bg-gray-50 flex-1 custom-scrollbar max-h-[70vh]">
                             <div className="flex items-center gap-3 mb-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#21409A]/10 to-[#00A651]/10 text-[#21409A] border border-[#21409A]/20 flex items-center justify-center font-black text-lg">{getInitials(selectedTrx.name)}</div>
@@ -198,17 +219,20 @@ export default function History({ auth, transactions }) {
                                 <p className={`text-xs font-medium leading-relaxed pl-2 ${selectedTrx.status === 'ditolak' ? 'text-[#ED1C24]' : 'text-gray-700'}`}>{selectedTrx.notes || selectedTrx.purpose || '-'}</p>
                             </div>
                         </div>
+
                         <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-end">
                             <button onClick={closeModal} className="px-6 py-2 text-sm font-bold text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-lg transition-colors shadow-sm">Tutup Arsip</button>
                         </div>
+
                     </div>
                 </div>
             )}
 
-            {/* ================= MODAL EXPORT EXCEL ================= */}
+            {/* MODAL: EXPORT EXCEL PARAMETERS */}
             {isExportModalOpen && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-gray-900/50 animate-in fade-in" onClick={() => setIsExportModalOpen(false)}>
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
+
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
                                 <svg className="w-6 h-6 text-[#107C41]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -217,6 +241,7 @@ export default function History({ auth, transactions }) {
                             <button onClick={() => setIsExportModalOpen(false)} className="text-gray-400 hover:text-red-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                         </div>
 
+                        {/* Pengaturan Parameter Waktu Export */}
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Pilih Periode Export</label>
@@ -232,7 +257,7 @@ export default function History({ auth, transactions }) {
                                 </select>
                             </div>
 
-                            {/* Opsi Custom Tanggal akan muncul jika dipilih */}
+                            {/* Dynamic Inputs: Hanya muncul saat memilih opsi Custom Date Range */}
                             {exportType === 'custom' && (
                                 <div className="grid grid-cols-2 gap-4 pt-2 animate-in fade-in slide-in-from-top-2">
                                     <div>
@@ -247,6 +272,7 @@ export default function History({ auth, transactions }) {
                             )}
                         </div>
 
+                        {/* Action Buttons Export */}
                         <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-4">
                             <button onClick={() => setIsExportModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Batal</button>
                             <button
@@ -257,6 +283,7 @@ export default function History({ auth, transactions }) {
                                 Unduh Excel
                             </button>
                         </div>
+
                     </div>
                 </div>
             )}

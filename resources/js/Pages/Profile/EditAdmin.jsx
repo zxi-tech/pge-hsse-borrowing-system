@@ -5,8 +5,8 @@ import AdminLayout from '@/Layouts/AdminLayout';
 export default function EditAdmin({ auth }) {
     const user = auth.user;
 
-    // ================= FORM LOGIC (INERTIA) =================
-    // State phone dicabut karena Admin tidak pakai fitur WhatsApp
+    // State Management: Form Data & Inertia Submission
+    // Catatan: Field phone tidak disertakan untuk peran Admin
     const profileForm = useForm({
         name: user.name || '',
         email: user.email || '',
@@ -17,7 +17,7 @@ export default function EditAdmin({ auth }) {
         _method: 'PATCH',
     });
 
-    // ================= PHOTO LOGIC =================
+    // Handlers: Photo Upload & Local Preview
     const fileInputRef = useRef();
     const [photoPreview, setPhotoPreview] = useState(null);
 
@@ -25,6 +25,7 @@ export default function EditAdmin({ auth }) {
         const file = e.target.files[0];
         if (file) {
             profileForm.setData('photo', file);
+            // Render file lokal ke base64 untuk UI preview
             const reader = new FileReader();
             reader.onload = (e) => setPhotoPreview(e.target.result);
             reader.readAsDataURL(file);
@@ -35,18 +36,18 @@ export default function EditAdmin({ auth }) {
         fileInputRef.current.click();
     };
 
-    // ================= SUBMIT LOGIC =================
+    // Handler: Submit Update Profile
     const submitProfile = (e) => {
         e.preventDefault();
         profileForm.post(route('profile.update'), {
             preserveScroll: true,
             onSuccess: () => {
-                // Biarkan foto preview tetap ada jika berhasil
+                // UI state untuk preview foto otomatis dipertahankan oleh React
             },
         });
     };
 
-    // Helper Inisial Nama
+    // Helper: Generate 2 huruf inisial untuk fallback avatar
     const getInitials = (name) => {
         if (!name) return 'A';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -58,7 +59,7 @@ export default function EditAdmin({ auth }) {
 
             <div className="max-w-[1200px] mx-auto pb-10 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                {/* ================= ALERTS SUCCESS ================= */}
+                {/* UI Feedback: Success Alert */}
                 {profileForm.recentlySuccessful && (
                     <div className="mb-8 p-4 rounded-2xl bg-green-50 border border-green-200 text-[#00A651] text-sm font-bold flex items-center gap-3 shadow-sm animate-in fade-in slide-in-from-top-4">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
@@ -66,7 +67,7 @@ export default function EditAdmin({ auth }) {
                     </div>
                 )}
 
-                {/* ================= ALERTS ERROR ================= */}
+                {/* UI Feedback: Error Alert */}
                 {Object.keys(profileForm.errors).length > 0 && (
                     <div className="mb-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold shadow-sm">
                         Hampir saja! Ada beberapa kesalahan input, silakan cek form di bawah.
@@ -75,11 +76,11 @@ export default function EditAdmin({ auth }) {
 
                 <div className="bg-white rounded-[32px] shadow-[0_10px_60px_-15px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0">
 
-                    {/* ================= KOLOM KIRI (KARTU PROFIL) ================= */}
+                    {/* Layout Sidebar: Profile Card Info */}
                     <div className="md:col-span-5 lg:col-span-4 p-8 lg:p-12 flex flex-col items-center border-r border-gray-100 bg-white relative">
                         <h1 className="text-2xl font-medium text-gray-500 tracking-wide mb-8">Admin Profile</h1>
 
-                        {/* Foto Profil Besar */}
+                        {/* User Avatar & Preview */}
                         <div className="relative group mb-6">
                             <div className="w-[160px] h-[160px] lg:w-[180px] lg:h-[180px] rounded-full border-[6px] border-[#F4F5F9] shadow-sm overflow-hidden flex items-center justify-center bg-[#E8F5E9] text-[#00A651]">
                                 {photoPreview ? (
@@ -92,7 +93,7 @@ export default function EditAdmin({ auth }) {
                             </div>
                         </div>
 
-                        {/* Nama, NIP & Role Badge */}
+                        {/* Static User Info */}
                         <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight text-center mb-1">{user.name || '-'}</h2>
                         <p className="text-sm font-medium text-gray-400 mb-4 tracking-wide">{user.nip ? `NIP. ${user.nip}` : 'NIP.-'}</p>
 
@@ -100,24 +101,23 @@ export default function EditAdmin({ auth }) {
                             Super Admin
                         </div>
 
-                        {/* Tombol Upload */}
+                        {/* Upload Trigger Button */}
                         <input type="file" ref={fileInputRef} onChange={handlePhotoChange} className="hidden" accept="image/png, image/jpeg, image/webp" />
                         <button type="button" onClick={triggerFileInput} className="w-full max-w-[240px] py-3.5 rounded-lg bg-[#00A651] hover:bg-[#008c44] text-white font-medium text-sm shadow-md transition-all mb-10">
                             Upload Foto Profil
                         </button>
                         {profileForm.errors.photo && <p className="text-red-500 text-xs mt-[-30px] mb-8 font-bold text-center">{profileForm.errors.photo}</p>}
 
-                        {/* Teks Bawah */}
+                        {/* Organization Info */}
                         <div className="text-center mt-auto pt-6 w-full border-t border-gray-100">
                             <p className="text-[13px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{user.department || 'HSSE DEPARTMENT'}</p>
                             <p className="text-[12px] text-gray-400">PT Pertamina Geothermal Energy</p>
                         </div>
                     </div>
 
-                    {/* ================= KOLOM KANAN (FORM) ================= */}
+                    {/* Layout Content: Form Inputs */}
                     <div className="md:col-span-7 lg:col-span-8 p-10 lg:p-14">
 
-                        {/* ---------------- FORM 1: PROFIL ---------------- */}
                         <form onSubmit={submitProfile} className="mb-0">
                             <div className="flex items-center justify-between gap-6 mb-10 pb-6 border-b border-gray-100">
                                 <h2 className="text-lg font-black text-gray-950 uppercase tracking-widest">Informasi Admin</h2>
@@ -127,13 +127,15 @@ export default function EditAdmin({ auth }) {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
+
+                                {/* Dynamic Input: Editable Name */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="name" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Nama Lengkap <span className="text-red-500">*</span></label>
                                     <input type="text" id="name" value={profileForm.data.name} onChange={(e) => profileForm.setData('name', e.target.value)} required className={`w-full bg-white border ${profileForm.errors.name ? 'border-red-400 ring-2 ring-red-100' : 'border-gray-300'} text-gray-950 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all`} />
                                     {profileForm.errors.name && <p className="text-xs text-red-600 mt-1.5 font-medium">{profileForm.errors.name}</p>}
                                 </div>
 
-                                {/* NIP DIKUNCI (READONLY) */}
+                                {/* Read-Only Field: NIP */}
                                 <div>
                                     <label htmlFor="nip" className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">NIP Admin</label>
                                     <div className="relative">
@@ -142,7 +144,7 @@ export default function EditAdmin({ auth }) {
                                     </div>
                                 </div>
 
-                                {/* EMAIL DIKUNCI (READONLY) */}
+                                {/* Read-Only Field: Email */}
                                 <div>
                                     <label htmlFor="email" className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Email Perusahaan</label>
                                     <div className="relative">
@@ -151,6 +153,7 @@ export default function EditAdmin({ auth }) {
                                     </div>
                                 </div>
 
+                                {/* Dynamic Input: Editable About */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="about" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Tentang Saya / Catatan</label>
                                     <textarea id="about" value={profileForm.data.about} onChange={(e) => profileForm.setData('about', e.target.value)} rows="3" className={`w-full bg-white border ${profileForm.errors.about ? 'border-red-400 ring-2 ring-red-100' : 'border-gray-300'} text-gray-950 rounded-xl px-4 py-3.5 text-sm font-bold outline-none resize-none focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all`} placeholder="Tulis catatan admin..."></textarea>
