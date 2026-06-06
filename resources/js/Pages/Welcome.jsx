@@ -44,7 +44,7 @@ export default function Welcome({ auth }) {
             id: 2,
             title: "Safety Goggles",
             desc: "Perlindungan area mata dari paparan debu, percikan bahan kimia, dan partikel berbahaya di lokasi operasional.",
-            image: "/images/Kaca mata.png",
+            image: "/images/Kaca-Mata.png",
             cardBg: "bg-[#00A651]",
             textStyle: "text-white",
             pillBg: "bg-white text-gray-900",
@@ -322,7 +322,7 @@ export default function Welcome({ auth }) {
                                                     ${item.imageSizeClasses || 'max-h-24 sm:max-h-48 scale-110'} 
                                                     ${item.imagePositionClasses || '-translate-y-4 -translate-x-4'}`
                                                 }
-                                                onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x200?text=Gambar+APD"; }}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/200x200/EFEFEF/21409A?text=Gambar+APD"; }}
                                             />
                                         )}
                                     </div>

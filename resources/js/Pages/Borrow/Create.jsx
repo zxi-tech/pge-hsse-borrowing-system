@@ -5,20 +5,7 @@ export default function Create({ auth, items }) {
     const { flash } = usePage().props;
     const user = auth?.user;
 
-    const displayItems = items && items.length > 0 ? items : [
-        {
-            id: 1, name: 'Safety Helmet', type: 'asset', photo_path: null,
-            sizes: [{ id: 11, size_name: 'All Size', stock: 10, status: 'available' }]
-        },
-        {
-            id: 2, name: 'Coverall Onshore', type: 'asset', photo_path: null,
-            sizes: [
-                { id: 21, size_name: 'M', stock: 5, status: 'available' },
-                { id: 22, size_name: 'L', stock: 12, status: 'available' },
-                { id: 23, size_name: 'XL', stock: 8, status: 'laundry' }
-            ]
-        }
-    ];
+    const displayItems = items || [];
 
     const { data, setData, post, processing, reset, errors } = useForm({
         start_date: '',

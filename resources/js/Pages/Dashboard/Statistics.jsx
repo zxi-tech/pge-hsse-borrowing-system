@@ -208,10 +208,10 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                                 Selamat Datang, <span className="text-[#21409A]">{auth?.user?.name || 'Admin'}! 🎉</span>
                             </h2>
                             <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                                Kamu telah menyelesaikan <strong className="text-gray-700">86%</strong> pengecekan stok APD hari ini. Pantau terus distribusi APD pekerja di lapangan.
+                                Sistem Manajemen APD telah aktif. Pantau seluruh aktivitas peminjaman dan pastikan ketersediaan stok inventori selalu aman secara <strong className="text-gray-700">real-time</strong>.
                             </p>
                             <Link href={route('items.index')} className="bg-[#21409A] text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-sm hover:bg-[#1a3380] transition-colors">
-                                CEK INVENTORI
+                                KELOLA INVENTORI
                             </Link>
                         </div>
                         <div className="absolute right-0 bottom-0 w-1/3 h-full bg-gradient-to-l from-blue-50 to-transparent pointer-events-none flex items-center justify-end pr-6">
