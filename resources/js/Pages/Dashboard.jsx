@@ -3,24 +3,27 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-// 👇 TERIMA PROP chartData DARI LARAVEL (Beri default array kosong) 👇
+// Injeksi properti dari backend Laravel dengan nilai bawaan fallback
 export default function Dashboard({ auth, stats, recentTransactions, chartData = [] }) {
 
-    // ================= STATE & FUNGSI MODAL =================
+    // Manajemen State: Kontrol Visibilitas Modal Detail Transaksi
     const [selectedTrx, setSelectedTrx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
 
+    // Manajemen State: Inisialisasi form Inertia untuk catatan
     const { data, setData, reset } = useForm({
         notes: ''
     });
 
+    // Handler: Membuka modal dengan animasi transisi
     const openModal = (trx) => {
         setSelectedTrx(trx);
         setIsModalOpen(true);
         setTimeout(() => setIsAnimating(true), 10);
     };
 
+    // Handler: Menutup modal dan mereset state
     const closeModal = () => {
         setIsAnimating(false);
         setTimeout(() => {
@@ -30,12 +33,13 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
         }, 200);
     };
 
+    // Helper: Ekstraksi inisial nama untuk fallback antarmuka
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
-    // ================= HELPER FORMATTER =================
+    // Helper: Pemformatan Tanggal Standar Lokal Indonesia
     const formatDate = (dateString) => {
         if (!dateString) return '-';
         try {
@@ -46,6 +50,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
         }
     };
 
+    // Helper: Ekstraksi dan penggabungan string item transaksi bersarang
     const getTransactionItems = (trx) => {
         if (trx?.items) return trx.items;
         if (trx?.details && trx.details.length > 0) {
@@ -58,6 +63,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
         return '-';
     };
 
+    // Helper: Pemetaan gaya visual lencana berdasarkan status transaksi
     const getStatusBadge = (status) => {
         switch (status?.toLowerCase()) {
             case 'menunggu':
@@ -81,7 +87,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
 
             <div className="w-full pb-8">
 
-                {/* Header Title */}
+                {/* Bagian: Header Utama */}
                 <div className="flex justify-between items-end mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
@@ -91,11 +97,11 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                     </div>
                 </div>
 
-                {/* ================= TOP SECTION (KARTU & GRAFIK) ================= */}
+                {/* Bagian: Indikator Metrik Kinerja Utama dan Grafik */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-6">
                     <div className="col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-                        {/* Kartu 1: Total Pengguna */}
+                        {/* Metrik: Total Pengguna Aktif */}
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300 group">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -109,7 +115,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                             <p className="text-xs text-gray-400 mt-4 font-medium">Karyawan Pertamina terdaftar</p>
                         </div>
 
-                        {/* Kartu 2: Total Barang / APD */}
+                        {/* Metrik: Total Aset dan Inventaris */}
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md hover:border-amber-100 hover:-translate-y-1 transition-all duration-300 group">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -125,7 +131,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                             </p>
                         </div>
 
-                        {/* Kartu 3: Pengajuan Menunggu */}
+                        {/* Metrik: Permintaan Tertunda */}
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 group">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -142,7 +148,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                             </p>
                         </div>
 
-                        {/* Kartu 4: Peminjaman Terlambat */}
+                        {/* Metrik: Transaksi Terlambat */}
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md hover:border-red-100 hover:-translate-y-1 transition-all duration-300 group">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -157,13 +163,13 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                         </div>
                     </div>
 
-                    {/* AREA KANAN: Grafik Recharts Terhubung Database */}
+                    {/* Komponen: Render Grafik Recharts Dinamis */}
                     <div className="col-span-1 lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col min-h-[250px] hover:shadow-md transition-shadow duration-300">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-sm font-bold text-gray-800">Peminjaman 6 Bulan Terakhir</h3>
                         </div>
                         <div className="flex-1 w-full min-h-[200px]">
-                            {/* Panggil chartData dari Laravel di properti data */}
+                            {/* Pemanggilan objek data serial dari Backend ke komponen Recharts */}
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 0, right: 0, left: -25, bottom: 0 }} barSize={18}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -179,7 +185,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                     </div>
                 </div>
 
-                {/* ================= AREA BAWAH: TABEL PENGAJUAN DINAMIS ================= */}
+                {/* Bagian: Tabel Data Riwayat Transaksi Terbaru */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
                     <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-white">
                         <h2 className="text-lg font-bold text-gray-900">Pengajuan Terbaru</h2>
@@ -256,7 +262,7 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                 </div>
             </div>
 
-            {/* ================= MODAL EKSEKUSI TRANSAKSI (READ-ONLY DI DASHBOARD) ================= */}
+            {/* Komponen: Modal Tinjauan Detail Transaksi (Akses Baca Saja) */}
             {isModalOpen && selectedTrx && (
                 <div
                     className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/50 transition-opacity duration-200 ease-in-out ${isAnimating ? 'opacity-100' : 'opacity-0'}`}
