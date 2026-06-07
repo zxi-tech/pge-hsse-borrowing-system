@@ -106,7 +106,7 @@ export default function Welcome({ auth }) {
             pillBg: "bg-[#00A651] text-white",
             iconBg: "bg-white text-[#1A1C23] group-hover:bg-[#00A651] group-hover:text-white",
             linkText: "Contact Us",
-            linkHref: route('contact')
+            linkHref: auth?.user ? route('contact') : route('login')
         }
     ];
 
