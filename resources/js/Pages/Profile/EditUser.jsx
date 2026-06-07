@@ -4,13 +4,13 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
     const user = auth.user;
 
-    // ================= STATE UNTUK OTP NOMOR HP =================
+    // Manajemen State: Verifikasi OTP Nomor Ponsel
     const [isEditingPhone, setIsEditingPhone] = useState(false);
     const [newPhone, setNewPhone] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
 
-    // Fungsi Simulasi Kirim OTP
+    // Handler: Simulasi pengiriman OTP
     const handleSendOtp = () => {
         if (!newPhone || newPhone.length < 10) {
             return alert("Masukkan nomor WhatsApp yang valid terlebih dahulu!");
@@ -19,13 +19,14 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
         alert(`[SIMULASI] Kode OTP telah dikirim ke WhatsApp: ${newPhone}`);
     };
 
-    // Fungsi Simulasi Verifikasi OTP
+    // Handler: Simulasi verifikasi OTP
     const handleVerifyOtp = () => {
-        if (otpCode !== '123456') { // Kita pakai 123456 sebagai kode rahasia sementara
+        // Menggunakan 123456 sebagai kode statis untuk keperluan simulasi
+        if (otpCode !== '123456') {
             return alert("Kode OTP salah! (Gunakan: 123456 untuk testing)");
         }
 
-        // Jika benar, masukkan nomor baru ke dalam 'data' yang akan di-save ke Laravel
+        // Memperbarui state form dengan nomor ponsel yang telah terverifikasi
         setData('phone', newPhone);
         setIsEditingPhone(false);
         setOtpSent(false);
@@ -33,28 +34,28 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
         alert("WhatsApp Terverifikasi! Jangan lupa klik tombol 'SAVE' di atas untuk menyimpan permanen.");
     };
 
-    // ================= FORM LOGIC (INERTIA) =================
+    // Manajemen State: Inisialisasi form Inertia
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         name: user.name || '',
         email: user.email || '',
         nip: user.nip || '',
-        phone: user.phone || '',           // <-- Field nomor HP ditambahkan
+        phone: user.phone || '', // Field nomor ponsel pengguna
         department: user.department || '',
         about: user.about || '',
         photo: null,
         _method: 'PATCH',
     });
 
-    // ================= PHOTO LOGIC =================
+    // Logika Pemrosesan Foto Profil
     const fileInputRef = useRef();
     const [photoPreview, setPhotoPreview] = useState(null);
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setData('photo', file); // Simpan file asli untuk dikirim ke server
+            setData('photo', file); // Menyimpan objek file untuk transmisi ke peladen
             const reader = new FileReader();
-            reader.onload = (e) => setPhotoPreview(e.target.result); // Simpan base64 untuk preview di browser
+            reader.onload = (e) => setPhotoPreview(e.target.result); // Menghasilkan representasi base64 untuk pratinjau antarmuka
             reader.readAsDataURL(file);
         }
     };
@@ -63,7 +64,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
         fileInputRef.current.click();
     };
 
-    // ================= SUBMIT LOGIC =================
+    // Handler: Pengiriman data form
     const submit = (e) => {
         e.preventDefault();
         post(route('profile.update'), {
@@ -75,25 +76,25 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
         });
     };
 
-    // Helper Inisial Nama
+    // Helper: Pembuatan inisial nama untuk fallback avatar
     const getInitials = (name) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
-    // ================= STATS =================
+    // Inisialisasi data statistik peminjaman
     const displayStats = stats || [
         { label: 'Barang Dipinjam', value: '0' },
         { label: 'Menunggu Persetujuan', value: '0' },
         { label: 'Riwayat Peminjaman', value: '0' },
     ];
 
-    // ================= STATE DROPDOWN PROFIL & MOBILE MENU =================
+    // Manajemen State: Interaktivitas UI dan Navigasi
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk Hamburger
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State untuk menu navigasi seluler
     const profileMenuRef = useRef(null);
 
-    // Menutup dropdown jika klik di luar
+    // Efek Samping: Menutup menu dropdown saat interaksi di luar elemen
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -104,7 +105,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Placeholder untuk fitur Coming Soon (opsional)
+    // Handler: Fitur dalam tahap pengembangan
     const handleComingSoon = (featureName) => {
         alert(`Fitur ${featureName} sedang dalam tahap pengembangan.`);
     };
@@ -115,10 +116,10 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
 
             <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans text-gray-800 selection:bg-[#21409A] selection:text-white antialiased">
 
-                {/* ================= NAVBAR RESPONSIVE ================= */}
+                {/* Komponen: Navigasi Utama */}
                 <nav className="w-full max-w-[1536px] mx-auto flex items-center justify-between px-6 lg:px-12 xl:px-20 py-8 z-50 bg-transparent flex-shrink-0 relative">
 
-                    {/* ZONA 1: Logo Kiri */}
+                    {/* Bagian: Logo Instansi */}
                     <div className="flex items-center group cursor-pointer w-auto lg:w-1/4 shrink-0">
                         <img
                             src="/images/pertamina-logo (1).png"
@@ -128,7 +129,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         />
                     </div>
 
-                    {/* ZONA 2: Navigasi Desktop (Sembunyi di HP) */}
+                    {/* Bagian: Tautan Navigasi Utama */}
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-12 text-[14px] font-bold text-gray-600">
                         <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="relative group py-2 hover:text-[#21409A] transition-colors duration-300">
                             {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
@@ -151,7 +152,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         </Link>
                     </div>
 
-                    {/* ZONA 3: Profil & Tombol Menu Mobile (Kanan) */}
+                    {/* Bagian: Profil Pengguna dan Kontrol Menu Seluler */}
                     <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
                         {user ? (
                             <div className="relative shrink-0" ref={profileMenuRef}>
@@ -172,7 +173,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
-                                {/* Isi Dropdown (Hanya Logout) */}
+                                {/* Konten Menu Dropdown Profil */}
                                 {isProfileMenuOpen && (
                                     <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <Link href={route('logout')} method="post" as="button" className="flex items-center w-full gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors">
@@ -189,7 +190,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                             </Link>
                         )}
 
-                        {/* HAMBURGER MENU BUTTON (HANYA MUNCUL DI HP) */}
+                        {/* Tombol Toggle Menu Seluler */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
@@ -204,7 +205,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         </button>
                     </div>
 
-                    {/* DROPDOWN MENU MOBILE */}
+                    {/* Konten Menu Panel Seluler */}
                     {isMobileMenuOpen && (
                         <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
                             <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
@@ -223,7 +224,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                     )}
                 </nav>
 
-                {/* ================= KONTEN UTAMA ================= */}
+                {/* Komponen: Konten Utama Halaman */}
                 <main className="flex-grow max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-10">
 
                     {recentlySuccessful && (
@@ -239,16 +240,16 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         </div>
                     )}
 
-                    {/* ================= FORM UTAMA ================= */}
-                    {/* Menggunakan trik gap-6 di HP agar terpisah menjadi 2 Card, tapi di Desktop menyatu dengan md:gap-0 */}
+                    {/* Komponen: Formulir Profil */}
+                    {/* Penyesuaian tata letak responsif untuk tampilan kartu */}
                     <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-0 md:bg-white md:rounded-[32px] md:shadow-[0_10px_60px_-15px_rgba(0,0,0,0.08)] md:border md:border-gray-100 md:overflow-hidden">
 
-                        {/* ================= KOLOM KIRI (CARD 1 DI HP) ================= */}
+                        {/* Bagian Kiri: Kartu Informasi Profil */}
                         <div className="md:col-span-5 lg:col-span-4 p-6 sm:p-8 lg:p-12 flex flex-col items-center bg-white rounded-[24px] shadow-sm border border-gray-100 md:rounded-none md:shadow-none md:border-0 md:border-r md:border-gray-100">
 
                             <h1 className="text-2xl font-medium text-gray-500 tracking-wide mb-8">Profile</h1>
 
-                            {/* Foto Profil Besar */}
+                            {/* Tampilan Pratinjau Foto Profil */}
                             <div className="relative group mb-6">
                                 <div className="w-[160px] h-[160px] lg:w-[180px] lg:h-[180px] rounded-full border-[6px] border-[#F4F5F9] shadow-sm overflow-hidden flex items-center justify-center bg-[#EDF0F7] text-[#21409A]">
                                     {photoPreview ? (
@@ -261,11 +262,11 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                 </div>
                             </div>
 
-                            {/* Nama & NIPP */}
+                            {/* Identitas Pengguna */}
                             <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight text-center mb-1">{user.name || '-'}</h2>
                             <p className="text-sm font-medium text-gray-400 mb-10 tracking-wide">{user.nip ? `NIPP. ${user.nip}` : 'NIPP.-'}</p>
 
-                            {/* Stats Row */}
+                            {/* Baris Indikator Statistik */}
                             <div className="w-full flex items-stretch justify-center border-t border-b border-gray-200 py-6 mb-10">
                                 {displayStats.map((item, idx) => (
                                     <div key={idx} className={`flex-1 flex flex-col items-center justify-start px-2 ${idx === 1 ? 'border-l border-r border-gray-300' : ''}`}>
@@ -275,25 +276,25 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                 ))}
                             </div>
 
-                            {/* Tombol Upload */}
+                            {/* Kontrol Unggah Foto */}
                             <input type="file" ref={fileInputRef} onChange={handlePhotoChange} className="hidden" accept="image/png, image/jpeg, image/webp" />
                             <button type="button" onClick={triggerFileInput} className="w-full max-w-[240px] py-3.5 rounded-lg bg-[#21409A] hover:bg-[#1a3380] text-white font-medium text-sm shadow-md transition-all mb-10">
                                 Upload Foto Profil
                             </button>
 
-                            {/* Teks Bawah */}
+                            {/* Informasi Organisasi */}
                             <div className="text-center mt-auto pt-6 border-t border-gray-100 w-full">
                                 <p className="text-[13px] font-medium text-gray-500 uppercase tracking-widest mb-1.5">{user.department || 'DEPARTEMEN'}</p>
                                 <p className="text-[12px] text-gray-400">PT Pertamina Geothermal Energy</p>
                             </div>
                         </div>
 
-                        {/* ================= KOLOM KANAN (CARD 2 DI HP) ================= */}
-                        {/* Di HP: Punya bg-white & rounded. Di Desktop: transparan & tanpa rounded */}
+                        {/* Bagian Kanan: Formulir Pembaruan Data */}
+                        {/* Penyesuaian gaya kontainer formulir berdasarkan ukuran layar */}
                         <div className="md:col-span-7 lg:col-span-8 p-6 sm:p-8 md:p-10 lg:p-14 bg-white rounded-[24px] shadow-sm border border-gray-100 md:rounded-none md:shadow-none md:border-0 md:bg-transparent">
 
-                            {/* HEADER KOLOM KANAN */}
-                            {/* Diatur agar menyerupai foto di HP (Batal & Simpan hijau), tapi kembali ke format lama (CANCEL & SAVE biru) di Desktop */}
+                            {/* Header Formulir dan Kontrol Penyimpanan */}
+                            {/* Penyesuaian gaya tombol aksi */}
                             <div className="flex flex-row items-center justify-between mb-6 md:mb-12 pb-4 md:pb-6 border-b border-gray-100">
                                 <h2 className="text-base md:text-lg font-black text-gray-950 md:uppercase tracking-normal md:tracking-widest leading-snug">
                                     Informasi<br className="block md:hidden" /> Pengguna
@@ -310,10 +311,10 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                 </div>
                             </div>
 
-                            {/* MENGGUNAKAN gap-y-5 DI HP AGAR LEBIH RAPAT SESUAI FOTO, TAPI gap-y-8 DI DESKTOP */}
+                            {/* Konfigurasi jarak antar elemen input */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 md:gap-y-8">
 
-                                {/* FIELD: NAMA LENGKAP (LOCKED) */}
+                                {/* Input: Nama Lengkap (Hanya Baca) */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="name" className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide md:text-gray-500">Nama Lengkap</label>
                                     <div className="relative">
@@ -322,7 +323,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     </div>
                                 </div>
 
-                                {/* FIELD: NOMOR PEKERJA (LOCKED) */}
+                                {/* Input: Nomor Induk Pegawai (Hanya Baca) */}
                                 <div>
                                     <label htmlFor="nip" className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide md:text-gray-500">Nomor Pekerja (NIPP)</label>
                                     <div className="relative">
@@ -331,7 +332,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     </div>
                                 </div>
 
-                                {/* FIELD: EMAIL PERUSAHAAN (LOCKED) */}
+                                {/* Input: Alamat Email (Hanya Baca) */}
                                 <div>
                                     <label htmlFor="email" className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide md:text-gray-500">Email Perusahaan</label>
                                     <div className="relative">
@@ -340,7 +341,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     </div>
                                 </div>
 
-                                {/* FIELD: NOMOR WHATSAPP (BISA DIEDIT) */}
+                                {/* Input: Nomor Telepon dengan Verifikasi OTP */}
                                 <div className="sm:col-span-2">
                                     <label className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide">Nomor WhatsApp Aktif</label>
 
@@ -385,7 +386,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     {errors.phone && <p className="text-xs text-red-600 mt-1.5 font-medium">{errors.phone}</p>}
                                 </div>
 
-                                {/* FIELD: DEPARTEMEN (LOCKED) */}
+                                {/* Input: Departemen (Hanya Baca) */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="department" className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide md:text-gray-500">Departemen</label>
                                     <div className="relative">
@@ -394,7 +395,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                                     </div>
                                 </div>
 
-                                {/* FIELD: TENTANG SAYA */}
+                                {/* Input: Catatan Profil */}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="about" className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 md:mb-2 md:uppercase md:tracking-wide">Tentang Saya / Catatan</label>
                                     <textarea id="about" value={data.about} onChange={(e) => setData('about', e.target.value)} rows="3" className={`w-full bg-white border ${errors.about ? 'border-red-400 ring-2 ring-red-100' : 'border-gray-300'} text-gray-950 rounded-xl px-4 py-3 text-[13px] md:text-sm font-medium outline-none resize-none focus:ring-2 focus:ring-[#21409A]/20 focus:border-[#21409A] transition-all`} placeholder="Tambahkan catatan..."></textarea>
@@ -407,19 +408,19 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                     </form>
                 </main>
 
-                {/* ================= FOOTER ================= */}
+                {/* Komponen: Footer Sistem */}
                 <footer className="mt-auto shrink-0 bg-[#F4F5FA]">
                     <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-6 md:py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium gap-4 md:gap-0">
 
-                        {/* Teks Copyright (Rata tengah di HP, Rata kiri di Desktop) */}
+                        {/* Hak Cipta */}
                         <div className="text-center md:text-left leading-relaxed">
                             © 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.
                         </div>
 
-                        {/* 👇 Garis Pembatas Khusus HP (Sembunyi di Desktop) 👇 */}
+                        {/* Pemisah Visual Khusus Seluler */}
                         <div className="w-16 h-[2px] bg-gray-200 rounded-full md:hidden"></div>
 
-                        {/* 👇 CREDIT DEVELOPER (NAMA ASLI + GITHUB) 👇 */}
+                        {/* Atribusi Pengembang */}
                         <div className="flex items-center justify-center space-x-2">
                             <span>Developed by</span>
                             <a
@@ -437,7 +438,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         </div>
                     </div>
 
-                    {/* Garis Warna Warni Bawah */}
+                    {/* Elemen Visual Identitas Perusahaan */}
                     <div className="h-1.5 flex w-full">
                         <div className="bg-[#21409A] flex-1"></div>
                         <div className="bg-[#ED1C24] flex-1"></div>
