@@ -64,10 +64,10 @@ export default function Users({ auth, users, filters }) {
     // Event Handler: Save Profile Updates (Trigger OTP if email changes)
     const handleSaveClick = () => {
         const emailInput = editData.email.toLowerCase();
-        const isValidDomain = emailInput.endsWith('@pertamina.com') || emailInput.endsWith('@mk.pertamina.com');
+        const isValidDomain = emailInput.endsWith('@pertamina.com') || emailInput.endsWith('@mitrakerja.pertamina.com');
 
         if (!isValidDomain) {
-            alert('GAGAL: Alamat email wajib menggunakan domain resmi (@pertamina.com atau @mk.pertamina.com)!');
+            alert('GAGAL: Alamat email wajib menggunakan domain resmi (@pertamina.com atau @mitrakerja.pertamina.com)!');
             return;
         }
 
