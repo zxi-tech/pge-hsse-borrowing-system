@@ -52,7 +52,14 @@ export default function SecretCreate() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs uppercase tracking-widest mb-2 opacity-70">NIP</label>
-                            <input type="text" value={data.nip} onChange={e => handleNumberOnly('nip', e.target.value)} required className="w-full bg-black/50 border border-green-900/50 text-green-400 px-4 py-3 rounded outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest" placeholder="ID_001" />
+                            <input
+                                type="text"
+                                value={data.nip}
+                                onChange={e => setData('nip', e.target.value.toUpperCase())}
+                                required
+                                className="w-full bg-black/50 border border-green-900/50 text-green-400 px-4 py-3 rounded outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest"
+                                placeholder="ID_001"
+                            />
                             {errors.nip && <p className="text-red-500 text-[10px] mt-1">{errors.nip}</p>}
                         </div>
                         <div>
