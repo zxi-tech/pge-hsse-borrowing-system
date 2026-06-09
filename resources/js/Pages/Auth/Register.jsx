@@ -75,7 +75,7 @@ export default function Register() {
                         {/* ROW 1: NIP & Nama Lengkap */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                            {/* Input: NIP */}
+                            {/* Input NIP */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] text-[#4B5563] font-extrabold uppercase tracking-widest">
                                     Nomor Pekerja (NIP)
@@ -86,7 +86,14 @@ export default function Register() {
                                             <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd" />
                                         </svg>
                                     </div>
-                                    <input type="text" value={data.nip} onChange={handleNipChange} required className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-10 pr-3.5 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium" placeholder="Contoh: 703703" />
+                                    <input
+                                        type="text"
+                                        value={data.nip}
+                                        onChange={e => setData('nip', e.target.value.toUpperCase())}
+                                        required
+                                        className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 rounded-lg pl-10 pr-3.5 py-2 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-[#00A651]/20 focus:border-[#00A651] transition-all placeholder-gray-400 font-medium"
+                                        placeholder="Contoh: 703703"
+                                    />
                                 </div>
                                 {errors.nip && <p className="text-red-500 text-[10px]">{errors.nip}</p>}
                             </div>
