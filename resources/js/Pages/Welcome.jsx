@@ -271,39 +271,25 @@ export default function Welcome({ auth }) {
                                                 {item.title}
                                             </h3>
                                         </div>
+
                                         <p className={`text-[11px] sm:text-[13px] lg:text-sm leading-relaxed mb-4 sm:mb-8 opacity-90 font-medium ${item.textStyle}`}>
                                             {item.desc}
                                         </p>
+
                                         <div className="mt-auto">
-                                            {item.linkHref.startsWith('http') ? (
-                                                <a href={item.linkHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
-                                                    <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
-                                                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
-                                                        {item.linkText}
-                                                    </span>
-                                                    <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                                            <Link href={item.linkHref} className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
+                                                <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
+                                                    <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
                                                     </svg>
-                                                </a>
-                                            ) : (
-                                                <Link href={item.linkHref} className="inline-flex items-center gap-1 sm:gap-3 group w-fit cursor-pointer">
-                                                    <div className={`hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-colors duration-300 shadow-sm ${item.iconBg}`}>
-                                                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H9M17 7v8" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
-                                                        {item.linkText}
-                                                    </span>
-                                                    <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                                                    </svg>
-                                                </Link>
-                                            )}
+                                                </div>
+                                                <span className={`text-[11px] sm:text-[13px] font-bold tracking-wide transition-opacity group-hover:opacity-80 ${item.textStyle}`}>
+                                                    {item.linkText}
+                                                </span>
+                                                <svg className={`sm:hidden w-2.5 h-2.5 ${item.textStyle}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </Link>
                                         </div>
                                     </div>
 

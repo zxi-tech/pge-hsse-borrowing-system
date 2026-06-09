@@ -235,8 +235,12 @@ export default function Contact({ auth }) {
                                 <hr className="border-gray-100 mb-4" />
                                 <div className="space-y-4">
                                     <div>
-                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">General Support</p>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">HSSE Support</p>
                                         <a href="mailto:admin.k3ll.LHD@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">admin.k3ll.LHD@pertamina.com</a>
+                                    </div>
+                                    <div>
+                                        <p className="text-[12px] font-bold text-gray-900 mb-0.5">ICT PGE Support</p>
+                                        <a href="mailto:Admin.it.lhd@pertamina.com" className="text-[12px] text-[#21409A] font-bold hover:underline break-all block">Admin.it.lhd@pertamina.com</a>
                                     </div>
                                 </div>
                             </div>
