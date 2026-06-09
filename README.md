@@ -1,59 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Manajemen & Peminjaman APD (HSSE)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Inertia.js](https://img.shields.io/badge/Inertia.js-9553E9?style=for-the-badge&logo=inertia&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
 
-## About Laravel
+Sebuah platform aplikasi berbasis web yang dikembangkan untuk mendigitalisasi proses peminjaman dan pengelolaan inventaris Alat Pelindung Diri (APD) di lingkungan **PT Pertamina Geothermal Energy Tbk**. Sistem ini dirancang agar tim HSSE dan pekerja di lapangan dapat berkoordinasi dengan lebih cepat, terstruktur, dan transparan.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Manajemen Inventaris Terpadu** — Pantau ketersediaan barang berdasarkan varian ukuran dan status fisiknya (Tersedia, *Laundry*, atau Perbaikan).
+- **Alur Peminjaman Interaktif** — Pekerja dapat mengajukan peminjaman secara mandiri, sementara Admin memiliki kontrol penuh untuk menyetujui, menolak, atau mengonfirmasi pengembalian alat.
+- **Deteksi Keterlambatan Otomatis** — Sistem secara pintar akan melabeli transaksi menjadi "Terlambat" apabila melewati tenggat waktu yang telah disepakati.
+- **Dashboard Analitik & Statistik** — Visualisasi data menggunakan *Recharts* dan *Chart.js* untuk melihat tren peminjaman mingguan, bulanan, hingga rasio ketersediaan alat di gudang.
+- **Keamanan Akun (Simulasi OTP)** — Perubahan data sensitif seperti Email dan Nomor WhatsApp harus melewati verifikasi *One-Time Password*.
+- **Ekspor Laporan (Excel)** — Unduh rekapitulasi data peminjaman dan metrik statistik langsung ke dalam format `.xlsx`.
+- **Audit Log Terpusat** — Setiap barang masuk atau perubahan stok akan dicatat otomatis oleh sistem beserta nama admin yang bertugas.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Matriks Hak Akses
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Sistem ini membagi wewenang ke dalam dua peran utama:
 
-## Laravel Sponsors
+| Fungsionalitas | Pekerja (User) | Admin HSSE |
+|---|---|---|
+| Membuat pengajuan pinjaman | ✅ | ✅ |
+| Memantau status pengajuan pribadi | ✅ | ✅ |
+| Konfirmasi & eksekusi peminjaman | ❌ | ✅ |
+| Tambah / Edit / Hapus data barang | ❌ | ✅ |
+| Akses Dashboard analitik | ❌ | ✅ |
+| Ekspor laporan Excel | ❌ | ✅ |
+| Manajemen status akun karyawan | ❌ | ✅ |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Prasyarat Sistem
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- PHP 8.2+
+- Composer
+- Node.js 18+ & NPM
+- MySQL atau MariaDB
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Panduan Instalasi (Linux / Production Server)
 
-## Code of Conduct
+**1. Server Preparation**
+Pastikan peladen Anda sudah terinstal web server, PHP (minimal versi 8.2 beserta ekstensi yang dibutuhkan), MySQL/MariaDB, dan Node.js.
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install php8.2 php8.2-fpm php8.2-mysql php8.2-xml php8.2-curl php8.2-mbstring php8.2-zip unzip curl
+sudo apt install nodejs npm
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**2. Cloning the Repository**
+```bash
+cd /var/www/
+git clone [https://github.com/zxi-tech/nama-repo-kamu.git](https://github.com/zxi-tech/nama-repo-kamu.git) hsse-app
+cd hsse-app
+```
 
-## Security Vulnerabilities
+**3. Dependencies & Environment Configuration**
+```bash
+# Instalasi Backend (PHP)
+composer install --optimize-autoloader --no-dev
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Persiapan file environment
+cp .env.example .env
+php artisan key:generate
 
-## License
+# Instalasi Frontend (React/Inertia) dan kompilasi aset
+npm install
+npm run build
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**4. Database and Storage Setup**
+```bash
+# Menjalankan migrasi dan seeding dengan aman (bypass production prompt)
+php artisan migrate --force
+php artisan db:seed --force
+
+# Menghubungkan folder public dengan direktori storage untuk akses gambar
+php artisan storage:link
+```
+
+**5. Directory Permissions**
+```bash
+# Mengubah kepemilikan folder ke grup web server (www-data untuk Nginx/Apache di Ubuntu)
+sudo chown -R www-data:www-data /var/www/hsse-app
+
+# Menyesuaikan izin file dan direktori secara umum
+sudo find /var/www/hsse-app -type f -exec chmod 644 {} \;
+sudo find /var/www/hsse-app -type d -exec chmod 755 {} \;
+
+# Memberikan akses tulis penuh untuk folder storage dan cache
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+**6. Cache Optimization**
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
