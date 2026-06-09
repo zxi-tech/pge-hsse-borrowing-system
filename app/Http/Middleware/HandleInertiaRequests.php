@@ -39,7 +39,7 @@ class HandleInertiaRequests extends Middleware
         ];
     }
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, \Closure $next)
     {
         $response = parent::handle($request, $next);
 
