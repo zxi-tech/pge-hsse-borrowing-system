@@ -40,6 +40,7 @@ class TransactionController extends Controller
                     'dates' => Carbon::parse($trx->start_date)->format('d M') . ' - ' . Carbon::parse($trx->end_date)->format('d M Y'),
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
+                    'photo_proof' => $trx->photo_proof,
                     'notes' => $trx->notes, // Meneruskan field catatan/remark dari admin ke UI
                 ];
             });
@@ -132,6 +133,7 @@ class TransactionController extends Controller
                     'dates' => Carbon::parse($trx->start_date)->format('d M') . ' - ' . Carbon::parse($trx->end_date)->format('d M Y'),
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
+                    'photo_proof' => $trx->photo_proof, // 👈 TAMBAHKAN INI JUGA DI SINI
                     'notes' => $trx->notes, 
                 ];
             });

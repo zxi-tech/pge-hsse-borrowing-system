@@ -49,6 +49,7 @@ class BorrowController extends Controller
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
                     'notes' => $trx->notes,
+                    'photo_proof' => $trx->photo_proof, // 👈 Ditambahkan agar frontend bisa membaca path foto
                     'created_at' => $trx->created_at,
                 ];
             });
@@ -65,7 +66,8 @@ class BorrowController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'purpose' => 'required|string',
-            'selected_items' => 'required|array'
+            'selected_items' => 'required|array',
+            'photo_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048' // Wajib gambar, max 2MB
         ]);
 
         // Memulai DB Transaction agar jika terjadi error (misal: gagal validasi stok), 
@@ -73,12 +75,19 @@ class BorrowController extends Controller
         DB::beginTransaction();
 
         try {
+            $photoPath = null;
+            if ($request->hasFile('photo_proof')) {
+                // Simpan ke disk public, folder 'borrow_proofs'
+                $photoPath = $request->file('photo_proof')->store('borrow_proofs', 'public');
+            }
+
             // Instansiasi model manual untuk bypass proteksi Mass Assignment ($fillable)
             $transaction = new Transaction();
             $transaction->user_id = Auth::id();
             $transaction->start_date = $request->start_date;
             $transaction->end_date = $request->end_date;
             $transaction->purpose = $request->purpose;
+            $transaction->photo_proof = $photoPath;
             $transaction->status = 'menunggu';
             $transaction->save();
 
