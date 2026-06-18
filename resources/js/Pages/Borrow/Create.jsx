@@ -8,11 +8,12 @@ export default function Create({ auth, items }) {
     // Memastikan array items tidak undefined
     const displayItems = items || [];
 
-    // Inisialisasi state form menggunakan Inertia.js
+    // Inisialisasi state form menggunakan Inertia.js (Ditambah photo_proof)
     const { data, setData, post, processing, reset, errors } = useForm({
         start_date: '',
         end_date: '',
         purpose: '',
+        photo_proof: null,
         selected_items: {} // Format: { item_id: { size_id: quantity } }
     });
 
@@ -28,7 +29,7 @@ export default function Create({ auth, items }) {
         show: false,
         title: '',
         message: '',
-        color: 'orange' // 'orange' untuk peringatan laundry, 'red' untuk perbaikan/habis
+        color: 'orange'
     });
 
     // Effect: Auto-close Custom Alert setelah 6 detik
@@ -118,18 +119,18 @@ export default function Create({ auth, items }) {
             return;
         }
 
-        // Validasi 2: Pastikan detail jadwal dan keperluan terisi
-        if (!data.start_date || !data.end_date || !data.purpose) {
+        // Validasi 2: Pastikan detail jadwal, keperluan, DAN FOTO terisi (Diperbarui)
+        if (!data.start_date || !data.end_date || !data.purpose || !data.photo_proof) {
             setCustomAlert({
                 show: true,
                 title: '⚠️ Form Belum Lengkap',
-                message: 'Harap pastikan Tanggal Pinjam, Tanggal Kembali, dan Tujuan Keperluan sudah terisi semua.',
+                message: 'Harap pastikan Tanggal Pinjam, Tanggal Kembali, Tujuan Keperluan, dan Foto Bukti Selfie sudah terisi semua.',
                 color: 'red'
             });
             return;
         }
 
-        // Eksekusi POST request ke Backend Laravel
+        // Eksekusi POST request ke Backend Laravel (Inertia otomatis handle FormData untuk upload file)
         post(route('borrow.store'), {
             preserveScroll: true,
             onSuccess: () => {
@@ -409,6 +410,27 @@ export default function Create({ auth, items }) {
                                         <label className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Tujuan Keperluan <span className="text-red-500">*</span></label>
                                         <textarea rows="3" required value={data.purpose} onChange={(e) => setData('purpose', e.target.value)} className={`w-full bg-white border ${errors.purpose ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'} text-gray-900 rounded-xl px-4 py-3 text-sm font-medium outline-none resize-none focus:ring-2 focus:ring-[#21409A]/20 focus:border-[#21409A] transition-all`} placeholder="Jelaskan secara singkat untuk keperluan apa APD ini dipinjam..."></textarea>
                                     </div>
+
+                                    <div className="md:col-span-2 mt-2">
+                                        <label className="block text-[11px] md:text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">
+                                            Foto Wajah (Bukti Peminjaman) <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                capture="user"
+                                                onChange={e => setData('photo_proof', e.target.files[0])}
+                                                className={`block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#00A651] file:text-white hover:file:bg-green-700 cursor-pointer border ${errors.photo_proof ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200'} rounded-xl bg-white p-1.5 transition-all`}
+                                                required
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 mt-1.5 font-medium leading-relaxed">
+                                            *Wajib melampirkan foto selfie langsung dari kamera sebagai bukti identitas dan niat peminjaman.
+                                        </p>
+                                        {errors.photo_proof && <p className="text-red-500 text-[10px] mt-1">{errors.photo_proof}</p>}
+                                    </div>
+
                                 </div>
                             </div>
 
