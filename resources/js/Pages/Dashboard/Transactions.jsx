@@ -276,6 +276,34 @@ export default function Transactions({ auth, transactions }) {
                                 <p className="text-xs font-medium text-gray-700">{selectedTrx.purpose || 'Tidak ada catatan keperluan.'}</p>
                             </div>
 
+                            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-4">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Bukti Selfie Peminjam</p>
+                                {selectedTrx.photo_proof ? (
+                                    <a
+                                        href={`/storage/${selectedTrx.photo_proof}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="relative group block w-32 h-32 rounded-xl border border-gray-200 overflow-hidden hover:border-[#21409A] transition-all"
+                                    >
+                                        <img
+                                            src={`/storage/${selectedTrx.photo_proof}`}
+                                            alt="Bukti Selfie"
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        />
+                                        {/* Overlay Icon Zoom */}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                ) : (
+                                    <div className="flex items-center justify-center w-full sm:w-32 h-32 rounded-xl bg-gray-50 border border-dashed border-gray-300 text-gray-400 text-[10px] text-center p-4">
+                                        Foto tidak dilampirkan
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Input Form: Catatan Admin */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm focus-within:border-[#21409A] transition-colors">
                                 <label className="text-[9px] font-bold text-[#21409A] uppercase tracking-widest mb-2 block">📝 Catatan Admin (Opsional)</label>
