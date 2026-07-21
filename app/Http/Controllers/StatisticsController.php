@@ -47,7 +47,14 @@ class StatisticsController extends Controller
 
         $deptDataRaw = [];
         foreach ($departments as $dbName => $shortName) {
-            $deptDataRaw[$dbName] = ['name' => $shortName, 'selesai' => 0, 'ditolak' => 0];
+            $deptDataRaw[$dbName] = [
+                'name' => $shortName, 
+                'dipinjam' => 0,
+                'menunggu' => 0,
+                'selesai' => 0, 
+                'ditolak' => 0,
+                'terlambat' => 0
+            ];
         }
 
         $deptStats = DB::table('transactions')
@@ -58,12 +65,12 @@ class StatisticsController extends Controller
 
         foreach ($deptStats as $stat) {
             $dept = $stat->department;
+            
             if (isset($deptDataRaw[$dept])) {
                 $statusTrx = strtolower($stat->status);
-                if (in_array($statusTrx, ['selesai', 'approved', 'dikembalikan'])) {
-                    $deptDataRaw[$dept]['selesai'] += $stat->total;
-                } elseif (in_array($statusTrx, ['ditolak', 'rejected'])) {
-                    $deptDataRaw[$dept]['ditolak'] += $stat->total;
+
+                if (array_key_exists($statusTrx, $deptDataRaw[$dept])) {
+                     $deptDataRaw[$dept][$statusTrx] += $stat->total;
                 }
             }
         }
