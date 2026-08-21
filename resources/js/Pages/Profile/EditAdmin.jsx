@@ -70,7 +70,11 @@ export default function EditAdmin({ auth }) {
                 {/* UI Feedback: Error Alert */}
                 {Object.keys(profileForm.errors).length > 0 && (
                     <div className="mb-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold shadow-sm">
-                        Hampir saja! Ada beberapa kesalahan input, silakan cek form di bawah.
+                        <ul className="mt-2 list-disc list-inside font-medium text-xs">
+                            {Object.values(profileForm.errors).map((error, index) => (
+                                <li key={index}>{error}</li>
+                            ))}
+                        </ul>
                     </div>
                 )}
 

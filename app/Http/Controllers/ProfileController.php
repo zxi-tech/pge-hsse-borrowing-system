@@ -42,26 +42,28 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Validasi payload input
         $validated = $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
-            'nip'   => ['required', 'string', 'max:50'],
-            'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
-            'phone' => ['required', 'string', 'max:20'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-            'about' => ['nullable', 'string'],
+            'name'       => ['required', 'string', 'max:255'],
+            'nip'        => ['nullable', 'string', 'max:50'],
+            'email'      => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
+            'phone'      => ['nullable', 'string', 'max:20'], 
+            'department' => ['nullable', 'string', 'max:255'],
+            'photo'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'about'      => ['nullable', 'string'],
         ]);
 
         $newEmail = $validated['email'];
-        $newPhone = $validated['phone'];
+        
+        $newPhone = $request->filled('phone') ? $validated['phone'] : $user->phone;
 
         $emailChanged = $newEmail !== $user->email;
-        $phoneChanged = $newPhone !== $user->phone;
+        $phoneChanged = $request->filled('phone') && $newPhone !== $user->phone;
 
-        // Eksekusi update untuk non-sensitive credentials (langsung di-commit ke DB)
+        // Eksekusi update untuk non-sensitive credentials
         $user->name  = $validated['name'];
-        $user->nip   = $validated['nip'];
-        $user->about = $validated['about'];
+        if (isset($validated['nip'])) $user->nip = $validated['nip'];
+        if (isset($validated['department'])) $user->department = $validated['department'];
+        if (isset($validated['about'])) $user->about = $validated['about'];
 
         // Storage cleanup: Hapus foto lama sebelum attach file baru
         if ($request->hasFile('photo')) {
@@ -73,10 +75,7 @@ class ProfileController extends Controller
         
         $user->save();
 
-        // =========================================================
         // SECURITY INTERCEPTOR
-        // Tahan request jika ada mutasi pada Email atau WhatsApp.
-        // =========================================================
         if ($emailChanged || $phoneChanged) {
 
             if ($emailChanged) {
@@ -93,11 +92,9 @@ class ProfileController extends Controller
                 Log::info("SECURITY SPB-HSSE: OTP Ganti WhatsApp [{$newPhone}] : {$phoneOtp}");
             }
 
-            // Interrupt flow normal, paksa redirect dengan state 'otp-sent' untuk memunculkan verification gate
             return Redirect::route('profile.edit')->with('status', 'otp-sent');
         }
 
-        // Jalur normal jika tidak ada kredensial sensitif yang diubah
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

@@ -45,6 +45,16 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
 
     const deptData = deptDataBackend || [];
 
+    // Helper untuk menentukan warna badge secara dinamis di React agar terdeteksi oleh Tailwind
+    const getBadgeStyle = (status) => {
+        const s = status?.toLowerCase() || '';
+        if (s === 'selesai' || s === 'dikembalikan') return 'bg-green-50 text-green-600';
+        if (s === 'ditolak') return 'bg-red-50 text-red-600';
+        if (s === 'menunggu') return 'bg-yellow-50 text-yellow-600';
+        if (s === 'terlambat') return 'bg-orange-50 text-orange-600';
+        return 'bg-blue-50 text-blue-600'; // Default untuk 'dipinjam'
+    };
+
     // Chart.js Configuration: Doughnut Chart Data Mapping
     const doughnutChartData = useMemo(() => {
         if (selectedItem === 'all' && globalChart) {
@@ -264,17 +274,20 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                     <div className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                         <div className="mb-4">
                             <h3 className="text-sm font-bold text-gray-800">Peminjaman per Departemen</h3>
-                            <p className="text-[10px] text-gray-400">Total Selesai vs Ditolak</p>
+                            <p className="text-[10px] text-gray-400">Total Status Peminjaman</p>
                         </div>
                         <div className="h-[220px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={deptData} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F3F4F6" />
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
-                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} width={80} />
                                     <RechartsTooltip cursor={{ fill: '#F9FAFB' }} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                                    <Bar dataKey="selesai" name="Selesai" fill="#00A651" radius={[0, 4, 4, 0]} barSize={10} />
-                                    <Bar dataKey="ditolak" name="Ditolak" fill="#EF4444" radius={[0, 4, 4, 0]} barSize={10} />
+                                    <Bar dataKey="menunggu" name="Menunggu" fill="#FBBF24" stackId="a" barSize={15} />
+                                    <Bar dataKey="dipinjam" name="Dipinjam" fill="#21409A" stackId="a" barSize={15} />
+                                    <Bar dataKey="selesai" name="Selesai" fill="#00A651" stackId="a" barSize={15} />
+                                    <Bar dataKey="ditolak" name="Ditolak" fill="#EF4444" stackId="a" barSize={15} />
+                                    <Bar dataKey="terlambat" name="Terlambat" fill="#EA580C" stackId="a" barSize={15} radius={[0, 4, 4, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -360,7 +373,8 @@ export default function Statistics({ auth, totalPeminjaman, miniLineData, totalM
                                     <tr key={idx} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
                                         <td className="py-3 font-bold text-gray-800">{row.name}</td>
                                         <td className="py-3 text-center">
-                                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${row.badge}`}>
+                                            {/* PERUBAHAN: Memanggil getBadgeStyle() */}
+                                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${getBadgeStyle(row.status)}`}>
                                                 {row.status}
                                             </span>
                                         </td>

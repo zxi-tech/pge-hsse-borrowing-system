@@ -131,7 +131,7 @@ class StatisticsController extends Controller
         $latestActivities = $latestActivitiesQuery->map(function($trx) {
             $statusStr = strtolower($trx->status);
             
-            if ($statusStr === 'selesai') {
+            if ($statusStr === 'selesai' || $statusStr === 'dikembalikan') {
                 $badge = 'bg-green-50 text-green-600';
             } elseif ($statusStr === 'ditolak') {
                 $badge = 'bg-red-50 text-red-600';
