@@ -49,7 +49,7 @@ class BorrowController extends Controller
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
                     'notes' => $trx->notes,
-                    'photo_proof' => $trx->photo_proof, // 👈 Ditambahkan agar frontend bisa membaca path foto
+                    'photo_proof' => $trx->photo_proof,
                     'created_at' => $trx->created_at,
                 ];
             });
@@ -112,6 +112,22 @@ class BorrowController extends Controller
             }
 
             DB::commit();
+
+            try {
+                $admins = \App\Models\User::where('role', 'admin')->whereNotNull('phone')->get();
+                foreach ($admins as $admin) {
+                    $pesanAdmin = "*[SIAP-APD] PENGAJUAN BARU*\n\n"
+                                . "Halo Admin, ada pengajuan peminjaman APD baru yang perlu dicek.\n\n"
+                                . "👤 *Pekerja:* " . $request->user()->name . "\n"
+                                . "📋 *Tujuan:* " . $request->purpose . "\n\n"
+                                . "Yuk, cek dan proses pengajuannya melalui dashboard:\n"
+                                . url('/dashboard');
+
+                    \App\Services\WhatsAppService::send($admin->phone, $pesanAdmin);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Notifikasi Admin Gagal: ' . $e->getMessage());
+            }
             return redirect()->route('borrow.status')->with('success', 'Pengajuan berhasil dikirim! Menunggu persetujuan Admin.');
             
         } catch (\Exception $e) {

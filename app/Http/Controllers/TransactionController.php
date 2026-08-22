@@ -63,7 +63,7 @@ class TransactionController extends Controller
 
         try {
             // Eager load details dan itemSize karena akan ada eksekusi mutasi stok
-            $transaction = Transaction::with('details.itemSize')->findOrFail($id);
+            $transaction = Transaction::with(['details.itemSize', 'user'])->findOrFail($id);
 
             // State Transition: Menunggu -> Dipinjam (Stok fisik sudah terpotong di BorrowController)
             if ($validated['action'] === 'approve') {
@@ -71,7 +71,16 @@ class TransactionController extends Controller
                     'status' => 'dipinjam',
                     'notes' => $validated['notes']
                 ]);
-            
+
+            if ($transaction->user && $transaction->user->phone) {
+                    $pesanUser = "*[SIAP-APD] PENGAJUAN DISETUJUI*\n\n"
+                               . "Halo {$transaction->user->name}, pengajuan peminjaman APD kamu sudah *disetujui* oleh Admin HSSE.\n\n"
+                               . "Catatan Admin: " . ($validated['notes'] ?? '-') . "\n\n"
+                               . "APD sudah bisa diambil di gudang HSSE. Jangan lupa dibawa saat pengambilan ya.\n\n"
+                               . "Terima kasih.";
+                    
+                    \App\Services\WhatsAppService::send($transaction->user->phone, $pesanUser);
+                }
             // State Transition: Menunggu -> Ditolak (Stock Reversal)
             } elseif ($validated['action'] === 'reject') {
                 $transaction->update([
@@ -133,7 +142,7 @@ class TransactionController extends Controller
                     'dates' => Carbon::parse($trx->start_date)->format('d M') . ' - ' . Carbon::parse($trx->end_date)->format('d M Y'),
                     'status' => $trx->status,
                     'purpose' => $trx->purpose,
-                    'photo_proof' => $trx->photo_proof, // 👈 TAMBAHKAN INI JUGA DI SINI
+                    'photo_proof' => $trx->photo_proof,
                     'notes' => $trx->notes, 
                 ];
             });

@@ -24,7 +24,6 @@ export default function Welcome({ auth }) {
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
-
     const apdKatalog = [
         {
             id: 1,
@@ -123,6 +122,7 @@ export default function Welcome({ auth }) {
                         <img
                             src="/images/pertamina-logo (1).png"
                             alt="Pertamina Geothermal Energy"
+                            fetchpriority="high"
                             className="h-8 md:h-10 lg:h-12 object-contain transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-110"
                             onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x50?text=Logo+PGE"; }}
                         />
@@ -237,6 +237,8 @@ export default function Welcome({ auth }) {
                         <img
                             src="/images/hero-worker3.png"
                             alt="Pekerja HSSE Pertamina"
+                            fetchpriority="high"
+                            loading="eager"
                             className="w-[160%] sm:w-[120%] max-w-[850px] sm:max-w-[700px] lg:w-[950px] xl:w-[1050px] lg:max-w-none h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] translate-x-[-60px] translate-y-[-80px] lg:translate-x-[10px] lg:translate-y-[-80px] origin-bottom"
                         />
                     </div>
@@ -318,6 +320,27 @@ export default function Welcome({ auth }) {
                     </div>
                 </section>
             </div>
+
+            {/* Komponen: Footer Sistem */}
+            <footer className="mt-auto shrink-0 bg-[#F4F5FA]">
+                <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-6 md:py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium gap-4 md:gap-0">
+
+                    {/* Hak Cipta */}
+                    <div className="text-center md:text-left leading-relaxed">
+                        © 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.
+                    </div>
+
+                    {/* Pemisah Visual Khusus Seluler */}
+                    <div className="w-16 h-[2px] bg-gray-200 rounded-full md:hidden"></div>
+                </div>
+
+                {/* Elemen Visual Identitas Perusahaan */}
+                <div className="h-1.5 flex w-full">
+                    <div className="bg-[#21409A] flex-1"></div>
+                    <div className="bg-[#ED1C24] flex-1"></div>
+                    <div className="bg-[#FBBF24] flex-1"></div>
+                </div>
+            </footer>
         </>
     );
 }

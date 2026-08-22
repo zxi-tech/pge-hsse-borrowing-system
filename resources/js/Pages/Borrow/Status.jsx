@@ -551,6 +551,26 @@ export default function Status({ auth, transactions }) {
                     </div>
                 </main>
             </div>
+            {/* Komponen: Footer Sistem */}
+            <footer className="mt-auto shrink-0 bg-[#F4F5FA]">
+                <div className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 py-6 md:py-4 flex flex-col md:flex-row justify-between items-center text-[13px] text-gray-500 font-medium gap-4 md:gap-0">
+
+                    {/* Hak Cipta */}
+                    <div className="text-center md:text-left leading-relaxed">
+                        © 2026, Sistem Peminjaman HSSE - PT Pertamina Geothermal Energy Tbk.
+                    </div>
+
+                    {/* Pemisah Visual Khusus Seluler */}
+                    <div className="w-16 h-[2px] bg-gray-200 rounded-full md:hidden"></div>
+                </div>
+
+                {/* Elemen Visual Identitas Perusahaan */}
+                <div className="h-1.5 flex w-full">
+                    <div className="bg-[#21409A] flex-1"></div>
+                    <div className="bg-[#ED1C24] flex-1"></div>
+                    <div className="bg-[#FBBF24] flex-1"></div>
+                </div>
+            </footer>
         </>
     );
 }
