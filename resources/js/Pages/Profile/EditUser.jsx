@@ -191,10 +191,7 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         )}
 
                         {/* Tombol Toggle Menu Seluler */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
-                        >
+                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMobileMenuOpen ? (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -205,27 +202,231 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         </button>
                     </div>
 
-                    {/* Konten Menu Panel Seluler */}
+                    {/* DROPDOWN MOBILE */}
                     {isMobileMenuOpen && (
-                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-40 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                            <Link href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
-                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
-                            </Link>
-                            <Link href={user ? route('borrow.create') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
-                                Ajukan Peminjaman
-                            </Link>
-                            <Link href={user ? route('borrow.status') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
-                                Status
-                            </Link>
-                            <Link href={user ? route('contact') : route('login')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] pb-2">
-                                Contact Us
-                            </Link>
+                        <div className="absolute top-[80px] left-0 w-full bg-white/95 backdrop-blur-2xl shadow-[0_24px_50px_-20px_rgba(0,0,0,0.18)] border-b border-gray-100/80 z-40 lg:hidden flex flex-col px-4 pt-4 pb-5 animate-in fade-in slide-in-from-top-4 duration-300 rounded-b-[1.75rem]">
+
+                            {/* Header */}
+                            <div className="px-2 pb-3">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                    Menu
+                                </p>
+                            </div>
+
+                            {/* Menu List */}
+                            <div className="flex flex-col gap-1.5">
+
+                                {/* Dashboard / Beranda */}
+                                <Link
+                                    href={user ? (user.role === 'admin' ? route('dashboard') : '/') : route('login')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl bg-[#21409A]/[0.06] hover:bg-[#21409A]/[0.10] active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-white border border-[#21409A]/10 shadow-sm flex items-center justify-center text-[#21409A] transition-all duration-200 group-hover:scale-105 group-hover:shadow-md">
+                                            <svg
+                                                className="w-[21px] h-[21px]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="1.8"
+                                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-bold text-[#21409A] leading-tight">
+                                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                                            </span>
+
+                                            <span className="text-[11px] text-[#21409A]/50 mt-0.5">
+                                                Lihat informasi utama
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-[#21409A] group-hover:bg-white transition-colors">
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M9 5l7 7-7 7"
+                                            />
+                                        </svg>
+                                    </div>
+                                </Link>
+
+
+                                {/* Ajukan Peminjaman */}
+                                <Link
+                                    href={user ? route('borrow.create') : route('login')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-[#00A651]/10 group-hover:border-[#00A651]/15 group-hover:text-[#00A651] transition-all duration-200">
+                                            <svg
+                                                className="w-[21px] h-[21px]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="1.8"
+                                                    d="M12 4v16m8-8H4"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-[#00A651] transition-colors">
+                                                Pinjam APD
+                                            </span>
+
+                                            <span className="text-[11px] text-gray-400 mt-0.5">
+                                                Ajukan APD yang kamu butuhkan
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <svg
+                                        className="w-4 h-4 text-gray-300 group-hover:text-[#00A651] group-hover:translate-x-0.5 transition-all duration-200"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </Link>
+
+
+                                {/* Status Peminjaman */}
+                                <Link
+                                    href={user ? route('borrow.status') : route('login')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-orange-50 group-hover:border-orange-100 group-hover:text-orange-500 transition-all duration-200">
+                                            <svg
+                                                className="w-[21px] h-[21px]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="1.8"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-orange-500 transition-colors">
+                                                Cek Peminjaman
+                                            </span>
+
+                                            <span className="text-[11px] text-gray-400 mt-0.5">
+                                                Lihat status peminjamanmu
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <svg
+                                        className="w-4 h-4 text-gray-300 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all duration-200"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </Link>
+
+                                {/* Hubungi Kami */}
+                                <Link
+                                    href={user ? route('contact') : route('login')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-gray-900 group-hover:border-gray-900 group-hover:text-white transition-all duration-200">
+                                            <svg
+                                                className="w-[21px] h-[21px]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="1.8"
+                                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
+                                                Butuh Bantuan?
+                                            </span>
+
+                                            <span className="text-[11px] text-gray-400 mt-0.5">
+                                                Kami siap membantu
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <svg
+                                        className="w-4 h-4 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all duration-200"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </Link>
+
+                            </div>
+
                         </div>
                     )}
                 </nav>
 
-                {/* Komponen: Konten Utama Halaman */}
-                <main className="flex-grow max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-10">
+                <main className="max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-20 mt-10">
 
                     {recentlySuccessful && (
                         <div className="mb-8 p-4 rounded-2xl bg-green-50 border border-green-200 text-[#00A651] text-sm font-bold flex items-center gap-3 shadow-sm animate-in fade-in slide-in-from-top-4">
@@ -420,22 +621,6 @@ export default function EditUser({ auth, status, mustVerifyEmail, stats }) {
                         {/* Pemisah Visual Khusus Seluler */}
                         <div className="w-16 h-[2px] bg-gray-200 rounded-full md:hidden"></div>
 
-                        {/* Atribusi Pengembang */}
-                        <div className="flex items-center justify-center space-x-2">
-                            <span>Developed by</span>
-                            <a
-                                href="https://github.com/zxi-tech"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 text-[#21409A] hover:text-[#1a3380] font-bold transition-colors group"
-                                title="Lihat Portofolio GitHub"
-                            >
-                                <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 100 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path>
-                                </svg>
-                                Timothy (@zxi-tech)
-                            </a>
-                        </div>
                     </div>
 
                     {/* Elemen Visual Identitas Perusahaan */}

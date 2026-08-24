@@ -230,7 +230,7 @@ export default function Status({ auth, transactions }) {
                         {/* Hamburger Button (Mobile Only) */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                            className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none z-50 relative"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMobileMenuOpen ? (
@@ -242,21 +242,101 @@ export default function Status({ auth, transactions }) {
                         </button>
                     </div>
 
-                    {/* Mobile Full Screen Menu Panel */}
+                    {/* DROPDOWN MOBILE */}
                     {isMobileMenuOpen && (
-                        <div className="absolute top-[80px] left-0 w-full bg-white shadow-lg border-b border-gray-100 z-50 lg:hidden flex flex-col px-6 py-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                            <Link href={user?.role === 'admin' ? route('dashboard') : '/'} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
-                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
-                            </Link>
-                            <Link href={route('borrow.create')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] border-b border-gray-50 pb-2">
-                                Ajukan Peminjaman
-                            </Link>
-                            <Link href={route('borrow.status')} className="text-[15px] font-bold text-[#21409A] border-b border-gray-50 pb-2">
-                                Status
-                            </Link>
-                            <Link href={route('contact')} className="text-[15px] font-medium text-gray-600 hover:text-[#21409A] pb-2">
-                                Contact Us
-                            </Link>
+                        <div className="absolute top-[80px] left-0 w-full bg-white/95 backdrop-blur-2xl shadow-[0_24px_50px_-20px_rgba(0,0,0,0.18)] border-b border-gray-100/80 z-40 lg:hidden flex flex-col px-4 pt-4 pb-5 animate-in fade-in slide-in-from-top-4 duration-300 rounded-b-[1.75rem]">
+
+                            {/* Header */}
+                            <div className="px-2 pb-3">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                                    Menu
+                                </p>
+                            </div>
+
+                            {/* Menu List */}
+                            <div className="flex flex-col gap-1.5">
+
+                                {/* Dashboard / Beranda */}
+                                <Link
+                                    href={user?.role === 'admin' ? route('dashboard') : '/'}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-[#21409A]/10 group-hover:border-[#21409A]/15 group-hover:text-[#21409A] transition-all duration-200">
+                                            <svg className="w-[21px] h-[21px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-[#21409A] transition-colors">
+                                                {user?.role === 'admin' ? 'Dashboard' : 'Beranda'}
+                                            </span>
+                                            <span className="text-[11px] text-gray-400 mt-0.5">Lihat informasi utama</span>
+                                        </div>
+                                    </div>
+                                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#21409A] group-hover:translate-x-0.5 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                </Link>
+
+                                {/* Ajukan Peminjaman */}
+                                <Link
+                                    href={route('borrow.create')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-[#00A651]/10 group-hover:border-[#00A651]/15 group-hover:text-[#00A651] transition-all duration-200">
+                                            <svg className="w-[21px] h-[21px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-[#00A651] transition-colors">Pinjam APD</span>
+                                            <span className="text-[11px] text-gray-400 mt-0.5">Ajukan APD yang kamu butuhkan</span>
+                                        </div>
+                                    </div>
+                                    <svg className="w-4 h-4 text-gray-300 group-hover:text-[#00A651] group-hover:translate-x-0.5 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                </Link>
+
+                                {/* Status Peminjaman (ACTIVE STATE) */}
+                                <Link
+                                    href={route('borrow.status')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl bg-orange-50 hover:bg-orange-100 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-white border border-orange-200 shadow-sm flex items-center justify-center text-orange-500 transition-all duration-200 group-hover:scale-105 group-hover:shadow-md">
+                                            <svg className="w-[21px] h-[21px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-bold text-orange-600 leading-tight">Cek Peminjaman</span>
+                                            <span className="text-[11px] text-orange-500/70 mt-0.5">Lihat status peminjamanmu</span>
+                                        </div>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-orange-500 group-hover:bg-white transition-colors">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                    </div>
+                                </Link>
+
+                                {/* Hubungi Kami */}
+                                <Link
+                                    href={route('contact')}
+                                    className="group flex items-center justify-between px-3.5 py-3 rounded-2xl hover:bg-gray-50 active:scale-[0.985] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-11 h-11 shrink-0 rounded-[14px] bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-gray-900 group-hover:border-gray-900 group-hover:text-white transition-all duration-200">
+                                            <svg className="w-[21px] h-[21px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[14px] font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">Butuh Bantuan?</span>
+                                            <span className="text-[11px] text-gray-400 mt-0.5">Kami siap membantu</span>
+                                        </div>
+                                    </div>
+                                    <svg className="w-4 h-4 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                </Link>
+
+                            </div>
                         </div>
                     )}
                 </nav>
