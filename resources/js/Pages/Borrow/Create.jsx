@@ -265,11 +265,11 @@ export default function Create({ auth, items }) {
                     </div>
 
                     {/* Profil User & Hamburger Button */}
-                    <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4">
+                    <div className="flex items-center justify-end w-auto lg:w-1/4 shrink-0 gap-3 md:gap-4 min-w-0">
                         {user ? (
-                            <div className="relative shrink-0" ref={profileMenuRef}>
+                            <div className="relative shrink-0 min-w-0" ref={profileMenuRef}>
                                 <div onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={`flex items-center space-x-2 md:space-x-3 cursor-pointer p-1.5 rounded-xl transition-all duration-200 border ${isProfileMenuOpen ? 'bg-white border-gray-200 shadow-sm' : 'border-transparent hover:bg-white/60 hover:border-gray-200'}`}>
-                                    <div className="relative">
+                                    <div className="relative shrink-0">
                                         <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#00A651] flex items-center justify-center text-white font-bold text-xs md:text-sm border-2 border-white shadow-sm overflow-hidden">
                                             {user?.photo ? (
                                                 <img src={`/storage/${user.photo}`} alt={user?.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
@@ -278,28 +278,44 @@ export default function Create({ auth, items }) {
                                         </div>
                                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 border-2 border-white rounded-full"></span>
                                     </div>
-                                    <div className="hidden md:flex flex-col text-left">
-                                        <span className="text-[14px] font-bold text-gray-800 leading-tight">{user?.name || 'HSSE'}</span>
-                                        <span className="text-[11px] text-[#21409A] font-semibold capitalize leading-tight">{user?.department || 'Departemen'}</span>
+                                    <div className="hidden md:flex flex-col text-left min-w-0">
+                                        {/* Perbaikan Truncate pada Nama Navbar */}
+                                        <span
+                                            className="text-[14px] font-bold text-gray-800 leading-tight truncate max-w-[120px] xl:max-w-[150px]"
+                                            title={user?.name || 'HSSE'}
+                                        >
+                                            {user?.name || 'HSSE'}
+                                        </span>
+                                        <span
+                                            className="text-[11px] text-[#21409A] font-semibold capitalize leading-tight truncate max-w-[120px] xl:max-w-[150px]"
+                                            title={user?.department || 'Departemen'}
+                                        >
+                                            {user?.department || 'Departemen'}
+                                        </span>
                                     </div>
-                                    <svg className={`w-4 h-4 text-gray-500 ml-1 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <svg className={`w-4 h-4 text-gray-500 ml-1 shrink-0 transition-transform duration-200 hidden md:block ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
 
-                                {/* Dropdown Profil */}
                                 {isProfileMenuOpen && (
                                     <div className="absolute right-0 mt-3 w-56 md:w-60 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
-                                        <div className="px-4 py-3 border-b border-gray-50">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Masuk sebagai</p>
-                                            <p className="text-sm font-bold text-gray-900 truncate">{user?.email || 'user@pertamina.com'}</p>
+                                        <div className="px-4 py-3 border-b border-gray-50 flex flex-col min-w-0">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 shrink-0">Masuk sebagai</p>
+                                            {/* Perbaikan Truncate pada Email Dropdown */}
+                                            <p
+                                                className="text-sm font-bold text-gray-900 truncate w-full"
+                                                title={user?.email}
+                                            >
+                                                {user?.email}
+                                            </p>
                                         </div>
                                         <div className="py-2">
-                                            <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A] transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Edit Profil</Link>
+                                            <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A] transition-colors"><svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Edit Profil</Link>
                                             {user?.role === 'admin' && (
-                                                <Link href={route('dashboard')} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A] transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg> Dashboard Admin</Link>
+                                                <Link href={route('dashboard')} className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-[#21409A] transition-colors"><svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg> Dashboard Admin</Link>
                                             )}
                                         </div>
                                         <div className="border-t border-gray-50 pt-1 mt-1">
-                                            <Link href={route('logout')} method="post" as="button" className="flex items-center w-full gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg> Keluar</Link>
+                                            <Link href={route('logout')} method="post" as="button" className="flex items-center w-full gap-3 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"><svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg> Keluar</Link>
                                         </div>
                                     </div>
                                 )}
@@ -310,14 +326,9 @@ export default function Create({ auth, items }) {
                                 <span className="relative group-hover:text-white transition-colors duration-300">Login</span>
                             </Link>
                         )}
-
-                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
+                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 ml-1 text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none shrink-0">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {isMobileMenuOpen ? (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                ) : (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                                )}
+                                {isMobileMenuOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />}
                             </svg>
                         </button>
                     </div>

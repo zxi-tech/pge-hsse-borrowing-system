@@ -152,60 +152,80 @@ export default function Transactions({ auth, transactions }) {
 
                     {/* Container Tabel Render */}
                     <div className="overflow-x-auto custom-scrollbar min-h-[400px]">
-                        <table className="w-full text-left whitespace-nowrap table-fixed">
+                        <table className="w-full text-left whitespace-nowrap table-fixed min-w-[900px]">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-white text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">
-                                    <th className="px-6 py-5">ID Transaksi</th>
-                                    <th className="px-6 py-5">Peminjam</th>
-                                    <th className="px-6 py-5">Item Diajukan</th>
-                                    <th className="px-6 py-5">Durasi</th>
-                                    <th className="px-6 py-5 text-center">Status</th>
-                                    <th className="px-6 py-5 text-center">Aksi</th>
+                                    {/* Pembagian rasio lebar kolom secara spesifik */}
+                                    <th className="px-6 py-5 w-[15%]">ID Transaksi</th>
+                                    <th className="px-6 py-5 w-[25%]">Peminjam</th>
+                                    <th className="px-6 py-5 w-[25%]">Item Diajukan</th>
+                                    <th className="px-6 py-5 w-[20%]">Durasi</th>
+                                    <th className="px-6 py-5 text-center w-[10%]">Status</th>
+                                    <th className="px-6 py-5 text-center w-[5%]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {filteredTransactions.length > 0 ? filteredTransactions.map((trx, index) => (
                                     <tr key={index} className="hover:bg-[#F4F5FA] transition-colors duration-200 group cursor-pointer" onClick={() => openModal(trx)}>
+
                                         <td className="px-6 py-4">
-                                            {/* ID Formatted dari Backend */}
                                             <span className="bg-gray-100 text-gray-500 font-bold px-3 py-1.5 rounded-lg text-xs font-mono border border-gray-200 group-hover:border-[#00A651]/30 group-hover:text-[#00A651] transition-colors duration-300">
                                                 {trx.id}
                                             </span>
                                         </td>
+
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 border border-gray-200 flex items-center justify-center font-bold text-xs shrink-0 group-hover:from-[#00A651]/10 group-hover:to-[#00A651]/20 group-hover:text-[#00A651] transition-all duration-300">{getInitials(trx.name)}</div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-gray-800">{trx.name}</span>
-                                                    <span className="text-[11px] text-gray-400 font-medium font-mono tracking-wide">NIP: {trx.nip}</span>
+                                            {/* Tambahkan w-full dan min-w-0 di container utama flex */}
+                                            <div className="flex items-center gap-3 w-full min-w-0">
+                                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 border border-gray-200 flex items-center justify-center font-bold text-xs shrink-0 group-hover:from-[#00A651]/10 group-hover:to-[#00A651]/20 group-hover:text-[#00A651] transition-all duration-300">
+                                                    {getInitials(trx.name)}
+                                                </div>
+                                                {/* Tambahkan flex-1 dan min-w-0 agar teks di dalamnya bisa dipotong (truncate) */}
+                                                <div className="flex flex-col flex-1 min-w-0">
+                                                    <span className="text-sm font-bold text-gray-800 truncate block w-full" title={trx.name}>
+                                                        {trx.name}
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-400 font-medium font-mono tracking-wide truncate block w-full">
+                                                        NIP: {trx.nip}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 font-medium">
-                                            <div className="truncate max-w-[200px]">{trx.items}</div>
+
+                                        <td className="px-6 py-4">
+                                            {/* Hapus max-w dan gunakan truncate dengan w-full */}
+                                            <div className="text-sm text-gray-600 font-medium truncate w-full" title={trx.items}>
+                                                {trx.items}
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 font-medium">
+
+                                        <td className="px-6 py-4 text-sm text-gray-600 font-medium truncate">
                                             {trx.dates}
                                         </td>
-                                        <td className="px-6 py-4 text-center">{getStatusBadge(trx.status)}</td>
+
+                                        <td className="px-6 py-4 text-center">
+                                            {getStatusBadge(trx.status)}
+                                        </td>
+
                                         <td className="px-6 py-4 text-center">
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); openModal(trx); }}
-                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-white hover:bg-[#00A651] hover:border-[#00A651] transition-all duration-300 shadow-sm transform hover:scale-110"
+                                                className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-all inline-block"
                                             >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
                                         </td>
+
                                     </tr>
                                 )) : (
-                                    // Fallback UI (Empty State)
                                     <tr>
                                         <td colSpan="6" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center justify-center text-gray-400 animate-in fade-in zoom-in duration-500">
-                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                                                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 border border-gray-100">
+                                                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                 </div>
-                                                <p className="text-sm font-medium">Tidak ada transaksi di kategori ini.</p>
+                                                <h3 className="font-bold text-gray-800 text-[15px] mb-1">Data Tidak Ditemukan</h3>
+                                                <p className="text-[13px] text-gray-500 font-medium">Tidak ada transaksi yang cocok dengan filter atau pencarian Anda.</p>
                                             </div>
                                         </td>
                                     </tr>

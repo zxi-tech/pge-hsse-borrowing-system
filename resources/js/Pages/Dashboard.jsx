@@ -1,10 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-// Injeksi properti dari backend Laravel dengan nilai bawaan fallback
 export default function Dashboard({ auth, stats, recentTransactions, chartData = [] }) {
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const displayRecentTransactions = useMemo(() => {
+        return (recentTransactions || []).map(trx => {
+            let currentStatus = trx.status?.toLowerCase();
+
+            if (currentStatus === 'dipinjam') {
+                let endDate = null;
+
+                // 1. Prioritas membaca properti end_date langsung
+                if (trx.end_date) {
+                    endDate = new Date(trx.end_date);
+                }
+                // 2. Fallback: Ekstraksi dari string rentang waktu
+                else if (trx.dates && trx.dates.includes(' - ')) {
+                    const textTanggalKembali = trx.dates.split(' - ')[1];
+                    endDate = new Date(textTanggalKembali);
+                }
+
+                // 3. Eksekusi komparasi
+                if (endDate && !isNaN(endDate.getTime())) {
+                    endDate.setHours(0, 0, 0, 0);
+
+                    // Override status menjadi 'terlambat' jika hari ini melewati batas pengembalian
+                    if (today > endDate) {
+                        currentStatus = 'terlambat';
+                    }
+                }
+            }
+
+            return {
+                ...trx,
+                status: currentStatus
+            };
+        });
+    }, [recentTransactions]);
 
     // Manajemen State: Kontrol Visibilitas Modal Detail Transaksi
     const [selectedTrx, setSelectedTrx] = useState(null);
@@ -208,8 +245,9 @@ export default function Dashboard({ auth, stats, recentTransactions, chartData =
                             </thead>
                             <tbody className="divide-y divide-gray-100">
 
-                                {recentTransactions && recentTransactions.length > 0 ? (
-                                    recentTransactions.map((trx) => (
+                                {/* Iterasi diganti menggunakan array displayRecentTransactions */}
+                                {displayRecentTransactions && displayRecentTransactions.length > 0 ? (
+                                    displayRecentTransactions.map((trx) => (
                                         <tr
                                             key={trx.id}
                                             onClick={() => openModal(trx)}
